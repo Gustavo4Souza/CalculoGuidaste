@@ -1,0 +1,91 @@
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  text-align: left;
+}
+
+.app-header h1 {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.app-header p {
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.simulador {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 700px) {
+  .simulador {
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.painel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.painel label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.painel label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.painel input[type='number'],
+.painel select {
+  font-size: 15px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.resultado .capacidade {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.resultado--dentro_do_limite {
+  border-color: #0ca30c;
+}
+.resultado--dentro_do_limite .status {
+  color: #0ca30c;
+  font-weight: 600;
+}
+
+.resultado--excede_capacidade {
+  border-color: #d03b3b;
+}
+.resultado--excede_capacidade .status {
+  color: #d03b3b;
+  font-weight: 600;
+}
+
+.resultado--fora_da_faixa {
+  border-color: #fab219;
+}
+.resultado--fora_da_faixa .status {
+  color: #b5790a;
+  font-weight: 600;
+}

@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Guindastes Ribas — Simulador de Tabela de Carga (POC)</title>
+<style>
+  :root{
+    --surface-1:#fcfcfb; --page:#f2f4f7; --ink-1:#0b0b0b; --ink-2:#52514e; --ink-muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,0.10);
+    --brand:#2a78d6; --brand-dark:#184f95; --brand-tint:#eaf2fc;
+    --good:#0ca30c; --good-tint:#e6f6e6;
+    --warning:#b5790a; --warning-tint:#fff4de;
+    --critical:#d03b3b; --critical-tint:#fbe9e9;
+    --steel:#3b4a5a; --steel-dark:#26313d;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page);
+    color: var(--ink-1);
+    min-width: 1180px;
+  }
+  .topbar{
+    background: linear-gradient(180deg, var(--steel-dark), var(--steel));
+    color: #fff; padding: 18px 28px; display:flex; align-items:center; justify-content:space-between;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:12px; }
+  .topbar .brand .logo{
+    width:34px; height:34px; border-radius:8px; background: var(--brand);
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px;
+  }
+  .topbar h1{ font-size:16px; margin:0; font-weight:700; letter-spacing:.2px; }
+  .topbar p{ margin:2px 0 0; font-size:12px; color:#c7d0da; }
+  .poc-badge{
+    background: rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25);
+    color:#fff; font-size:11px; font-weight:700; letter-spacing:.06em; padding:4px 10px; border-radius:999px;
+  }
+
+  .howto{
+    display:flex; gap:22px; align-items:center; padding:10px 28px; background:#fff;
+    border-bottom:1px solid var(--grid); font-size:12.5px; color: var(--ink-2);
+  }
+  .howto b{ color: var(--ink-1); }
+  .howto .step{ display:flex; align-items:center; gap:8px; }
+  .howto .num{
+    width:18px; height:18px; border-radius:50%; background: var(--brand-tint); color:var(--brand-dark);
+    font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .howto .sep{ color: var(--axis); }
+
+  .layout{
+    display:grid; grid-template-columns: 260px 1fr 320px; gap:18px;
+    padding: 18px 24px 28px; align-items:start;
+  }
+
+  .card{
+    background: var(--surface-1); border:1px solid var(--border); border-radius:12px;
+    box-shadow: 0 1px 2px rgba(11,11,11,0.04);
+  }
+  .card-title{
+    font-size:12px; font-weight:700; color: var(--ink-2); text-transform:uppercase; letter-spacing:.06em;
+    padding:14px 16px 8px;
+  }
+
+  /* --- left: crane selection --- */
+  .crane-list{ padding: 4px 12px 14px; display:flex; flex-direction:column; gap:8px; }
+  .crane-card{
+    text-align:left; width:100%; border:1.5px solid var(--grid); background:#fff; border-radius:10px;
+    padding:10px 12px; cursor:pointer; display:flex; gap:10px; align-items:center;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .crane-card:hover{ border-color:#a9c6ea; }
+  .crane-card.active{ border-color: var(--brand); background: var(--brand-tint); }
+  .crane-card .icon{
+    width:36px; height:36px; border-radius:8px; background:var(--steel); color:#fff; flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:15px;
+  }
+  .crane-card.active .icon{ background: var(--brand); }
+  .crane-card .name{ font-size:13px; font-weight:700; color:var(--ink-1); line-height:1.2; }
+  .crane-card .meta{ font-size:11.5px; color:var(--ink-muted); margin-top:2px; }
+
+  .frota-note{ padding: 2px 16px 14px; font-size:11.5px; color:var(--ink-muted); line-height:1.5; }
+
+  /* --- center: diagram --- */
+  .diagram-card{ padding-bottom: 6px; }
+  .diagram-head{ display:flex; align-items:baseline; justify-content:space-between; padding: 14px 18px 0; }
+  .diagram-head h2{ font-size:14px; margin:0; }
+  .diagram-head span{ font-size:12px; color:var(--ink-muted); }
+
+  svg#craneSvg{ width:100%; height:420px; display:block; touch-action:none; }
+  .hook-point{ cursor: grab; }
+  .hook-point:active{ cursor: grabbing; }
+
+  .boom-control{ padding: 4px 22px 16px; }
+  .boom-control .row{ display:flex; align-items:center; gap:12px; }
+  .boom-control label{ font-size:12px; font-weight:700; color:var(--ink-2); width:150px; flex:none; }
+  .boom-control input[type=range]{ flex:1; accent-color: var(--brand); }
+  .boom-control .val{ width:64px; text-align:right; font-size:12.5px; font-variant-numeric: tabular-nums; color:var(--ink-1); font-weight:700; }
+
+  /* --- right: readout --- */
+  .readout{ padding: 4px 16px 16px; display:flex; flex-direction:column; gap:14px; }
+  .field label{ font-size:11.5px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.05em; }
+  .field .value{ font-size:22px; font-weight:800; color:var(--ink-1); font-variant-numeric: tabular-nums; margin-top:2px; }
+  .field .value small{ font-size:13px; font-weight:600; color:var(--ink-muted); }
+
+  .weight-input{ display:flex; align-items:center; gap:8px; margin-top:4px; }
+  .weight-input input{
+    width:100%; font-size:16px; font-weight:700; padding:8px 10px; border-radius:8px;
+    border:1.5px solid var(--grid); font-variant-numeric: tabular-nums;
+  }
+  .weight-input input:focus{ outline:2px solid var(--brand); outline-offset:1px; border-color:var(--brand); }
+  .weight-input span{ font-size:13px; color:var(--ink-muted); font-weight:600; }
+
+  .status-chip{
+    border-radius:10px; padding:12px 14px; display:flex; gap:10px; align-items:flex-start;
+    border:1.5px solid var(--grid);
+  }
+  .status-chip.good{ background:var(--good-tint); border-color:#bfe6bf; }
+  .status-chip.warning{ background:var(--warning-tint); border-color:#f0d494; }
+  .status-chip.critical{ background:var(--critical-tint); border-color:#f0bcbc; }
+  .status-chip svg{ flex:none; margin-top:1px; }
+  .status-chip .title{ font-size:13.5px; font-weight:800; }
+  .status-chip.good .title{ color:#0a6e0a; }
+  .status-chip.warning .title{ color:#8a5c00; }
+  .status-chip.critical .title{ color:#a12727; }
+  .status-chip .sub{ font-size:12px; color:var(--ink-2); margin-top:2px; line-height:1.4; }
+
+  .divider{ height:1px; background:var(--grid); margin: 2px 0; }
+
+  .rf-note{ font-size:11px; color:var(--ink-muted); line-height:1.5; }
+  .rf-note code{ background:#f1f1ee; padding:1px 5px; border-radius:4px; font-size:10.5px; }
+
+  footer{ padding: 4px 28px 26px; font-size:11.5px; color:var(--ink-muted); text-align:center; }
+  footer a{ color: var(--brand-dark); }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">GR</div>
+      <div>
+        <h1>Guindastes Ribas — Simulador de Tabela de Carga</h1>
+        <p>Protótipo conceitual da interface web · dados fictícios</p>
+      </div>
+    </div>
+    <div class="poc-badge">POC — PROTÓTIPO</div>
+  </div>
+
+  <div class="howto">
+    <div class="step"><span class="num">1</span><span><b>Selecione</b> o guindaste da frota</span></div>
+    <span class="sep">→</span>
+    <div class="step"><span class="num">2</span><span><b>Arraste o gancho</b> ou ajuste a lança</span></div>
+    <span class="sep">→</span>
+    <div class="step"><span class="num">3</span><span><b>Leia</b> a capacidade calculada em tempo real</span></div>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT: crane selection (RT-UI01 / RF01 / UC01) -->
+    <div class="card">
+      <div class="card-title">Frota — selecionar guindaste</div>
+      <div class="crane-list" id="craneList"></div>
+      <div class="frota-note">RT-DD02 — a frota suporta múltiplos guindastes cadastrados simultaneamente.</div>
+    </div>
+
+    <!-- CENTER: interactive diagram (RT-UI02 / RF02 / UC02) -->
+    <div class="card diagram-card">
+      <div class="diagram-head">
+        <h2 id="diagramTitle">—</h2>
+        <span>Arraste o gancho para alterar o raio de trabalho</span>
+      </div>
+      <svg id="craneSvg" viewBox="0 0 640 420" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="boom-control">
+        <div class="row">
+          <label for="boomSlider">Comprimento da lança</label>
+          <input type="range" id="boomSlider" step="0.1" />
+          <span class="val" id="boomVal">— m</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: live readout (RF03 / UC03 / RNF Confiabilidade) -->
+    <div class="card">
+      <div class="card-title">Leitura em tempo real</div>
+      <div class="readout">
+
+        <div class="field">
+          <label>Raio de trabalho atual</label>
+          <div class="value" id="raioVal">— <small>m</small></div>
+        </div>
+
+        <div class="field">
+          <label>Capacidade máxima na configuração</label>
+          <div class="value" id="capVal">— <small>kg</small></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field">
+          <label for="pesoInput">Peso da carga a içar</label>
+          <div class="weight-input">
+            <input type="number" id="pesoInput" min="0" step="100" value="8000" />
+            <span>kg</span>
+          </div>
+        </div>
+
+        <div class="status-chip good" id="statusChip">
+          <svg id="statusIcon" width="20" height="20" viewBox="0 0 24 24"></svg>
+          <div>
+            <div class="title" id="statusTitle">—</div>
+            <div class="sub" id="statusSub">—</div>
+          </div>
+        </div>
+
+        <div class="rf-note">
+          Alerta calculado a partir de <code>calcularCapacidadeMaxima()</code> com interpolação bilinear
+          entre lança e raio — ver <code>REQUISITOS_TECNICOS.md</code> (RT-MC01–RT-MC03).
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Protótipo conceitual em HTML/SVG/JS puro, só para validar a interação visual. A versão de desenvolvimento
+    usa React + TypeScript + react-konva, conforme <code>docs/ARQUITETURA.md</code>. Dados de tabela de carga são fictícios.
+  </footer>
+
+<script>
+(function(){
+
+  // ---------------------------------------------------------------
+  // Dados fictícios de frota — mesmo schema de docs/REQUISITOS_TECNICOS.md,
+  // estendido com múltiplos comprimentos de lança por guindaste.
+  // ---------------------------------------------------------------
+  const FROTA = [
+    {
+      id: "GR-25T-01",
+      nome: "Guindaste Ribas 25T",
+      classe: "até 25 t · lança 10–22 m",
+      booms: [
+        { comprimentoLancaM: 10, pontos: [ {raioM:3, capacidadeMaxKg:22000}, {raioM:5, capacidadeMaxKg:14000}, {raioM:7, capacidadeMaxKg:8000}, {raioM:8.5, capacidadeMaxKg:5000} ] },
+        { comprimentoLancaM: 16, pontos: [ {raioM:4, capacidadeMaxKg:15500}, {raioM:7, capacidadeMaxKg:9000}, {raioM:10, capacidadeMaxKg:5500}, {raioM:13.5, capacidadeMaxKg:3000} ] },
+        { comprimentoLancaM: 22, pontos: [ {raioM:6, capacidadeMaxKg:9500}, {raioM:10, capacidadeMaxKg:6000}, {raioM:14, capacidadeMaxKg:3800}, {raioM:18.5, capacidadeMaxKg:2000} ] },
+      ],
+    },
+    {
+      id: "GR-40T-02",
+      nome: "Guindaste Ribas 40T",
+      classe: "até 40 t · lança 12–26 m",
+      booms: [
+        { comprimentoLancaM: 12, pontos: [ {raioM:3, capacidadeMaxKg:40000}, {raioM:6, capacidadeMaxKg:24000}, {raioM:9, capacidadeMaxKg:15000}, {raioM:10.5, capacidadeMaxKg:11000} ] },
+        { comprimentoLancaM: 18, pontos: [ {raioM:4, capacidadeMaxKg:28000}, {raioM:8, capacidadeMaxKg:17000}, {raioM:12, capacidadeMaxKg:10000}, {raioM:15.5, capacidadeMaxKg:6500} ] },
+        { comprimentoLancaM: 26, pontos: [ {raioM:6, capacidadeMaxKg:18000}, {raioM:10, capacidadeMaxKg:11000}, {raioM:15, capacidadeMaxKg:6500}, {raioM:22, capacidadeMaxKg:3200} ] },
+      ],
+    },
+  ];
+
+  // ---------------------------------------------------------------
+  // Motor de cálculo (RT-MC01 / RT-MC02 / RT-MC03) — interpolação
+  // linear dentro de cada lança, bilinear entre lanças vizinhas.
+  // ---------------------------------------------------------------
+  function interpRaio(pontos, raioM){
+    if (raioM <= pontos[0].raioM) {
+      if (raioM < pontos[0].raioM) return { valor: null, foraDaFaixa: true };
+      return { valor: pontos[0].capacidadeMaxKg, foraDaFaixa: false };
+    }
+    const last = pontos[pontos.length - 1];
+    if (raioM >= last.raioM) {
+      if (raioM > last.raioM) return { valor: null, foraDaFaixa: true };
+      return { valor: last.capacidadeMaxKg, foraDaFaixa: false };
+    }
+    for (let i = 0; i < pontos.length - 1; i++) {
+      const a = pontos[i], b = pontos[i+1];
+      if (raioM >= a.raioM && raioM <= b.raioM) {
+        const t = (raioM - a.raioM) / (b.raioM - a.raioM);
+        return { valor: a.capacidadeMaxKg + t * (b.capacidadeMaxKg - a.capacidadeMaxKg), foraDaFaixa: false };
+      }
+    }
+    return { valor: null, foraDaFaixa: true };
+  }
+
+  function calcularCapacidadeMaxima(guindaste, comprimentoLancaM, raioM){
+    const booms = guindaste.booms;
+    let lo = booms[0], hi = booms[booms.length - 1];
+    for (let i = 0; i < booms.length - 1; i++) {
+      if (comprimentoLancaM >= booms[i].comprimentoLancaM && comprimentoLancaM <= booms[i+1].comprimentoLancaM) {
+        lo = booms[i]; hi = booms[i+1]; break;
+      }
+    }
+    if (comprimentoLancaM <= booms[0].comprimentoLancaM) { lo = hi = booms[0]; }
+    if (comprimentoLancaM >= booms[booms.length-1].comprimentoLancaM) { lo = hi = booms[booms.length-1]; }
+
+    const rLo = interpRaio(lo.pontos, raioM);
+    const rHi = interpRaio(hi.pontos, raioM);
+
+    if (lo === hi) return rLo.foraDaFaixa ? { valor: null, foraDaFaixa: true } : { valor: rLo.valor, foraDaFaixa: false };
+    const t = (comprimentoLancaM - lo.comprimentoLancaM) / (hi.comprimentoLancaM - lo.comprimentoLancaM);
+    // Nos extremos do intervalo, o resultado depende só da lança correspondente —
+    // não faz sentido exigir que o raio também exista na tabela da lança vizinha.
+    if (t <= 1e-9) return rLo.foraDaFaixa ? { valor: null, foraDaFaixa: true } : { valor: rLo.valor, foraDaFaixa: false };
+    if (t >= 1 - 1e-9) return rHi.foraDaFaixa ? { valor: null, foraDaFaixa: true } : { valor: rHi.valor, foraDaFaixa: false };
+    return { valor: rLo.valor + t * (rHi.valor - rLo.valor), foraDaFaixa: false };
+  }
+
+  // ---------------------------------------------------------------
+  // Estado da simulação
+  // ---------------------------------------------------------------
+  const state = {
+    guindaste: FROTA[0],
+    comprimentoLancaM: FROTA[0].booms[1].comprimentoLancaM,
+    anguloRad: null, // definido no primeiro render
+  };
+
+  const ANGLE_MIN = 16 * Math.PI / 180;
+  const ANGLE_MAX = 76 * Math.PI / 180;
+  const PIVOT = { x: 108, y: 322 };
+  const GROUND_Y = 322;
+  const SCALE = 15.5; // px por metro
+
+  function boomLimits(g){
+    const cs = g.booms.map(b => b.comprimentoLancaM);
+    return { min: Math.min(...cs), max: Math.max(...cs) };
+  }
+
+  function raioAtual(){
+    return state.comprimentoLancaM * Math.cos(state.anguloRad);
+  }
+
+  // ---------------------------------------------------------------
+  // Render: lista de guindastes
+  // ---------------------------------------------------------------
+  const craneListEl = document.getElementById("craneList");
+  function renderCraneList(){
+    craneListEl.innerHTML = "";
+    FROTA.forEach(g => {
+      const btn = document.createElement("button");
+      btn.className = "crane-card" + (g.id === state.guindaste.id ? " active" : "");
+      btn.innerHTML = `
+        <div class="icon">🏗️</div>
+        <div>
+          <div class="name">${g.nome}</div>
+          <div class="meta">${g.classe}</div>
+        </div>`;
+      btn.addEventListener("click", () => selectCrane(g));
+      craneListEl.appendChild(btn);
+    });
+  }
+
+  function selectCrane(g){
+    state.guindaste = g;
+    const mid = g.booms[Math.floor(g.booms.length / 2)];
+    state.comprimentoLancaM = mid.comprimentoLancaM;
+    const midPoint = mid.pontos[Math.floor(mid.pontos.length / 2)];
+    state.anguloRad = clampAngle(Math.acos(Math.min(1, midPoint.raioM / state.comprimentoLancaM)));
+    setupBoomSlider();
+    renderCraneList();
+    document.getElementById("diagramTitle").textContent = g.nome;
+    renderAll();
+  }
+
+  function clampAngle(a){
+    return Math.max(ANGLE_MIN, Math.min(ANGLE_MAX, a));
+  }
+
+  // ---------------------------------------------------------------
+  // Slider de comprimento de lança
+  // ---------------------------------------------------------------
+  const boomSlider = document.getElementById("boomSlider");
+  const boomVal = document.getElementById("boomVal");
+  function setupBoomSlider(){
+    const lim = boomLimits(state.guindaste);
+    boomSlider.min = lim.min;
+    boomSlider.max = lim.max;
+    boomSlider.value = state.comprimentoLancaM;
+  }
+  boomSlider.addEventListener("input", () => {
+    state.comprimentoLancaM = parseFloat(boomSlider.value);
+    renderAll();
+  });
+
+  // ---------------------------------------------------------------
+  // SVG do guindaste + drag do gancho
+  // ---------------------------------------------------------------
+  const svg = document.getElementById("craneSvg");
+  const NS = "http://www.w3.org/2000/svg";
+
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function buildStaticScene(){
+    svg.innerHTML = "";
+
+    // céu / chão
+    svg.appendChild(el("rect", { x:0, y:0, width:640, height:420, fill:"#f6f8fa" }));
+    svg.appendChild(el("rect", { x:0, y:GROUND_Y, width:640, height:420-GROUND_Y, fill:"#eef1f0" }));
+    svg.appendChild(el("line", { x1:0, y1:GROUND_Y, x2:640, y2:GROUND_Y, stroke:"#c3c2b7", "stroke-width":2 }));
+
+    // régua de raio
+    const rulerG = el("g", { id: "ruler" });
+    svg.appendChild(rulerG);
+
+    // base / esteira do guindaste
+    svg.appendChild(el("rect", { x: PIVOT.x-46, y: GROUND_Y-14, width:64, height:14, rx:3, fill:"#26313d" }));
+    svg.appendChild(el("rect", { x: PIVOT.x-30, y: GROUND_Y-34, width:46, height:22, rx:3, fill:"#3b4a5a" }));
+    // contrapeso
+    svg.appendChild(el("rect", { x: PIVOT.x-30, y: GROUND_Y-46, width:16, height:14, rx:2, fill:"#2a78d6" }));
+    // cabine
+    svg.appendChild(el("rect", { x: PIVOT.x+2, y: GROUND_Y-30, width:16, height:14, rx:2, fill:"#dfe6ee" }));
+
+    // linhas dinâmicas (preenchidas em update)
+    svg.appendChild(el("line", { id:"radiusLine", stroke:"#c3c2b7", "stroke-width":1.5, "stroke-dasharray":"4 3" }));
+    svg.appendChild(el("line", { id:"dropLine", stroke:"#c3c2b7", "stroke-width":1.5, "stroke-dasharray":"4 3" }));
+    svg.appendChild(el("line", { id:"boomLine", stroke:"#26313d", "stroke-width":6, "stroke-linecap":"round" }));
+    svg.appendChild(el("line", { id:"cableLine", stroke:"#8a8a8a", "stroke-width":1.5 }));
+
+    const hookG = el("g", { class:"hook-point", id:"hookGroup" });
+    hookG.appendChild(el("circle", { r:11, fill:"#fff", stroke:"#2a78d6", "stroke-width":3 }));
+    hookG.appendChild(el("circle", { r:3.2, fill:"#2a78d6" }));
+    svg.appendChild(hookG);
+
+    const label = el("text", { id:"raioLabel", "font-size":12, "font-weight":700, fill:"#52514e" });
+    svg.appendChild(label);
+
+    hookG.addEventListener("pointerdown", startDrag);
+  }
+
+  function drawRuler(){
+    const rulerG = document.getElementById("ruler");
+    rulerG.innerHTML = "";
+    const maxM = 24;
+    for (let m = 0; m <= maxM; m += 2) {
+      const x = PIVOT.x + m * SCALE;
+      if (x > 630) continue;
+      rulerG.appendChild(el("line", { x1:x, y1:GROUND_Y, x2:x, y2:GROUND_Y+6, stroke:"#c3c2b7", "stroke-width":1 }));
+      const t = el("text", { x:x, y:GROUND_Y+18, "font-size":10, fill:"#898781", "text-anchor":"middle" });
+      t.textContent = m + "m";
+      rulerG.appendChild(t);
+    }
+  }
+
+  let dragging = false;
+  function startDrag(evt){
+    dragging = true;
+    svg.setPointerCapture(evt.pointerId);
+    evt.preventDefault();
+  }
+  svg.addEventListener("pointermove", (evt) => {
+    if (!dragging) return;
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX; pt.y = evt.clientY;
+    const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const dx = loc.x - PIVOT.x;
+    const dy = PIVOT.y - loc.y;
+    const angle = clampAngle(Math.atan2(Math.max(dy, 0.001), Math.max(dx, 1)));
+    state.anguloRad = angle;
+    renderAll();
+  });
+  function endDrag(evt){ dragging = false; }
+  svg.addEventListener("pointerup", endDrag);
+  svg.addEventListener("pointercancel", endDrag);
+
+  function updateScene(){
+    const L = state.comprimentoLancaM;
+    const raio = raioAtual();
+    const raioPx = raio * SCALE;
+    const altPx = L * Math.sin(state.anguloRad) * SCALE;
+    const tipX = PIVOT.x + raioPx;
+    const tipY = PIVOT.y - altPx - 30; // -30: sai do topo da cabine
+
+    const boomOriginY = PIVOT.y - 30;
+    document.getElementById("boomLine").setAttribute("x1", PIVOT.x + 6);
+    document.getElementById("boomLine").setAttribute("y1", boomOriginY);
+    document.getElementById("boomLine").setAttribute("x2", tipX);
+    document.getElementById("boomLine").setAttribute("y2", tipY);
+
+    document.getElementById("cableLine").setAttribute("x1", tipX);
+    document.getElementById("cableLine").setAttribute("y1", tipY);
+    document.getElementById("cableLine").setAttribute("x2", tipX);
+    document.getElementById("cableLine").setAttribute("y2", GROUND_Y - 10);
+
+    document.getElementById("radiusLine").setAttribute("x1", PIVOT.x);
+    document.getElementById("radiusLine").setAttribute("y1", GROUND_Y - 2);
+    document.getElementById("radiusLine").setAttribute("x2", tipX);
+    document.getElementById("radiusLine").setAttribute("y2", GROUND_Y - 2);
+
+    document.getElementById("dropLine").setAttribute("x1", tipX);
+    document.getElementById("dropLine").setAttribute("y1", tipY);
+    document.getElementById("dropLine").setAttribute("x2", tipX);
+    document.getElementById("dropLine").setAttribute("y2", GROUND_Y - 2);
+
+    const hookG = document.getElementById("hookGroup");
+    hookG.setAttribute("transform", `translate(${tipX}, ${GROUND_Y - 10})`);
+
+    const label = document.getElementById("raioLabel");
+    label.setAttribute("x", (PIVOT.x + tipX) / 2 - 14);
+    label.setAttribute("y", GROUND_Y + 34);
+    label.textContent = "raio " + raio.toFixed(1) + " m";
+  }
+
+  // ---------------------------------------------------------------
+  // Readout + alerta (RF03 / UC03)
+  // ---------------------------------------------------------------
+  const raioValEl = document.getElementById("raioVal");
+  const capValEl = document.getElementById("capVal");
+  const boomValEl = document.getElementById("boomVal");
+  const pesoInput = document.getElementById("pesoInput");
+  const statusChip = document.getElementById("statusChip");
+  const statusIcon = document.getElementById("statusIcon");
+  const statusTitle = document.getElementById("statusTitle");
+  const statusSub = document.getElementById("statusSub");
+
+  const ICONS = {
+    good: '<path d="M9 16.2 4.8 12l-1.4 1.4L9 19 20.6 7.4l-1.4-1.4z" fill="#0ca30c"/>',
+    warning: '<path d="M12 2 1 21h22L12 2zm0 6.5 5.8 10.1H6.2L12 8.5zM11 11v4h2v-4h-2zm0 5.5v2h2v-2h-2z" fill="#b5790a"/>',
+    critical: '<path d="M12 2 2 22h20L12 2zm0 6.5 6.4 10.1H5.6L12 8.5zM11 11v4h2v-4h-2zm0 5.5v2h2v-2h-2z" fill="#d03b3b"/>',
+  };
+
+  function renderReadout(){
+    const raio = raioAtual();
+    const res = calcularCapacidadeMaxima(state.guindaste, state.comprimentoLancaM, raio);
+    const peso = parseFloat(pesoInput.value) || 0;
+
+    boomVal.textContent = state.comprimentoLancaM.toFixed(1) + " m";
+    raioValEl.innerHTML = raio.toFixed(1) + " <small>m</small>";
+
+    if (res.foraDaFaixa) {
+      capValEl.innerHTML = "— <small>fora da tabela</small>";
+      statusChip.className = "status-chip warning";
+      statusIcon.innerHTML = ICONS.warning;
+      statusTitle.textContent = "Configuração fora da faixa operável";
+      statusSub.textContent = "Não há dado de tabela para este raio/lança — ajuste a posição (RT-MC03).";
+      return;
+    }
+
+    capValEl.innerHTML = Math.round(res.valor).toLocaleString("pt-BR") + " <small>kg</small>";
+
+    if (peso <= res.valor) {
+      const margem = ((res.valor - peso) / res.valor) * 100;
+      statusChip.className = "status-chip good";
+      statusIcon.innerHTML = ICONS.good;
+      statusTitle.textContent = "Dentro do limite seguro";
+      statusSub.textContent = "Margem de segurança: " + margem.toFixed(1) + "% sobre a capacidade máxima.";
+    } else {
+      const excesso = ((peso - res.valor) / res.valor) * 100;
+      statusChip.className = "status-chip critical";
+      statusIcon.innerHTML = ICONS.critical;
+      statusTitle.textContent = "Carga excede a capacidade máxima";
+      statusSub.textContent = "Excedente de " + excesso.toFixed(1) + "% — reduza o raio ou a lança antes de içar.";
+    }
+  }
+
+  pesoInput.addEventListener("input", renderReadout);
+
+  function renderAll(){
+    drawRuler();
+    updateScene();
+    renderReadout();
+  }
+
+  // ---------------------------------------------------------------
+  // Boot
+  // ---------------------------------------------------------------
+  buildStaticScene();
+  renderCraneList();
+  selectCrane(FROTA[0]);
+
+})();
+</script>
+</body>
+</html>

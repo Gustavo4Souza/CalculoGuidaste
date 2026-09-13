@@ -1,0 +1,22 @@
+[
+  {
+    "id": "MD-300L",
+    "nome": "MD-300L",
+    "fabricante": "Madal Palfinger",
+    "pesoTotalKg": 29000,
+    "alturaPeDaLancaM": 3.0,
+    "recuoPeDaLancaM": 1.4,
+    "possuiJIB": true,
+    "tipoTabela": "comprimento_raio_quadrante"
+  },
+  {
+    "id": "TM-130",
+    "nome": "TM-130",
+    "fabricante": "Grupo Luna",
+    "pesoTotalKg": 25500,
+    "alturaPeDaLancaM": 2.8,
+    "recuoPeDaLancaM": 0,
+    "possuiJIB": false,
+    "tipoTabela": "zona_angulo"
+  }
+]

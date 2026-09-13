@@ -1,0 +1,39 @@
+[
+  {
+    "guindasteId": "TM-130",
+    "zona": "I",
+    "pontos": [
+      { "anguloGraus": 0, "capacidadeKg": 3000 },
+      { "anguloGraus": 10, "capacidadeKg": 3100 },
+      { "anguloGraus": 20, "capacidadeKg": 3200 },
+      { "anguloGraus": 30, "capacidadeKg": 3300 },
+      { "anguloGraus": 35, "capacidadeKg": 3500 },
+      { "anguloGraus": 40, "capacidadeKg": 3800 },
+      { "anguloGraus": 45, "capacidadeKg": 3800 },
+      { "anguloGraus": 50, "capacidadeKg": 3800 },
+      { "anguloGraus": 55, "capacidadeKg": 3800 },
+      { "anguloGraus": 60, "capacidadeKg": 3800 },
+      { "anguloGraus": 65, "capacidadeKg": 3800 },
+      { "anguloGraus": 70, "capacidadeKg": 3800 }
+    ]
+  },
+  {
+    "guindasteId": "TM-130",
+    "zona": "II",
+    "pontos": [
+      { "anguloGraus": 0, "capacidadeKg": 2100 },
+      { "anguloGraus": 10, "capacidadeKg": 2150 },
+      { "anguloGraus": 20, "capacidadeKg": 2200 },
+      { "anguloGraus": 30, "capacidadeKg": 2300 },
+      { "anguloGraus": 35, "capacidadeKg": 2550 },
+      { "anguloGraus": 40, "capacidadeKg": 2700 },
+      { "anguloGraus": 45, "capacidadeKg": 2900 },
+      { "anguloGraus": 50, "capacidadeKg": 3300 },
+      { "anguloGraus": 55, "capacidadeKg": 3500 },
+      { "anguloGraus": 60, "capacidadeKg": 3700 },
+      { "anguloGraus": 65, "capacidadeKg": 3800 },
+      { "anguloGraus": 70, "capacidadeKg": 3800 }
+    ]
+  }
+]
+

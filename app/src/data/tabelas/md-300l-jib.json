@@ -1,0 +1,974 @@
+[
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 9,
+    "anguloJibGraus": 10,
+    "quadrante": "frontal",
+    "pontos": [
+      {
+        "raioM": 4,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 4.5,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 5,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 6,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 7,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 8,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 9,
+        "capacidadeKgf": 2800
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 2600
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 2300
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 1400
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 900
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 150
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 9,
+    "anguloJibGraus": 25,
+    "quadrante": "frontal",
+    "pontos": [
+      {
+        "raioM": 6,
+        "capacidadeKgf": 2450
+      },
+      {
+        "raioM": 7,
+        "capacidadeKgf": 2200
+      },
+      {
+        "raioM": 8,
+        "capacidadeKgf": 2050
+      },
+      {
+        "raioM": 9,
+        "capacidadeKgf": 1900
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 1800
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1600
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 1500
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 1200
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 700
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 250
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 9,
+    "anguloJibGraus": 40,
+    "quadrante": "frontal",
+    "pontos": [
+      {
+        "raioM": 9,
+        "capacidadeKgf": 1550
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 1450
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1350
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 1300
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 1200
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 900
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 500
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 150
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 15.5,
+    "anguloJibGraus": 10,
+    "quadrante": "frontal",
+    "pontos": [
+      {
+        "raioM": 6,
+        "capacidadeKgf": 2750
+      },
+      {
+        "raioM": 7,
+        "capacidadeKgf": 2500
+      },
+      {
+        "raioM": 8,
+        "capacidadeKgf": 2300
+      },
+      {
+        "raioM": 9,
+        "capacidadeKgf": 2150
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 2000
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1700
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 1500
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 1300
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 1000
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 600
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 250
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 15.5,
+    "anguloJibGraus": 25,
+    "quadrante": "frontal",
+    "pontos": [
+      {
+        "raioM": 10,
+        "capacidadeKgf": 1150
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1000
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 900
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 800
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 750
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 700
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 550
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 250
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 100
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 15.5,
+    "anguloJibGraus": 40,
+    "quadrante": "frontal",
+    "pontos": [
+      {
+        "raioM": 14,
+        "capacidadeKgf": 700
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 600
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 550
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 500
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 400
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 250
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 20,
+    "anguloJibGraus": 10,
+    "quadrante": "frontal",
+    "pontos": [
+      {
+        "raioM": 7,
+        "capacidadeKgf": 2100
+      },
+      {
+        "raioM": 8,
+        "capacidadeKgf": 1900
+      },
+      {
+        "raioM": 9,
+        "capacidadeKgf": 1800
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 1600
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1400
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 1200
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 1050
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 950
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 800
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 500
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 200
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 100
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 20,
+    "anguloJibGraus": 25,
+    "quadrante": "frontal",
+    "pontos": [
+      {
+        "raioM": 12,
+        "capacidadeKgf": 800
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 700
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 650
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 550
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 500
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 400
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 350
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 150
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 20,
+    "anguloJibGraus": 40,
+    "quadrante": "frontal",
+    "pontos": [
+      {
+        "raioM": 16,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 400
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 350
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 350
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 300
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 250
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 200
+      },
+      {
+        "raioM": 30,
+        "capacidadeKgf": 150
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 9,
+    "anguloJibGraus": 10,
+    "quadrante": "lateral_traseira",
+    "pontos": [
+      {
+        "raioM": 4,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 4.5,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 5,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 6,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 7,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 8,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 9,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 3000
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 2800
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 2500
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 2200
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 1800
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 1250
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 850
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 500
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 250
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 9,
+    "anguloJibGraus": 25,
+    "quadrante": "lateral_traseira",
+    "pontos": [
+      {
+        "raioM": 6,
+        "capacidadeKgf": 2500
+      },
+      {
+        "raioM": 7,
+        "capacidadeKgf": 2400
+      },
+      {
+        "raioM": 8,
+        "capacidadeKgf": 2250
+      },
+      {
+        "raioM": 9,
+        "capacidadeKgf": 2150
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 2050
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1900
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 1750
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 1650
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 1500
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 1350
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 1000
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 650
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 350
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 100
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 9,
+    "anguloJibGraus": 40,
+    "quadrante": "lateral_traseira",
+    "pontos": [
+      {
+        "raioM": 9,
+        "capacidadeKgf": 1550
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 1500
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1400
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 1350
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 1250
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 1200
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 1150
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 1050
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 750
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 200
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 15.5,
+    "anguloJibGraus": 10,
+    "quadrante": "lateral_traseira",
+    "pontos": [
+      {
+        "raioM": 6,
+        "capacidadeKgf": 2700
+      },
+      {
+        "raioM": 7,
+        "capacidadeKgf": 2500
+      },
+      {
+        "raioM": 8,
+        "capacidadeKgf": 2300
+      },
+      {
+        "raioM": 9,
+        "capacidadeKgf": 2150
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 1950
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1700
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 1500
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 1350
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 1200
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 1050
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 950
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 800
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 650
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 400
+      },
+      {
+        "raioM": 30,
+        "capacidadeKgf": 200
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 15.5,
+    "anguloJibGraus": 25,
+    "quadrante": "lateral_traseira",
+    "pontos": [
+      {
+        "raioM": 10,
+        "capacidadeKgf": 1200
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1050
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 950
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 850
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 800
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 750
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 650
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 600
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 550
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 500
+      },
+      {
+        "raioM": 30,
+        "capacidadeKgf": 400
+      },
+      {
+        "raioM": 32,
+        "capacidadeKgf": 200
+      },
+      {
+        "raioM": 34,
+        "capacidadeKgf": 100
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 15.5,
+    "anguloJibGraus": 40,
+    "quadrante": "lateral_traseira",
+    "pontos": [
+      {
+        "raioM": 14,
+        "capacidadeKgf": 650
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 600
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 550
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 500
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 500
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 400
+      },
+      {
+        "raioM": 30,
+        "capacidadeKgf": 400
+      },
+      {
+        "raioM": 32,
+        "capacidadeKgf": 300
+      },
+      {
+        "raioM": 34,
+        "capacidadeKgf": 100
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 20,
+    "anguloJibGraus": 10,
+    "quadrante": "lateral_traseira",
+    "pontos": [
+      {
+        "raioM": 7,
+        "capacidadeKgf": 2100
+      },
+      {
+        "raioM": 8,
+        "capacidadeKgf": 1900
+      },
+      {
+        "raioM": 9,
+        "capacidadeKgf": 1750
+      },
+      {
+        "raioM": 10,
+        "capacidadeKgf": 1600
+      },
+      {
+        "raioM": 12,
+        "capacidadeKgf": 1400
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 1250
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 1100
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 950
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 850
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 750
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 700
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 600
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 550
+      },
+      {
+        "raioM": 30,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 32,
+        "capacidadeKgf": 250
+      },
+      {
+        "raioM": 34,
+        "capacidadeKgf": 100
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 20,
+    "anguloJibGraus": 25,
+    "quadrante": "lateral_traseira",
+    "pontos": [
+      {
+        "raioM": 12,
+        "capacidadeKgf": 850
+      },
+      {
+        "raioM": 14,
+        "capacidadeKgf": 750
+      },
+      {
+        "raioM": 16,
+        "capacidadeKgf": 700
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 600
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 550
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 500
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 100
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 350
+      },
+      {
+        "raioM": 30,
+        "capacidadeKgf": 350
+      },
+      {
+        "raioM": 32,
+        "capacidadeKgf": 300
+      },
+      {
+        "raioM": 34,
+        "capacidadeKgf": 250
+      },
+      {
+        "raioM": 36,
+        "capacidadeKgf": 150
+      }
+    ]
+  },
+  {
+    "guindasteId": "MD-300L",
+    "comprimentoJibM": 20,
+    "anguloJibGraus": 40,
+    "quadrante": "lateral_traseira",
+    "pontos": [
+      {
+        "raioM": 16,
+        "capacidadeKgf": 450
+      },
+      {
+        "raioM": 18,
+        "capacidadeKgf": 400
+      },
+      {
+        "raioM": 20,
+        "capacidadeKgf": 350
+      },
+      {
+        "raioM": 22,
+        "capacidadeKgf": 300
+      },
+      {
+        "raioM": 24,
+        "capacidadeKgf": 300
+      },
+      {
+        "raioM": 26,
+        "capacidadeKgf": 250
+      },
+      {
+        "raioM": 28,
+        "capacidadeKgf": 250
+      },
+      {
+        "raioM": 30,
+        "capacidadeKgf": 250
+      },
+      {
+        "raioM": 32,
+        "capacidadeKgf": 250
+      },
+      {
+        "raioM": 34,
+        "capacidadeKgf": 200
+      },
+      {
+        "raioM": 36,
+        "capacidadeKgf": 200
+      }
+    ]
+  }
+]
