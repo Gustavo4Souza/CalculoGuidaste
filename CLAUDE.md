@@ -63,7 +63,8 @@ Ver `ROADMAP.md` (Épico → Task → Sub-task completo) e `BACKLOG.md` (visão 
 - **Épico 2** — ✅ concluído: `app/src/engine/calcularCapacidadeMaxima.ts` faz interpolação, somatório de cargas, arredondamento para baixo e correção geométrica (RF11 — `raioM` pode vir pronto ou ser derivado de `comprimentoLancaM`+`anguloLancaGraus` via `engine/geometriaLanca.ts`), testado com 28 casos contra dados reais confirmados do MD-300L e do TM-130.
 - **Épico 3** — ✅ concluído: canvas arrastável (`components/CanvasLanca.tsx`, react-konva), toggle de JIB ligado ao motor (`calcularCapacidadeMaximaJIB`), campos sincronizados nos dois sentidos e busca reversa por peso (`components/BuscaReversa.tsx` + `engine/buscaReversa.ts`, RF05/RF15).
 - **Épico 4** — ✅ concluído: indicador visual de status (`components/IndicadorStatus.tsx`) e revisão de usabilidade — fluxo principal confirmado em 1 clique + 1 arrasto; corrigido um bug real de digitação no campo "Raio de trabalho" (`components/useCampoNumericoSincronizado.ts`).
-- **Épico 5–6** — ⬜ não iniciados.
+- **Épico 5** — 🟡 quase concluído: testes e2e de UC02 completo para os dois guindastes (`e2e/simulador.spec.ts`, arrasto real via `page.mouse`); roteiro do vídeo pitch pronto (`docs/Roteiro_Video_Pitch.md`, falta só gravar); rascunho do artigo científico com bibliografia real e seções de resultado/conclusão prontas (`docs/Artigo_Secoes_Pendentes.md`, falta transcrever para o `.docx`).
+- **Épico 6** — ⬜ não iniciado.
 
 ## Pendência conhecida (não bloqueia o desenvolvimento)
 

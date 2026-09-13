@@ -45,9 +45,9 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 |---|---|---|---|
 | S4-01 | ✅ Indicador visual verde/âmbar/vermelho com % de margem de segurança | Alta | Task 4.1 |
 | S4-02 | ✅ Revisão de usabilidade: fluxo completo em até 3 cliques/1 arrasto — confirmado (1 clique + 1 arrasto) e um bug real de digitação corrigido | Média | Task 4.2 |
-| S4-03 | Testes de fluxo ponta a ponta (Playwright) para os dois guindastes — parcialmente coberto (5 specs em `e2e/simulador.spec.ts`, cobrindo MD-300L/JIB/TM-130), falta ampliar para UC02 completo | Baixa | Task 5.1 |
-| S4-04 | Roteiro e gravação do vídeo pitch com o protótipo de produção funcionando | Alta | Task 5.2 |
-| S4-05 | Levantamento bibliográfico e redação do artigo científico | Alta | Task 5.3 |
+| S4-03 | ✅ Testes de fluxo ponta a ponta (Playwright) para os dois guindastes — 7 specs em `e2e/simulador.spec.ts`, incluindo UC02 completo (arrasto real via `page.mouse`) para o MD-300L e o TM-130 | Baixa | Task 5.1 |
+| S4-04 | 🟡 Roteiro pronto (`docs/Roteiro_Video_Pitch.md`); gravação pendente (depende do Gustavo) | Alta | Task 5.2 |
+| S4-05 | 🟡 Levantamento bibliográfico feito e seções de resultado/conclusão redigidas (`docs/Artigo_Secoes_Pendentes.md`); falta transcrever para o `.docx` final | Alta | Task 5.3 |
 
 **Épico 4 concluído (13/09/2026)**: 39 testes unitários + 5 testes Playwright passando, build de produção verificado.
 

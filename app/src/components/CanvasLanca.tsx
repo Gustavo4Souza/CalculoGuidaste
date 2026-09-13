@@ -1,6 +1,7 @@
 import type Konva from 'konva'
 import type { Vector2d } from 'konva/lib/types'
 import { Circle, Layer, Line, Rect, Stage, Text } from 'react-konva'
+import { PIVOT, pontaDaLanca } from './geometriaCanvas'
 
 /**
  * Canvas arrastável da lança (Task 3.1 / RT-UI02 / RF02 / UC02) — migração
@@ -15,8 +16,6 @@ import { Circle, Layer, Line, Rect, Stage, Text } from 'react-konva'
 
 const LARGURA = 520
 const ALTURA = 320
-const ESCALA_PX_POR_M = 8 // px por metro
-const PIVOT = { x: 64, y: ALTURA - 40 }
 const ANGULO_MIN_GRAUS = 5
 const ANGULO_MAX_GRAUS = 85
 
@@ -35,15 +34,6 @@ function anguloDoPonteiro(pos: Vector2d): number {
   const anguloRad = Math.atan2(dy, dx)
   const anguloGraus = (anguloRad * 180) / Math.PI
   return Math.min(ANGULO_MAX_GRAUS, Math.max(ANGULO_MIN_GRAUS, anguloGraus))
-}
-
-function pontaDaLanca(comprimentoLancaM: number, anguloGraus: number) {
-  const anguloRad = (anguloGraus * Math.PI) / 180
-  const comprimentoPx = comprimentoLancaM * ESCALA_PX_POR_M
-  return {
-    x: PIVOT.x + comprimentoPx * Math.cos(anguloRad),
-    y: PIVOT.y - comprimentoPx * Math.sin(anguloRad),
-  }
 }
 
 export function CanvasLanca({
