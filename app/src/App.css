@@ -74,25 +74,95 @@
 .resultado--dentro_do_limite {
   border-color: #0ca30c;
 }
-.resultado--dentro_do_limite .status {
-  color: #0ca30c;
-  font-weight: 600;
-}
 
 .resultado--excede_capacidade {
   border-color: #d03b3b;
-}
-.resultado--excede_capacidade .status {
-  color: #d03b3b;
-  font-weight: 600;
 }
 
 .resultado--fora_da_faixa {
   border-color: #fab219;
 }
-.resultado--fora_da_faixa .status {
+
+/* Indicador visual de status (Task 4.1 / RF03 / UC03) */
+.status-chip {
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1.5px solid var(--border);
+}
+
+.status-chip__icone {
+  flex: none;
+  font-size: 16px;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.status-chip__titulo {
+  font-size: 13.5px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.status-chip__sub {
+  font-size: 12px;
+  margin: 2px 0 0;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.status-chip--good {
+  background: #e6f6e6;
+  border-color: #bfe6bf;
+}
+.status-chip--good .status-chip__titulo {
+  color: #0a6e0a;
+}
+.status-chip--good .status-chip__icone {
+  color: #0ca30c;
+}
+
+.status-chip--warning {
+  background: #fff4de;
+  border-color: #f0d494;
+}
+.status-chip--warning .status-chip__titulo {
+  color: #8a5c00;
+}
+.status-chip--warning .status-chip__icone {
   color: #b5790a;
-  font-weight: 600;
+}
+
+.status-chip--critical {
+  background: #fbe9e9;
+  border-color: #f0bcbc;
+}
+.status-chip--critical .status-chip__titulo {
+  color: #a12727;
+}
+
+.status-chip--indefinido {
+  background: transparent;
+}
+.status-chip--indefinido .status-chip__titulo {
+  color: var(--text-h);
+}
+
+@media (prefers-color-scheme: dark) {
+  .status-chip--good {
+    background: #123312;
+    border-color: #1f5c1f;
+  }
+  .status-chip--warning {
+    background: #3a2e0e;
+    border-color: #6b551c;
+  }
+  .status-chip--critical {
+    background: #3a1414;
+    border-color: #6b2323;
+  }
 }
 
 .canvas-lanca {

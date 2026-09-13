@@ -8,6 +8,8 @@ import {
 import type { Quadrante, ZonaDeGiro } from '../types/guindaste'
 import { CanvasLanca } from './CanvasLanca'
 import { BuscaReversa } from './BuscaReversa'
+import { IndicadorStatus } from './IndicadorStatus'
+import { useCampoNumericoSincronizado } from './useCampoNumericoSincronizado'
 
 /**
  * Tela única de simulação (RT-UI02) — canvas arrastável (Task 3.1) + campos
@@ -37,6 +39,10 @@ export function Simulador() {
     const v = e.target.valueAsNumber
     return Number.isNaN(v) ? 0 : v
   }
+
+  // Task 4.2 — evita que o campo "Raio de trabalho" (valor derivado do
+  // ângulo, reformatado a cada render) atrapalhe a digitação do usuário.
+  const campoRaio = useCampoNumericoSincronizado(raioAtualM, definirRaioM)
 
   return (
     <div className="simulador">
@@ -158,8 +164,10 @@ export function Simulador() {
                   <input
                     type="number"
                     step="0.1"
-                    value={raioAtualM.toFixed(2)}
-                    onChange={(e) => definirRaioM(numero(e))}
+                    value={campoRaio.texto}
+                    onFocus={campoRaio.onFocus}
+                    onBlur={campoRaio.onBlur}
+                    onChange={campoRaio.onChange}
                   />
                 </label>
               </>
@@ -192,6 +200,7 @@ export function Simulador() {
           Carga içada (kg)
           <input
             type="number"
+            min={0}
             value={configuracao.cargaIcadaKg}
             onChange={(e) => atualizarConfiguracao({ cargaIcadaKg: numero(e) })}
           />
@@ -200,6 +209,7 @@ export function Simulador() {
           Massa da lingada (kg)
           <input
             type="number"
+            min={0}
             value={configuracao.massaLingadaKg}
             onChange={(e) => atualizarConfiguracao({ massaLingadaKg: numero(e) })}
           />
@@ -208,6 +218,7 @@ export function Simulador() {
           Massa do cabo de aço (kg)
           <input
             type="number"
+            min={0}
             value={configuracao.massaCaboDeAcoKg}
             onChange={(e) => atualizarConfiguracao({ massaCaboDeAcoKg: numero(e) })}
           />
@@ -225,6 +236,7 @@ export function Simulador() {
             Massa do balancim (kg)
             <input
               type="number"
+              min={0}
               value={configuracao.massaBalancimKg ?? 0}
               onChange={(e) => atualizarConfiguracao({ massaBalancimKg: numero(e) })}
             />
@@ -238,30 +250,14 @@ export function Simulador() {
           <>
             <p className="capacidade">{resultado.capacidadeMaximaKg.toLocaleString('pt-BR')} kg</p>
             <p>Somatório de cargas: {resultado.somatorioDeCargasKg.toLocaleString('pt-BR')} kg</p>
-            <p className="status">{descricaoStatus(resultado.status)}</p>
-            {resultado.status !== 'fora_da_faixa' && (
-              <p>Margem: {resultado.margemPercentual.toFixed(1)}%</p>
-            )}
           </>
         ) : (
           <p>Preencha a configuração para calcular.</p>
         )}
+        <IndicadorStatus resultado={resultado} />
       </section>
 
       <BuscaReversa />
     </div>
   )
-}
-
-function descricaoStatus(status: string): string {
-  switch (status) {
-    case 'dentro_do_limite':
-      return 'Dentro do limite'
-    case 'excede_capacidade':
-      return 'Excede a capacidade'
-    case 'fora_da_faixa':
-      return 'Fora da faixa da tabela'
-    default:
-      return ''
-  }
 }

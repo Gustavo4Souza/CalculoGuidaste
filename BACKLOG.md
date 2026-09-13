@@ -43,11 +43,13 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 | ID | Tarefa | Prioridade | Rastreio |
 |---|---|---|---|
-| S4-01 | Indicador visual verde/âmbar/vermelho com % de margem de segurança | Alta | Task 4.1 |
-| S4-02 | Revisão de usabilidade: fluxo completo em até 3 cliques/1 arrasto | Média | Task 4.2 |
-| S4-03 | Testes de fluxo ponta a ponta (Playwright) para os dois guindastes | Baixa | Task 5.1 |
+| S4-01 | ✅ Indicador visual verde/âmbar/vermelho com % de margem de segurança | Alta | Task 4.1 |
+| S4-02 | ✅ Revisão de usabilidade: fluxo completo em até 3 cliques/1 arrasto — confirmado (1 clique + 1 arrasto) e um bug real de digitação corrigido | Média | Task 4.2 |
+| S4-03 | Testes de fluxo ponta a ponta (Playwright) para os dois guindastes — parcialmente coberto (5 specs em `e2e/simulador.spec.ts`, cobrindo MD-300L/JIB/TM-130), falta ampliar para UC02 completo | Baixa | Task 5.1 |
 | S4-04 | Roteiro e gravação do vídeo pitch com o protótipo de produção funcionando | Alta | Task 5.2 |
 | S4-05 | Levantamento bibliográfico e redação do artigo científico | Alta | Task 5.3 |
+
+**Épico 4 concluído (13/09/2026)**: 39 testes unitários + 5 testes Playwright passando, build de produção verificado.
 
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 
@@ -63,10 +65,10 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 ## Próximos Passos Imediatos
 
-Com os Épicos 1, 2 e 3 concluídos (dados reais, motor de cálculo v2 e interface gráfica de produção — 39 testes unitários + 3 e2e passando), o foco agora é o Épico 4:
+Com os Épicos 1 a 4 concluídos (dados reais, motor de cálculo v2, interface gráfica de produção e alertas/usabilidade — 39 testes unitários + 5 e2e passando), o foco agora é o Épico 5:
 
-1. **S4-01** — Indicador visual verde/âmbar/vermelho com % de margem de segurança (hoje o resultado já muda de cor por CSS, mas falta o indicador dedicado com ícone/mensagem, RF03/UC03).
-2. **S4-02** — Revisão de usabilidade: confirmar o fluxo completo em até 3 cliques/1 arrasto (RNF Usabilidade), incluindo o novo painel de busca reversa.
+1. **S4-03** — Ampliar os testes de fluxo ponta a ponta (Playwright): hoje cobrem MD-300L/JIB/TM-130/busca reversa/indicador de status, falta um UC02 mais completo (arrasto real no canvas simulando ponteiro, não só preencher campos).
+2. **S4-04** — Roteiro e gravação do vídeo pitch com o protótipo de produção funcionando (já dá pra gravar — os 4 primeiros épicos estão prontos).
 3. Formalizar o S1-01 (deploy inicial no Vercel), pendência que ficou em aberto desde a Sprint 1.
 4. Manter a página do Notion atualizada a cada decisão — é a entrega acadêmica formal do projeto.
-5. Em paralelo, iniciar o levantamento bibliográfico do artigo científico (já há um template e um rascunho em `docs/`).
+5. Em paralelo, seguir o levantamento bibliográfico do artigo científico (**S4-05** — já há um template e um rascunho em `docs/`).

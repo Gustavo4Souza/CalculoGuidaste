@@ -17,6 +17,45 @@ test('carrega a tela de simulação e calcula a capacidade para uma configuraç�
   await expect(page.getByText('Dentro do limite')).toBeVisible()
 })
 
+test('indicador visual de status (Task 4.1 / RF03) muda entre dentro do limite e excede a capacidade', async ({
+  page,
+}) => {
+  await page.goto('/')
+
+  await page.getByLabel('Comprimento de lança (m)').selectOption('14.1')
+  await page.getByLabel('Raio de trabalho (m)').fill('4')
+
+  await page.getByLabel('Carga içada (kg)').fill('15000')
+  await expect(page.locator('.status-chip--good')).toContainText('Dentro do limite seguro')
+  await expect(page.locator('.status-chip--good')).toContainText('Margem de segurança: 25.0%')
+
+  await page.getByLabel('Carga içada (kg)').fill('25000')
+  await expect(page.locator('.status-chip--critical')).toContainText('Carga excede a capacidade máxima')
+  await expect(page.locator('.status-chip--critical')).toContainText('Excedente de 25.0%')
+
+  await page.getByLabel('Raio de trabalho (m)').fill('999')
+  await expect(page.locator('.status-chip--warning')).toContainText('fora da faixa operável')
+})
+
+test('Task 4.2 — digitar no campo "Raio de trabalho" tecla por tecla não reformata/engole o texto', async ({
+  page,
+}) => {
+  await page.goto('/')
+
+  const campoRaio = page.getByLabel('Raio de trabalho (m)')
+  await campoRaio.click()
+  await campoRaio.fill('')
+  // Digitação tecla por tecla (não .fill()) — é isso que expõe o bug de um
+  // campo controlado por um valor derivado e reformatado a cada render.
+  await campoRaio.pressSequentially('8.5')
+
+  await expect(campoRaio).toHaveValue('8.5')
+
+  // Ao perder o foco, o campo resincroniza com o raio real (2 casas decimais).
+  await campoRaio.blur()
+  await expect(campoRaio).toHaveValue('8.50')
+})
+
 test('toggle de JIB (RF12) aparece só para o MD-300L e calcula contra a tabela de JIB', async ({ page }) => {
   await page.goto('/')
 

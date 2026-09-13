@@ -104,13 +104,14 @@ Formalizado em `app/src/data/tabelas/tabela-carga.schema.json` (JSON Schema draf
 
 ---
 
-## Épico 4 — Alertas, validação e usabilidade
+## Épico 4 — Alertas, validação e usabilidade ✅ Concluído (13/09/2026)
 
-### Task 4.1 — Indicador visual de status
-- [ ] Verde (dentro do limite) / vermelho (excede) / âmbar (fora da faixa), com % de margem
+### Task 4.1 — Indicador visual de status ✅ Concluído
+- [x] Verde (dentro do limite) / vermelho (excede) / âmbar (fora da faixa), com % de margem — `app/src/components/IndicadorStatus.tsx`, migrado do "status chip" do POC. Testado via Playwright (`e2e/simulador.spec.ts`), alternando entre os 3 estados com valores reais.
 
-### Task 4.2 — Revisão de usabilidade
-- [ ] Fluxo completo em até 3 cliques ou 1 arrasto (RNF Usabilidade)
+### Task 4.2 — Revisão de usabilidade ✅ Concluído
+- [x] Fluxo completo em até 3 cliques ou 1 arrasto (RNF Usabilidade) — **auditado e confirmado**: com a tela já carregando uma configuração padrão válida, o fluxo principal (selecionar guindaste → posicionar a lança → ler o resultado) é **1 clique (selecionar guindaste) + 1 arrasto (posicionar a lança no canvas)**, sem cliques extras para ver o resultado (atualização ao vivo). O fluxo de JIB (RF12, opcional) precisa de mais interações (toggle + 2 seletores), aceitável por ser um caso secundário, não o fluxo principal.
+- [x] **Bug real encontrado e corrigido durante a revisão**: o campo "Raio de trabalho" (variante A) é um valor *derivado* do ângulo (`raio ⇄ ângulo` via `engine/geometriaLanca.ts`) e reformatado a cada render — um campo 100% controlado por esse valor "engolia" a digitação do usuário (ex.: escrever "8." virava "8.00" antes de completar a casa decimal). Corrigido com `components/useCampoNumericoSincronizado.ts` (texto local livre enquanto o campo está focado, resincroniza no blur). Regressão coberta por um teste Playwright que digita tecla por tecla (`pressSequentially`, não `.fill()`).
 
 ---
 
@@ -144,7 +145,7 @@ Formalizado em `app/src/data/tabelas/tabela-carga.schema.json` (JSON Schema draf
 | 1 — Ingestão dos dados reais | ✅ Concluído — MD-300L e TM-130 digitalizados e conferidos |
 | 2 — Motor de cálculo v2 | ✅ Concluído — interpolação, somatório, arredondamento e correção geométrica, testados com dados reais dos 2 guindastes |
 | 3 — Interface gráfica de produção | ✅ Concluído — canvas react-konva, JIB, sincronização e busca reversa |
-| 4 — Alertas, validação e usabilidade | ⬜ Não iniciado |
+| 4 — Alertas, validação e usabilidade | ✅ Concluído — indicador de status e revisão de usabilidade (bug de digitação corrigido) |
 | 5 — Testes finais e apoio ao pitch/artigo | ⬜ Não iniciado |
 | 6 — Fase 2 / melhorias futuras | ⬜ Opcional, se sobrar tempo |
 
