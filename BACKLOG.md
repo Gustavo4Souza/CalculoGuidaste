@@ -15,29 +15,29 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Pronto quando**: as duas tabelas estão digitalizadas e validadas manualmente contra pelo menos 3 pontos de cada tabela impressa. ✅ Atingido — ver `app/src/data/tabelas/README.md` e os testes em `app/src/engine/calcularCapacidadeMaxima.test.ts` / `calcularCapacidadeMaximaTM130.test.ts`. S1-01 (setup/deploy) ainda não foi formalmente concluído nesta sprint, mas o esqueleto do projeto (`app/`) já existe e roda localmente.
 
-## Sprint 2 — Motor de cálculo v2 (Épico 2)
+## Sprint 2 — Motor de cálculo v2 (Épico 2) ✅ Concluída (13/09/2026)
 
 | ID | Tarefa | Prioridade | Rastreio |
 |---|---|---|---|
-| S2-01 | Interpolação para as duas variantes de tabela (comprimento+raio+quadrante e zona+ângulo) | Alta | Task 2.1 / RT-MC02 |
-| S2-02 | Arredondamento sempre para baixo (piso de segurança) no resultado interpolado | Alta | Task 2.1 / RT-MC05 |
-| S2-03 | Correção geométrica (altura do pé da lança + recuo), por guindaste | Alta | Task 2.2 / RT-MC03 |
-| S2-04 | Somatório de cargas (carga içada + lingada + cabo de aço + balancim opcional) | Alta | Task 2.3 / RF09-RF10 |
-| S2-05 | Testes unitários com os valores exatos das tabelas reais do MD-300L e do TM-130 | Alta | Task 2.4 / RNF Confiabilidade |
+| S2-01 | ✅ Interpolação para as duas variantes de tabela (comprimento+raio+quadrante e zona+ângulo) | Alta | Task 2.1 / RT-MC02 |
+| S2-02 | ✅ Arredondamento sempre para baixo (piso de segurança) no resultado interpolado | Alta | Task 2.1 / RT-MC05 |
+| S2-03 | ✅ Correção geométrica (altura do pé da lança + recuo), por guindaste — `engine/geometriaLanca.ts` | Alta | Task 2.2 / RT-MC03 |
+| S2-04 | ✅ Somatório de cargas (carga içada + lingada + cabo de aço + balancim opcional) | Alta | Task 2.3 / RF09-RF10 |
+| S2-05 | ✅ Testes unitários com os valores exatos das tabelas reais do MD-300L e do TM-130 | Alta | Task 2.4 / RNF Confiabilidade |
 
-**Pronto quando**: `calcularCapacidadeMaxima()` funciona para os dois guindastes reais, incluindo somatório de pesos e correção geométrica.
+**Pronto quando**: `calcularCapacidadeMaxima()` funciona para os dois guindastes reais, incluindo somatório de pesos e correção geométrica. ✅ Atingido — 28 testes unitários passando (motor de cálculo dos 2 guindastes + geometria da lança), typecheck e build de produção verificados.
 
-## Sprint 3 — Interface gráfica de produção (Épico 3)
+## Sprint 3 — Interface gráfica de produção (Épico 3) ✅ Concluída (13/09/2026)
 
 | ID | Tarefa | Prioridade | Rastreio |
 |---|---|---|---|
-| S3-01 | Migrar o POC (vanilla JS) para React + react-konva | Alta | Task 3.1 |
-| S3-02 | Seletor manual de quadrante/zona (toggle/dropdown, sem view de giro) | Alta | Task 3.2 / RF08 |
-| S3-03 | Toggle de uso de JIB, exibido só para guindastes com `possuiJIB = true` | Média | Task 3.3 / RF12 |
-| S3-04 | Campos numéricos sincronizados com o canvas (comprimento de lança, raio) | Alta | Task 3.4 |
-| S3-05 | Busca reversa (RF05/RF15): campo "Peso a içar" + lista ordenada por menor guindaste primeiro | Alta | Task 3.5 |
+| S3-01 | ✅ Migrar o POC (vanilla JS) para React + react-konva | Alta | Task 3.1 |
+| S3-02 | ✅ Seletor manual de quadrante/zona (toggle/dropdown, sem view de giro) | Alta | Task 3.2 / RF08 |
+| S3-03 | ✅ Toggle de uso de JIB, exibido só para guindastes com `possuiJIB = true` — ligado ao motor de cálculo | Média | Task 3.3 / RF12 |
+| S3-04 | ✅ Campos numéricos sincronizados com o canvas (comprimento de lança, raio) | Alta | Task 3.4 |
+| S3-05 | ✅ Busca reversa (RF05/RF15): campo "Peso a içar" + lista ordenada por menor guindaste primeiro | Alta | Task 3.5 |
 
-**Pronto quando**: a interface de produção reproduz a linha de raciocínio aprovada do POC, mas com dados reais e todos os requisitos novos (RF08–RF15).
+**Pronto quando**: a interface de produção reproduz a linha de raciocínio aprovada do POC, mas com dados reais e todos os requisitos novos (RF08–RF15). ✅ Atingido — 39 testes unitários + 3 testes Playwright (e2e) passando, build de produção verificado. S1-01 (deploy inicial no Vercel) segue pendente, arrastada das sprints anteriores.
 
 ## Sprint 4 — Alertas, validação, testes finais e apoio ao pitch/artigo (Épicos 4 e 5)
 
@@ -63,7 +63,10 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 ## Próximos Passos Imediatos
 
-1. Executar S1-01: criar/conectar o projeto Vite+React+TS ao repositório `Gustavo4Souza/CalculoGuidaste` na pasta `Jornada/`.
-2. Iniciar a digitalização das tabelas reais (S1-02/S1-03) — ver `docs/Informações gerais - içamento.xlsx`, `docs/Tabela Guindaste MD-300L.pdf` e `docs/TM_130.pdf`.
-3. Manter a página do Notion atualizada a cada decisão — é a entrega acadêmica formal do projeto.
-4. Em paralelo, iniciar o levantamento bibliográfico do artigo científico (já há um template e um rascunho em `docs/`).
+Com os Épicos 1, 2 e 3 concluídos (dados reais, motor de cálculo v2 e interface gráfica de produção — 39 testes unitários + 3 e2e passando), o foco agora é o Épico 4:
+
+1. **S4-01** — Indicador visual verde/âmbar/vermelho com % de margem de segurança (hoje o resultado já muda de cor por CSS, mas falta o indicador dedicado com ícone/mensagem, RF03/UC03).
+2. **S4-02** — Revisão de usabilidade: confirmar o fluxo completo em até 3 cliques/1 arrasto (RNF Usabilidade), incluindo o novo painel de busca reversa.
+3. Formalizar o S1-01 (deploy inicial no Vercel), pendência que ficou em aberto desde a Sprint 1.
+4. Manter a página do Notion atualizada a cada decisão — é a entrega acadêmica formal do projeto.
+5. Em paralelo, iniciar o levantamento bibliográfico do artigo científico (já há um template e um rascunho em `docs/`).

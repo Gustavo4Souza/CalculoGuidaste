@@ -16,6 +16,13 @@ export interface Guindaste {
   fabricante: string
   /** Peso total do equipamento, em kg. */
   pesoTotalKg: number
+  /**
+   * Capacidade nominal "de vitrine" do guindaste (a maior capacidade da
+   * ficha técnica, ex.: "30 Toneladas a 3.000 mm" do MD-300L ou "26.000 kgf
+   * a 5 metros" do TM-130) — usada só para ordenar a lista do RF15 (menor
+   * guindaste primeiro), não entra no motor de cálculo em si.
+   */
+  capacidadeNominalKg: number
   /** Altura do pé da lança, em metros — usada na correção geométrica (RF11). */
   alturaPeDaLancaM: number
   /** Recuo do pé da lança, em metros — usada na correção geométrica (RF11). */
@@ -120,6 +127,11 @@ export interface ConfiguracaoViavel {
   comprimentoLancaM?: number
   anguloLancaGraus?: number
   quadranteOuZona: Quadrante | ZonaDeGiro
-  raioMaximoM: number
+  /**
+   * Maior raio de trabalho em que a capacidade ainda atende o peso pedido —
+   * só se aplica a guindastes tipoTabela = 'comprimento_raio_quadrante'
+   * (o raio não é um eixo da tabela do TM-130, que é indexada por ângulo).
+   */
+  raioMaximoM?: number
   capacidadeNaConfiguracaoKg: number
 }

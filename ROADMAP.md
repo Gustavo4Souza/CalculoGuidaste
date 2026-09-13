@@ -57,11 +57,11 @@ Formalizado em `app/src/data/tabelas/tabela-carga.schema.json` (JSON Schema draf
 
 *Pronto quando*: `calcularCapacidadeMaxima()` funciona para os dois guindastes reais, incluindo o somatório de pesos e a correção geométrica por altura/recuo do pé da lança.
 
-**Status: parcial (13/09/2026)** — `app/src/engine/calcularCapacidadeMaxima.ts` já implementa a interpolação, o somatório, o arredondamento e a correção geométrica (Task 2.2); falta testar contra dados reais do TM-130 confirmados (Task 1.2 ainda pendente de conferência).
+**Status: ✅ Concluído (13/09/2026)** — `app/src/engine/calcularCapacidadeMaxima.ts` implementa a interpolação (as duas variantes), o somatório de cargas, o arredondamento de segurança e a correção geométrica (Task 2.2), agora testado contra pontos reais confirmados dos dois guindastes (28 testes passando).
 
 ### Task 2.1 — Suporte às duas variantes de tabela no motor de cálculo
 - [x] Interpolação para a variante comprimento + raio + quadrante
-- [x] Interpolação para a variante zona + ângulo (implementada, ainda sem dados reais do TM-130 para testar)
+- [x] Interpolação para a variante zona + ângulo — testada contra os pontos reais do TM-130 (`calcularCapacidadeMaximaTM130.test.ts`)
 - [x] Arredondar sempre para baixo o resultado interpolado (piso de segurança) antes de comparar com o somatório de cargas
 
 ### Task 2.2 — Cálculo do raio real a partir da posição visual da lança ✅ Concluído
@@ -74,31 +74,33 @@ Formalizado em `app/src/data/tabelas/tabela-carga.schema.json` (JSON Schema draf
 - [x] Balancim: checkbox de uso + campo de massa
 - [x] Comparar somatório contra a capacidade interpolada
 
-### Task 2.4 — Testes unitários com valores reais
+### Task 2.4 — Testes unitários com valores reais ✅ Concluído
 - [x] Casos de teste a partir dos pontos exatos das tabelas do MD-300L (`app/src/engine/calcularCapacidadeMaxima.test.ts`)
-- [ ] Casos de teste com pontos exatos do TM-130 (aguarda Task 1.2)
+- [x] Casos de teste com pontos exatos do TM-130 (`app/src/engine/calcularCapacidadeMaximaTM130.test.ts`) — 7 pontos exatos + interpolação + independência entre zonas + somatório de cargas
 
 ---
 
-## Épico 3 — Interface gráfica de produção (evolução do POC)
+## Épico 3 — Interface gráfica de produção (evolução do POC) ✅ Concluído (13/09/2026)
 
-**Status: parcial (13/09/2026)** — `app/src/components/Simulador.tsx` é uma tela funcional (seleção de guindaste, campos numéricos, seletor de quadrante/zona, painel de peso e resultado), mas ainda **sem o canvas arrastável** (react-konva) nem a busca reversa.
+**Status: concluído.** `app/src/components/Simulador.tsx` agora tem canvas arrastável (react-konva), seleção de guindaste, seletor de quadrante/zona, toggle de JIB, painel de peso, resultado e busca reversa por peso. 39 testes unitários + 3 testes Playwright (e2e) passando, build de produção OK.
 
-### Task 3.1 — Migrar POC (vanilla JS) para React + react-konva
-- [ ] Componentizar canvas, seleção de guindaste e painel de leitura (guindaste e painel já componentizados; falta o canvas/react-konva em si)
+### Task 3.1 — Migrar POC (vanilla JS) para React + react-konva ✅ Concluído
+- [x] Canvas arrastável em `app/src/components/CanvasLanca.tsx` (react-konva) — gancho arrastável preso a um arco de raio fixo (`dragBoundFunc`), migrado do desenho SVG do POC. Só o ângulo de elevação é manipulado por arrasto; comprimento de lança é um controle separado (Task 3.4).
 
 ### Task 3.2 — Seleção de quadrante/zona de operação (RF08)
 - [x] Seletor manual (toggle/dropdown) — frontal/lateral-traseira (MD-300L) ou Zona I/II (TM-130), sem view de giro em planta
 
-### Task 3.3 — Suporte a JIB opcional (RF12)
-- [ ] Toggle de uso de JIB só quando o guindaste selecionado o suportar
+### Task 3.3 — Suporte a JIB opcional (RF12) ✅ Concluído
+- [x] Toggle de uso de JIB, exibido só quando `guindaste.possuiJIB = true` (hoje só MD-300L)
+- [x] Ligado ao motor de cálculo — `calcularCapacidadeMaximaJIB()` em `app/src/engine/calcularCapacidadeMaxima.ts`, testado em `calcularCapacidadeMaximaJIB.test.ts` contra pontos exatos de `md-300l-jib.json`
+- [x] Seletores de comprimento de JIB (9,0/15,5/20,0 m) e ângulo de JIB (10°/25°/40°) — combinações discretas reais da tabela, sem canvas (fora do escopo desta rodada, mantém o canvas simples)
 
-### Task 3.4 — Campos numéricos sincronizados com o canvas
-- [ ] Campos editáveis de comprimento de lança e raio já existem; falta sincronizar nos dois sentidos com o arrasto (depende do canvas da Task 3.1)
+### Task 3.4 — Campos numéricos sincronizados com o canvas ✅ Concluído
+- [x] Comprimento de lança (dropdown com os 7 valores reais da tabela) e raio de trabalho (campo numérico) sincronizados nos dois sentidos com o arrasto do canvas — `definirRaioM()`/`definirAnguloGraus()` na store convertem entre raio e ângulo via `calcularRaioReal()`/inversa (`Math.acos`)
 
-### Task 3.5 — Busca reversa: lista de configurações viáveis (RF05/RF15)
-- [ ] Campo "Peso a içar" que, além de validar a configuração atual, varre a frota e lista outras configurações viáveis
-- [ ] Ordenar a lista por menor guindaste primeiro (critério econômico, por capacidade nominal), inspirado no Liebherr Crane Finder
+### Task 3.5 — Busca reversa: lista de configurações viáveis (RF05/RF15) ✅ Concluído
+- [x] Campo "Peso a içar" (`app/src/components/BuscaReversa.tsx`) que varre a frota e lista as configurações viáveis, sem depender da configuração atualmente selecionada
+- [x] Ordenada por menor guindaste primeiro (`capacidadeNominalKg`, novo campo no `Guindaste`) — `buscarConfiguracoesViaveis()` em `app/src/engine/buscaReversa.ts`, 6 testes em `buscaReversa.test.ts`
 
 ---
 
@@ -140,10 +142,12 @@ Formalizado em `app/src/data/tabelas/tabela-carga.schema.json` (JSON Schema draf
 |---|---|
 | 0 — Fundamentos e protótipo conceitual | ✅ Concluído |
 | 1 — Ingestão dos dados reais | ✅ Concluído — MD-300L e TM-130 digitalizados e conferidos |
-| 2 — Motor de cálculo v2 | 🟡 Parcial — falta correção geométrica (Task 2.2) |
-| 3 — Interface gráfica de produção | 🟡 Parcial — falta o canvas (react-konva) e a busca reversa |
+| 2 — Motor de cálculo v2 | ✅ Concluído — interpolação, somatório, arredondamento e correção geométrica, testados com dados reais dos 2 guindastes |
+| 3 — Interface gráfica de produção | ✅ Concluído — canvas react-konva, JIB, sincronização e busca reversa |
 | 4 — Alertas, validação e usabilidade | ⬜ Não iniciado |
 | 5 — Testes finais e apoio ao pitch/artigo | ⬜ Não iniciado |
 | 6 — Fase 2 / melhorias futuras | ⬜ Opcional, se sobrar tempo |
+
+**Verificado em 13/09/2026:** typecheck limpo, `npm run build` ok, e os 28 testes unitários (motor de cálculo dos 2 guindastes + correção geométrica) passando.
 
 **Pendência que não bloqueia o roadmap:** o critério exato do quadrante frontal/lateral-traseira do MD-300L (Figuras A/B da planilha, com erro `#VALUE!`) segue em aberto — Gustavo vai perguntar para a turma na próxima aula. Afeta só a divisão fina dentro da tabela do MD-300L, não o início do Épico 1.

@@ -32,7 +32,7 @@ app/                    o código de produção (React + TypeScript + Vite) — 
 2. **Duas estruturas de tabela diferentes (RF08)** — não existe um schema único:
    - **MD-300L**: comprimento de lança (discreto) × raio × **quadrante** (`frontal` | `lateral_traseira`).
    - **TM-130**: **zona de giro** (`I` | `II`, regiões discretas — não se interpola entre zonas) × ângulo da lança.
-   - A seleção de quadrante/zona na UI é um **seletor manual** (toggle/dropdown) — decidido que NÃO have simulação física de giro/azimute, para manter o escopo do canvas dentro do prazo do semestre.
+   - A seleção de quadrante/zona na UI é um **seletor manual** (toggle/dropdown) — decidido que NÃO haverá simulação física de giro/azimute, para manter o escopo do canvas dentro do prazo do semestre.
 3. **Unidade interna sempre em kg** (kgf e kg são tratados como equivalentes — não há conversão real, é só rótulo). A UI oferece um seletor de exibição kg ⇄ toneladas (RF14), mas o cálculo interno nunca muda de unidade.
 4. **Arredondamento de segurança (RT-MC05)**: todo resultado interpolado (fora de um ponto exato da tabela do fabricante) é sempre arredondado **para baixo**. Nunca ser otimista com a capacidade.
 5. **JIB**: só o MD-300L tem (`possuiJIB = true`). Confirmado que o TM-130 **não** tem, apesar de a ficha técnica genérica dele mencionar um JIB opcional.
@@ -60,8 +60,8 @@ Ver `ROADMAP.md` (Épico → Task → Sub-task completo) e `BACKLOG.md` (visão 
 
 - **Épico 0** — ✅ concluído (POC aprovado pela turma).
 - **Épico 1** — ✅ concluído: MD-300L (tabelas principais + JIB) e TM-130 digitalizados e conferidos.
-- **Épico 2** — ⬜ parcialmente coberto: `app/src/engine/calcularCapacidadeMaxima.ts` já faz interpolação, somatório de cargas, arredondamento para baixo e correção geométrica (RF11 — `raioM` pode vir pronto ou ser derivado de `comprimentoLancaM`+`anguloLancaGraus` via `engine/geometriaLanca.ts`), agora testado contra dados reais confirmados do MD-300L e do TM-130.
-- **Épico 3** — ⬜ parcialmente coberto: `app/src/components/Simulador.tsx` é uma tela funcional só com campos numéricos; falta o canvas arrastável (react-konva) e a busca reversa por peso (RF05/RF15).
+- **Épico 2** — ✅ concluído: `app/src/engine/calcularCapacidadeMaxima.ts` faz interpolação, somatório de cargas, arredondamento para baixo e correção geométrica (RF11 — `raioM` pode vir pronto ou ser derivado de `comprimentoLancaM`+`anguloLancaGraus` via `engine/geometriaLanca.ts`), testado com 28 casos contra dados reais confirmados do MD-300L e do TM-130.
+- **Épico 3** — ✅ concluído: canvas arrastável (`components/CanvasLanca.tsx`, react-konva), toggle de JIB ligado ao motor (`calcularCapacidadeMaximaJIB`), campos sincronizados nos dois sentidos e busca reversa por peso (`components/BuscaReversa.tsx` + `engine/buscaReversa.ts`, RF05/RF15).
 - **Épico 4–6** — ⬜ não iniciados.
 
 ## Pendência conhecida (não bloqueia o desenvolvimento)

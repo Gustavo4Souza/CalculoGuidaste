@@ -26,6 +26,11 @@
     grid-template-columns: 1fr 1fr 1fr;
     align-items: start;
   }
+
+  .painel-canvas,
+  .busca-reversa {
+    grid-column: 1 / -1;
+  }
 }
 
 .painel {
@@ -88,4 +93,50 @@
 .resultado--fora_da_faixa .status {
   color: #b5790a;
   font-weight: 600;
+}
+
+.canvas-lanca {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.canvas-lanca > div {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.canvas-hint {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.busca-reversa__lista {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.busca-reversa__lista li {
+  line-height: 1.5;
+}
+
+.busca-reversa__capacidade {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.busca-reversa__vazio {
+  color: var(--text);
+  font-style: italic;
+}
+
+.rf-note {
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.5;
 }

@@ -5,6 +5,7 @@ import type {
   ResultadoDoCalculo,
   TabelaCargaVarianteA,
   TabelaCargaVarianteB,
+  TabelaJIB,
   ZonaDeGiro,
 } from '../types/guindaste'
 import { calcularRaioReal } from './geometriaLanca'
@@ -107,6 +108,35 @@ export function calcularCapacidadeMaximaVarianteB(
   return { capacidadeKg: r.valor === null ? null : arredondarParaBaixo(r.valor), foraDaFaixa: r.foraDaFaixa }
 }
 
+/**
+ * JIB opcional (RF12) — só para guindastes com `possuiJIB = true` (hoje, só
+ * o MD-300L). Cada combinação de comprimento de JIB + ângulo de JIB é uma
+ * linha discreta da tabela (não se interpola entre combinações, só dentro
+ * do raio de uma mesma combinação) — mesmo raciocínio da Zona I/II do
+ * TM-130: a combinação em si não é contínua, só o raio dentro dela é.
+ */
+export function calcularCapacidadeMaximaJIB(
+  linhas: ReadonlyArray<TabelaJIB>,
+  comprimentoJibM: number,
+  anguloJibGraus: number,
+  raioM: number,
+  quadrante: Quadrante,
+): CapacidadeInterpolada {
+  const linha = linhas.find(
+    (l) =>
+      l.quadrante === quadrante &&
+      Math.abs(l.comprimentoJibM - comprimentoJibM) < 1e-9 &&
+      Math.abs(l.anguloJibGraus - anguloJibGraus) < 1e-9,
+  )
+  if (!linha) {
+    return { capacidadeKg: null, foraDaFaixa: true }
+  }
+
+  const pontos = linha.pontos.map((p) => ({ chave: p.raioM, valor: p.capacidadeKgf }))
+  const r = interpolarLinear(pontos, raioM)
+  return { capacidadeKg: r.valor === null ? null : arredondarParaBaixo(r.valor), foraDaFaixa: r.foraDaFaixa }
+}
+
 type ResultadoInterpolacaoLocal = ReturnType<typeof interpolarLinear>
 
 /** RF09/RF10 — soma tudo que precisa ser suportado pelo guindaste, nunca só a carga isolada. */
@@ -135,11 +165,26 @@ export function calcularCapacidadeMaxima(
   tabelas: {
     varianteA?: ReadonlyArray<TabelaCargaVarianteA>
     varianteB?: ReadonlyArray<TabelaCargaVarianteB>
+    jib?: ReadonlyArray<TabelaJIB>
   },
 ): ResultadoDoCalculo {
   let interpolado: CapacidadeInterpolada
 
-  if (guindaste.tipoTabela === 'comprimento_raio_quadrante') {
+  if (configuracao.usaJIB) {
+    if (!guindaste.possuiJIB) {
+      throw new Error(`${guindaste.id} não possui JIB (possuiJIB = false) — RF12.`)
+    }
+    if (!configuracao.jib || configuracao.raioM === undefined) {
+      throw new Error('Com usaJIB = true, é preciso informar configuracao.jib (comprimentoJibM + anguloJibGraus) e configuracao.raioM.')
+    }
+    interpolado = calcularCapacidadeMaximaJIB(
+      tabelas.jib ?? [],
+      configuracao.jib.comprimentoJibM,
+      configuracao.jib.anguloJibGraus,
+      configuracao.raioM,
+      configuracao.quadranteOuZona as Quadrante,
+    )
+  } else if (guindaste.tipoTabela === 'comprimento_raio_quadrante') {
     if (configuracao.comprimentoLancaM === undefined) {
       throw new Error('comprimentoLancaM é obrigatório para guindastes do tipo comprimento_raio_quadrante')
     }
