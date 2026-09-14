@@ -1,19 +1,44 @@
 /**
- * Geometria pura do canvas da lança (Task 3.1) — separada de CanvasLanca.tsx
- * para não quebrar o Fast Refresh (um arquivo de componente só pode
- * exportar componentes) e para os testes e2e (UC02) reaproveitarem o mesmo
- * cálculo de posição do gancho na tela, em vez de duplicar a fórmula.
+ * Geometria pura da cena 3D do guindaste (Épico 3 → layout 3D) — separada
+ * do componente React para não quebrar o Fast Refresh e para os testes
+ * (unitários e e2e) reaproveitarem o mesmo cálculo de posição do gancho,
+ * em vez de duplicar a trigonometria.
+ *
+ * Tudo aqui é em METROS, no plano vertical de operação da lança (x = alcance
+ * horizontal a partir do pé da lança, y = altura acima do pé da lança) — é
+ * o mesmo plano usado pelo motor de cálculo (engine/geometriaLanca.ts),
+ * só que devolvido como coordenadas para desenhar, não para validar carga.
  */
 
-export const ESCALA_PX_POR_M = 8 // px por metro
-export const PIVOT = { x: 64, y: 320 - 40 }
+export const ANGULO_MIN_GRAUS = 5
+export const ANGULO_MAX_GRAUS = 85
 
-/** Posição (x, y) em pixels do gancho na ponta da lança, dado o ângulo de elevação. */
-export function pontaDaLanca(comprimentoLancaM: number, anguloGraus: number) {
+/** Posição (x, y), em metros, do gancho na ponta da lança a partir do pé da lança (pivot), dado o ângulo de elevação. */
+export function pontaDaLanca(comprimentoLancaM: number, anguloGraus: number): { x: number; y: number } {
   const anguloRad = (anguloGraus * Math.PI) / 180
-  const comprimentoPx = comprimentoLancaM * ESCALA_PX_POR_M
   return {
-    x: PIVOT.x + comprimentoPx * Math.cos(anguloRad),
-    y: PIVOT.y - comprimentoPx * Math.sin(anguloRad),
+    x: comprimentoLancaM * Math.cos(anguloRad),
+    y: comprimentoLancaM * Math.sin(anguloRad),
   }
+}
+
+/** Ângulo de elevação (graus), a partir de um ponto (x, y) em metros relativo ao pivot — usado ao arrastar o gancho. */
+export function anguloDoPonto(x: number, y: number): number {
+  const anguloRad = Math.atan2(Math.max(y, 0.001), Math.max(x, 0.001))
+  const anguloGraus = (anguloRad * 180) / Math.PI
+  return Math.min(ANGULO_MAX_GRAUS, Math.max(ANGULO_MIN_GRAUS, anguloGraus))
+}
+
+/**
+ * Comprimento projetado ao longo da direção atual da lança (Task 8.2) —
+ * usado ao arrastar a própria estrutura da lança (não o gancho) para
+ * estender/recolher o comprimento. O ângulo fica travado durante esse
+ * arrasto: projeta o ponto (dx, dy) relativo ao pivot no vetor unitário da
+ * direção da lança (produto escalar), limitado aos extremos reais da
+ * tabela do fabricante — nunca extrapola.
+ */
+export function projetarComprimento(dx: number, dy: number, anguloGraus: number, min: number, max: number): number {
+  const anguloRad = (anguloGraus * Math.PI) / 180
+  const projecao = dx * Math.cos(anguloRad) + dy * Math.sin(anguloRad)
+  return Math.min(max, Math.max(min, projecao))
 }

@@ -6,8 +6,11 @@ import { useSimulacaoStore } from '../store/useSimulacaoStore'
  * içar, lista as configurações viáveis de toda a frota, ordenadas por
  * menor guindaste primeiro (RT-MC07), inspirada no Liebherr Crane Finder
  * citado em ARQUITETURA.md.
+ *
+ * `tela`: quando true, renderiza como a própria aba "Buscar por peso" em
+ * tela cheia (App.tsx) em vez de um painel dentro da tela de Simulação.
  */
-export function BuscaReversa() {
+export function BuscaReversa({ tela = false }: { tela?: boolean }) {
   const buscaPesoKg = useSimulacaoStore((s) => s.buscaPesoKg)
   const configuracoesViaveis = useSimulacaoStore((s) => s.configuracoesViaveis)
   const buscarPorPeso = useSimulacaoStore((s) => s.buscarPorPeso)
@@ -18,7 +21,7 @@ export function BuscaReversa() {
   }
 
   return (
-    <section className="painel busca-reversa">
+    <section className={`painel busca-reversa ${tela ? 'busca-reversa--tela' : ''}`}>
       <h2>Qual guindaste eu preciso? (RF05/RF15)</h2>
       <label>
         Peso a içar (kg)

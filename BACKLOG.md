@@ -51,6 +51,48 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Épico 4 concluído (13/09/2026)**: 39 testes unitários + 5 testes Playwright passando, build de produção verificado.
 
+## Sprint 5 — Redesenho de layout: 3D (WebGL) e tela cheia (Épico 7) ✅ Concluída (13/09/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| S5-01 | ✅ Substituir o canvas 2D (react-konva) por uma cena WebGL real (react-three-fiber/three.js), mantendo a mesma física de arrasto (só ângulo, plano vertical fixo) | Alta | Task 7.1 |
+| S5-02 | ✅ Layout em tela cheia (100vh/100vw), sem scroll de página, com abas: "Simulação" (fluxo principal sempre visível) e "Buscar por peso" (RF05/RF15, isolada) | Alta | Task 7.2 |
+| S5-03 | ✅ Expor o JIB (RF12) visualmente na cena 3D — segmento com cor/ângulo próprios, rótulos, nota do tradeoff alcance×capacidade×ângulo | Média | Task 7.3 |
+| S5-04 | ✅ Reescrever os testes de arrasto (e2e) para a cena 3D, com projeção exata via `three.js` | Alta | Task 7.4 |
+
+**Pronto quando**: a tela de simulação usa toda a viewport sem scroll, tem uma visualização 3D navegável do guindaste, e o JIB aparece claramente destacado — tudo sem alterar o motor de cálculo. ✅ Atingido — 44 testes unitários + 7 e2e passando, build de produção verificado. Pedido explicitamente pelo Gustavo (layout "muito simples"), não fazia parte do roadmap original.
+
+**Pendência de limpeza manual (fora do alcance do assistente):** apagar `app/src/components/CanvasLanca.tsx`, órfão desde a S5-01.
+
+## Sprint 6 — UI/UX industrial (painel escuro) + lança ajustável por arrasto (Épico 8) ✅ Concluída (14/09/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| S6-01 | ✅ Redesenho visual em painel de controle industrial (tema escuro/HUD, acentos de segurança amarelo/laranja, tipografia técnica) | Alta | Task 8.1 |
+| S6-02 | ✅ Permitir arrastar a lança na cena 3D para ajustar o comprimento (não só o ângulo), complementando o seletor discreto já existente | Alta | Task 8.2 |
+| S6-03 | ✅ Testes (não previstos originalmente): +1 e2e (arrasto de comprimento) e +5 unitários (`projetarComprimento`) | Alta | Task 8.3 |
+
+**Pronto quando**: a UI tem uma linguagem visual industrial consistente (tema escuro, acentos de segurança) e o comprimento da lança pode ser ajustado por arrasto na cena 3D, com snap decidido e documentado — mantendo intactos o motor de cálculo, o schema de dados e as regras de negócio. ✅ Atingido — 49 testes unitários + 8 e2e passando, typecheck e build limpos (ver ROADMAP.md, Épico 8, para o detalhe da verificação independente feita no Claude Desktop).
+
+**Limitações de dados respeitadas (confirmado no código, não é trabalho pendente)**: no modo JIB a lança principal fica travada no comprimento máximo (a tabela de JIB não tem esse eixo); o TM-130 não tem eixo de comprimento na tabela real (só zona×ângulo).
+
+**Nota de processo:** esta sprint foi levantada e esclarecida no Claude Desktop (13/09/2026), implementada numa sessão do Claude Code, e depois auditada/verificada de novo no Claude Desktop (14/09/2026) — sem alterar o código, só lendo, testando numa cópia isolada e atualizando esta documentação, conforme combinado com o Gustavo.
+
+**Achado da verificação (14/09/2026), para corrigir num próximo Claude Code:** `app/playwright.config.ts` não seta de fato `channel: 'chromium'` no bloco `use`, apesar do comentário do arquivo dizer que sim — ver ROADMAP.md (Épico 8) para o detalhe. Não é um bug de negócio nem trava o Gustavo hoje, mas deixa o comportamento real do arquivo divergente do que ele documenta.
+
+## Sprint 7 — Guindaste 3D mais realista + campos embutidos na cena (Épico 9) 🔲 Não iniciada (14/09/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| S7-01 | 🔲 Modelo 3D mais detalhado do guindaste (cabine, rodas, base, lança em seções, moitão com risca), estilo técnico/linha amarelo/preto/cinza, para os dois guindastes (MD-300L e TM-130) | Alta | Task 9.1 |
+| S7-02 | 🔲 Remover o painel "Posição da lança" (incluindo o dropdown de comprimento) e embutir os campos de comprimento exato e raio de trabalho como rótulos sobre a própria lança, dentro do desenho 3D | Alta | Task 9.2 |
+
+**Pronto quando**: o guindaste 3D parece de fato um guindaste (não uma forma abstrata), no estilo técnico/linha combinando com o tema HUD já existente (Épico 8), e os campos de comprimento/raio ficam embutidos no próprio desenho — sem alterar o motor de cálculo, o schema de dados ou as regras de negócio. Pedido explicitamente pelo Gustavo, com referências visuais anexadas e 3 decisões confirmadas nesta sessão do Claude Desktop (ver ROADMAP.md, Épico 9).
+
+**Ponto em aberto para a implementação:** como os 7 comprimentos reais da tabela do MD-300L ficam acessíveis sem o dropdown (ex.: marcas ao longo da lança) — a confirmar com o Gustavo antes de codar.
+
+**Nota de processo:** esta sprint foi levantada e esclarecida no Claude Desktop (14/09/2026) — a implementação (Task 9.1/9.2) acontece numa sessão do Claude Code.
+
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 
 - Tela simples de Administrador para cadastro/edição de guindastes e tabelas (RF13).
@@ -65,10 +107,11 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 ## Próximos Passos Imediatos
 
-Com os Épicos 1 a 4 concluídos (dados reais, motor de cálculo v2, interface gráfica de produção e alertas/usabilidade — 39 testes unitários + 5 e2e passando), o foco agora é o Épico 5:
+Com os Épicos 1 a 4, 7 e 8 concluídos (dados reais, motor de cálculo v2, interface gráfica de produção — agora em 3D/tela cheia, visual industrial e lança arrastável — e alertas/usabilidade), o próximo trabalho de desenvolvimento é o Épico 9, e falta fechar o Épico 5:
 
-1. **S4-03** — Ampliar os testes de fluxo ponta a ponta (Playwright): hoje cobrem MD-300L/JIB/TM-130/busca reversa/indicador de status, falta um UC02 mais completo (arrasto real no canvas simulando ponteiro, não só preencher campos).
-2. **S4-04** — Roteiro e gravação do vídeo pitch com o protótipo de produção funcionando (já dá pra gravar — os 4 primeiros épicos estão prontos).
-3. Formalizar o S1-01 (deploy inicial no Vercel), pendência que ficou em aberto desde a Sprint 1.
-4. Manter a página do Notion atualizada a cada decisão — é a entrega acadêmica formal do projeto.
-5. Em paralelo, seguir o levantamento bibliográfico do artigo científico (**S4-05** — já há um template e um rascunho em `docs/`).
+1. **S7-01/S7-02 (Épico 9)** — Modelo 3D mais realista do guindaste e campos de comprimento/raio embutidos na cena — próximo trabalho de desenvolvimento, feito no Claude Code.
+2. **Achado da verificação do Épico 8** — corrigir `app/playwright.config.ts` (falta a chave `channel: 'chromium'` que o próprio comentário do arquivo já diz existir) numa próxima sessão do Claude Code.
+3. **S4-04** — Roteiro e gravação do vídeo pitch com o protótipo de produção funcionando (vale regravar as capturas de tela depois do Épico 9, com o novo modelo 3D).
+4. Formalizar o S1-01 (deploy inicial no Vercel), pendência que ficou em aberto desde a Sprint 1.
+5. Manter a página do Notion atualizada a cada decisão — é a entrega acadêmica formal do projeto.
+6. Em paralelo, seguir o levantamento bibliográfico do artigo científico (**S4-05** — já há um template e um rascunho em `docs/`).

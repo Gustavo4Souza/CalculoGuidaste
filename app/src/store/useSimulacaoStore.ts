@@ -131,7 +131,18 @@ export const useSimulacaoStore = create<SimulacaoState>((set, get) => ({
   },
 
   definirComprimentoLancaM: (comprimentoLancaM) => {
-    get().atualizarConfiguracao({ comprimentoLancaM })
+    // Task 8.2 — comprimento contínuo (arrasto da própria lança na cena 3D),
+    // além do seletor discreto (Task 3.4). Decisão de UX documentada no
+    // ROADMAP.md (Épico 8, Task 8.2): valor livre/contínuo, não "magnetizado"
+    // aos 7 pontos reais — o motor de cálculo já interpola com segurança
+    // (arredondando sempre para baixo) em qualquer ponto dentro do domínio
+    // real da tabela (10,50 m–32,10 m). Fora desse domínio seria
+    // extrapolação, não interpolação — por isso o valor é sempre limitado
+    // (clamp) aos extremos reais, nunca solto além deles.
+    const min = COMPRIMENTOS_LANCA_MD300L[0]
+    const max = COMPRIMENTOS_LANCA_MD300L[COMPRIMENTOS_LANCA_MD300L.length - 1]
+    const limitado = Math.min(max, Math.max(min, comprimentoLancaM))
+    get().atualizarConfiguracao({ comprimentoLancaM: limitado })
   },
 
   alternarUsoJIB: (ativo) => {

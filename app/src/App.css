@@ -1,52 +1,256 @@
 .app {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 24px 16px 64px;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   text-align: left;
+  box-sizing: border-box;
 }
 
-.app-header h1 {
-  font-size: 28px;
-  margin-bottom: 4px;
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
 }
 
-.app-header p {
+/* ---------- Cabeçalho + abas (Task 8.1 — painel industrial) ---------- */
+
+.app-header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 22px;
+  border-bottom: 2px solid var(--accent);
+  background: var(--bg-elevado);
+}
+
+.app-header__titulo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.app-header__titulo h1 {
+  font-size: 18px;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.app-header__subtitulo {
+  font-size: 12px;
   color: var(--text);
-  margin-bottom: 24px;
+  font-family: var(--mono);
 }
+
+.app-tabs {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.app-tabs__botao {
+  padding: 8px 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border-forte);
+  background: var(--bg-painel);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+.app-tabs__botao--ativo {
+  background: var(--accent);
+  color: var(--accent-texto);
+  border-color: var(--accent);
+}
+
+.app-header__link {
+  font-size: 12px;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app-header__link:hover {
+  color: var(--accent-forte);
+  text-decoration: underline;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: auto;
+}
+
+/* ---------- Tela de Simulação (dashboard em tela cheia) ---------- */
 
 .simulador {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 20px 16px;
+  width: 100%;
+}
+
+.simulador__barra {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: flex-end;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-elevado);
+}
+
+.simulador__campo-barra {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--text-fraco);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.simulador__campo-barra select {
+  font-size: 14px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-forte);
+  border-radius: 4px;
+  background: var(--bg-instrumento);
+  color: var(--text-h);
+  font-family: var(--mono);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.simulador__campo-barra--checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  text-transform: none;
+}
+
+.simulador__corpo {
+  flex: 1;
+  min-height: 0;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: 1fr 350px;
+  gap: 14px;
 }
 
-@media (min-width: 700px) {
-  .simulador {
-    grid-template-columns: 1fr 1fr 1fr;
-    align-items: start;
-  }
+.simulador__cena {
+  min-height: 0;
+  border: 1px solid var(--border-forte);
+  border-radius: 4px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, #1c2429 0%, #0e1113 75%);
+  position: relative;
+}
 
-  .painel-canvas,
-  .busca-reversa {
-    grid-column: 1 / -1;
+.cena-3d {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cena-3d canvas {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  touch-action: none;
+}
+
+.cena-3d__dica {
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--text);
+  background: var(--bg-instrumento);
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+}
+
+/* Rótulos flutuantes na cena (readouts estilo HUD/instrumento — Task 8.1) */
+.cena-3d__rotulo {
+  font-size: 11px;
+  font-family: var(--mono);
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: rgba(13, 16, 18, 0.92);
+  border: 1px solid var(--border-forte);
+  color: var(--text-h);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.cena-3d__rotulo--jib {
+  border-color: var(--accent);
+  color: var(--accent-forte);
+}
+
+.cena-3d__rotulo--raio {
+  border-color: var(--sucesso);
+  color: var(--sucesso);
+}
+
+.simulador__lateral {
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 2px;
+}
+
+@media (max-width: 980px) {
+  .simulador__corpo {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(220px, 1.2fr) auto;
+    overflow-y: auto;
   }
 }
+
+/* ---------- Painéis (compartilhado entre as duas telas) ---------- */
 
 .painel {
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 4px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background: var(--bg-painel);
+  flex: none;
+}
+
+.painel h2 {
+  font-size: 12px;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-fraco);
 }
 
 .painel label {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 14px;
+  font-size: 13px;
+  color: var(--text);
 }
 
 .painel label.checkbox {
@@ -59,38 +263,101 @@
 .painel select {
   font-size: 15px;
   padding: 6px 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-forte);
   border-radius: 4px;
-  background: var(--bg);
+  background: var(--bg-instrumento);
   color: var(--text-h);
+  font-family: var(--mono);
+}
+
+.painel input[type='number']:focus,
+.painel select:focus,
+.simulador__campo-barra select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(242, 167, 27, 0.25);
+}
+
+.painel input[type='checkbox'] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- Resultado — instrumento de leitura (Task 8.1) ---------- */
+
+.resultado {
+  border-width: 2px;
 }
 
 .resultado .capacidade {
-  font-size: 32px;
-  font-weight: 600;
+  font-size: 30px;
+  font-weight: 700;
   color: var(--text-h);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .resultado--dentro_do_limite {
-  border-color: #0ca30c;
+  border-color: var(--sucesso);
 }
 
 .resultado--excede_capacidade {
-  border-color: #d03b3b;
+  border-color: var(--perigo);
 }
 
 .resultado--fora_da_faixa {
-  border-color: #fab219;
+  border-color: var(--aviso);
+}
+
+/* Barra de limite (mostrador estilo instrumento) — Task 8.1 */
+.medidor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.medidor__trilho {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--bg-instrumento);
+  border: 1px solid var(--border-forte);
+  overflow: hidden;
+}
+
+.medidor__preenchimento {
+  height: 100%;
+  border-radius: 5px 0 0 5px;
+  transition: width 0.15s ease-out;
+}
+
+.medidor__marca-100 {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--text-h);
+  opacity: 0.6;
+}
+
+.medidor__legenda {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-family: var(--mono);
+  color: var(--text-fraco);
 }
 
 /* Indicador visual de status (Task 4.1 / RF03 / UC03) */
 .status-chip {
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 12px 14px;
   display: flex;
   gap: 10px;
   align-items: flex-start;
   border: 1.5px solid var(--border);
+  background: var(--bg-instrumento);
 }
 
 .status-chip__icone {
@@ -101,9 +368,11 @@
 }
 
 .status-chip__titulo {
-  font-size: 13.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .status-chip__sub {
@@ -114,72 +383,66 @@
 }
 
 .status-chip--good {
-  background: #e6f6e6;
-  border-color: #bfe6bf;
+  border-color: var(--sucesso);
 }
 .status-chip--good .status-chip__titulo {
-  color: #0a6e0a;
+  color: var(--sucesso);
 }
 .status-chip--good .status-chip__icone {
-  color: #0ca30c;
+  color: var(--sucesso);
 }
 
 .status-chip--warning {
-  background: #fff4de;
-  border-color: #f0d494;
+  border-color: var(--aviso);
 }
 .status-chip--warning .status-chip__titulo {
-  color: #8a5c00;
+  color: var(--aviso);
 }
 .status-chip--warning .status-chip__icone {
-  color: #b5790a;
+  color: var(--aviso);
 }
 
 .status-chip--critical {
-  background: #fbe9e9;
-  border-color: #f0bcbc;
+  border-color: var(--perigo);
 }
 .status-chip--critical .status-chip__titulo {
-  color: #a12727;
+  color: var(--perigo);
+}
+.status-chip--critical .status-chip__icone {
+  color: var(--perigo);
 }
 
 .status-chip--indefinido {
-  background: transparent;
+  border-color: var(--border);
 }
 .status-chip--indefinido .status-chip__titulo {
   color: var(--text-h);
 }
 
-@media (prefers-color-scheme: dark) {
-  .status-chip--good {
-    background: #123312;
-    border-color: #1f5c1f;
-  }
-  .status-chip--warning {
-    background: #3a2e0e;
-    border-color: #6b551c;
-  }
-  .status-chip--critical {
-    background: #3a1414;
-    border-color: #6b2323;
-  }
+.rf-note {
+  font-size: 11px;
+  color: var(--text-fraco);
+  line-height: 1.5;
 }
 
-.canvas-lanca {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: center;
+/* ---------- Aba "Buscar por peso" (tela cheia própria) ---------- */
+
+.busca-reversa--tela {
+  flex: none;
+  width: 100%;
+  max-width: 720px;
+  margin: auto;
+  padding: 36px 40px;
+  justify-content: flex-start;
 }
 
-.canvas-lanca > div {
-  max-width: 100%;
-  overflow-x: auto;
+.busca-reversa--tela h2 {
+  font-size: 18px;
 }
 
-.canvas-hint {
-  font-size: 12px;
-  color: var(--text);
+.busca-reversa--tela input[type='number'] {
+  font-size: 18px;
+  padding: 10px 12px;
 }
 
 .busca-reversa__lista {
@@ -189,6 +452,7 @@
   flex-direction: column;
   gap: 6px;
   font-size: 14px;
+  color: var(--text);
 }
 
 .busca-reversa__lista li {
@@ -196,17 +460,12 @@
 }
 
 .busca-reversa__capacidade {
-  font-weight: 600;
-  color: var(--text-h);
+  font-weight: 700;
+  color: var(--accent-forte);
+  font-family: var(--mono);
 }
 
 .busca-reversa__vazio {
-  color: var(--text);
+  color: var(--text-fraco);
   font-style: italic;
-}
-
-.rf-note {
-  font-size: 11px;
-  color: var(--text);
-  line-height: 1.5;
 }

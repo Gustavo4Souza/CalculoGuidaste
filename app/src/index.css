@@ -1,14 +1,41 @@
 :root {
-  --text: #52514e;
-  --text-h: #0b0b0b;
-  --bg: #fcfcfb;
-  --border: #e1e0d9;
+  /*
+   * Task 8.1 (Épico 8) — painel de controle industrial escuro, estilo HUD.
+   * Decisão deliberada de UI/UX (confirmada com o Gustavo): NÃO é um tema
+   * escuro opcional/condicional a `prefers-color-scheme` — é a identidade
+   * visual fixa da ferramenta, pensada para uso industrial real (cabine de
+   * operação, pouca luz ambiente), com acentos em amarelo/laranja de
+   * segurança (mesma linguagem visual de faixas de atenção em equipamentos
+   * reais) em vez de um dashboard corporativo claro.
+   */
+  --bg: #14181b;
+  --bg-elevado: #1b2126;
+  --bg-painel: #20272c;
+  --bg-instrumento: #0d1012;
+  --border: #333d44;
+  --border-forte: #4a5861;
+  --text: #9fadb6;
+  --text-h: #f2f6f7;
+  --text-fraco: #6b7880;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* Acento de segurança (amarelo/laranja industrial) — usar em bordas,
+     estados ativos e elementos de destaque, não como cor de texto corrido
+     (contraste insuficiente para texto pequeno sobre fundo escuro). */
+  --accent: #f2a71b;
+  --accent-forte: #ffc247;
+  /* Texto escuro para usar SOBRE fundos na cor de acento (AA exige isso —
+     texto claro sobre âmbar não passa no contraste). */
+  --accent-texto: #1a1206;
+
+  --sucesso: #35d07f;
+  --aviso: #ffc247;
+  --perigo: #ff5c5c;
+
+  --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
+  --mono: 'Cascadia Code', ui-monospace, Consolas, monospace;
 
   font: 16px/145% var(--sans);
-  color-scheme: light dark;
+  color-scheme: dark;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -17,24 +44,23 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #c3c2b7;
-    --text-h: #ffffff;
-    --bg: #1a1a19;
-    --border: #2c2c2a;
-  }
-}
-
-body {
+/* Layout em tela cheia (Épico 7) — sem scroll de página; painéis internos
+   podem rolar sozinhos como fallback em telas pequenas. */
+html,
+body,
+#root {
+  height: 100%;
   margin: 0;
+  overflow: hidden;
+  background: var(--bg);
 }
 
 h1,
 h2 {
   font-family: var(--sans);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-h);
+  letter-spacing: 0.01em;
 }
 
 p {
