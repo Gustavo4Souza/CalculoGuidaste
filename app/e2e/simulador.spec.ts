@@ -110,6 +110,52 @@ async function canvasEstavel(canvas: Locator) {
   return box
 }
 
+/**
+ * Move o mouse até (px, py) e só confirma o pointerdown depois do raycasting
+ * do WebGL realmente ter registrado o hover sobre um alvo arrastável (cursor
+ * `ew-resize`, aplicado via onPointerOver em `SegmentoLanca`/`PlanoDeArrasto`).
+ *
+ * Sem isso, um mousedown que erre o raycast (renderização por software em
+ * ambiente headless, sem GPU — instabilidade já documentada nestes testes)
+ * ainda assim é um pointerdown válido no `<canvas>`, e o OrbitControls (que
+ * escuta pointerdown/pointermove nativos no MESMO elemento, sem saber que
+ * esse gesto "era" para a lança) começa a ORBITAR a câmera durante todo o
+ * arrasto simulado — um bug real de contenção entre os dois, não só de
+ * teste: a câmera fixa, usada por `projetarPontoNaTela` para calcular todo
+ * o resto do arrasto, fica fora de sincronia, e mesmo uma tentativa seguinte
+ * que acerte o raycast corretamente já parte de pixels que não correspondem
+ * mais à câmera original. Esperar o cursor confirmar o hover antes do
+ * `mouse.down()` evita disparar esse gesto errado.
+ */
+async function moverEArrastarComHover(
+  page: import('@playwright/test').Page,
+  origemPx: { x: number; y: number },
+  destinoPx: { x: number; y: number },
+) {
+  // Uma única leitura de hover pode cair "entre" dois frames de raycasting
+  // do renderizador por software — em vez de esperar parado, insiste com um
+  // pequeno "chacoalhar" do mouse a cada tentativa, forçando novos frames de
+  // raycast até o cursor confirmar (ou o timeout global do `expect.poll`
+  // esgotar, sinal de que o alvo realmente não está sob o ponteiro).
+  await expect
+    .poll(
+      async () => {
+        await page.mouse.move(origemPx.x - 2, origemPx.y - 2)
+        await page.mouse.move(origemPx.x, origemPx.y, { steps: 3 })
+        return page.evaluate(() => document.body.style.cursor)
+      },
+      {
+        message: 'cursor nunca virou ew-resize — raycast não achou a lança',
+        timeout: 8000,
+        intervals: [50],
+      },
+    )
+    .toBe('ew-resize')
+  await page.mouse.down()
+  await page.mouse.move(destinoPx.x, destinoPx.y, { steps: 12 })
+  await page.mouse.up()
+}
+
 // Smoke test — confirma que a tela de simulação carrega e reage a uma
 // configuração exata conhecida.
 test('carrega a tela de simulação e calcula a capacidade para uma configuração exata do MD-300L', async ({
@@ -120,7 +166,8 @@ test('carrega a tela de simulação e calcula a capacidade para uma configuraç�
   await expect(page.getByRole('heading', { name: /Guindastes Ribas/i })).toBeVisible()
   await expect(page.getByText('Simulador de Tabela de Carga')).toBeVisible()
 
-  await page.getByLabel('Comprimento de lança — pontos reais da tabela (m)').selectOption('14.1')
+  await page.getByLabel('Comprimento (m)').fill('14.1')
+  await page.getByLabel('Comprimento (m)').blur()
   await page.getByLabel('Raio de trabalho (m)').fill('4')
 
   await expect(page.getByText('20.000 kg')).toBeVisible()
@@ -132,7 +179,8 @@ test('indicador visual de status (Task 4.1 / RF03) muda entre dentro do limite e
 }) => {
   await page.goto('/')
 
-  await page.getByLabel('Comprimento de lança — pontos reais da tabela (m)').selectOption('14.1')
+  await page.getByLabel('Comprimento (m)').fill('14.1')
+  await page.getByLabel('Comprimento (m)').blur()
   await page.getByLabel('Raio de trabalho (m)').fill('4')
 
   await page.getByLabel('Carga içada (kg)').fill('15000')
@@ -186,7 +234,8 @@ test('toggle de JIB (RF12) aparece só para o MD-300L e calcula contra a tabela 
 test('UC02 (MD-300L) — arrastar o gancho na cena 3D muda o raio e a capacidade calculada', async ({ page }) => {
   await page.goto('/')
 
-  await page.getByLabel('Comprimento de lança — pontos reais da tabela (m)').selectOption('14.1')
+  await page.getByLabel('Comprimento (m)').fill('14.1')
+  await page.getByLabel('Comprimento (m)').blur()
   // Parte de um raio conhecido (4,00m) para calcular a posição inicial exata do gancho.
   await page.getByLabel('Raio de trabalho (m)').fill('4')
   await page.getByLabel('Raio de trabalho (m)').blur()
@@ -225,7 +274,8 @@ test('UC02 (MD-300L) — arrastar o gancho na cena 3D muda o raio e a capacidade
 test('Task 8.2 — arrastar a própria lança (não o gancho) na cena 3D muda o comprimento', async ({ page }) => {
   await page.goto('/')
 
-  await page.getByLabel('Comprimento de lança — pontos reais da tabela (m)').selectOption('14.1')
+  await page.getByLabel('Comprimento (m)').fill('14.1')
+  await page.getByLabel('Comprimento (m)').blur()
   await page.getByLabel('Raio de trabalho (m)').fill('4')
   await page.getByLabel('Raio de trabalho (m)').blur()
 
@@ -236,34 +286,35 @@ test('Task 8.2 — arrastar a própria lança (não o gancho) na cena 3D muda o 
   const recuoMD300L = 1.4
   const comprimentoInicialM = 14.1
   const anguloAtual = anguloParaRaio(comprimentoInicialM, recuoMD300L, 4)
-  const comprimentoAlvoM = 25 // dentro do domínio real (10,50–32,10 m), sem ser um dos 7 pontos exatos
+  // 20,0 m: dentro do domínio real (10,50–32,10 m), longe o bastante de
+  // qualquer um dos 7 comprimentos reais (marcas de encaixe, Task 9.2) para
+  // não ser "grudado" pelo ímã — testa o valor livre/contínuo mesmo.
+  const comprimentoAlvoM = 20.0
 
-  // Clica no meio da barra da lança (não no gancho, na ponta) para pegar a
-  // estrutura em si — o alvo do arrasto é um ponto mais adiante, na MESMA
-  // direção/ângulo, à distância do novo comprimento desejado (é assim que
-  // `projetarComprimento` em components/geometriaCanvas.ts interpreta o arrasto).
-  const pontoNaBarra = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoInicialM * 0.5, anguloAtual)
+  // Clica na estrutura a 9m do pivot (não o gancho, na ponta) — não pode ser
+  // uma fração do comprimento atual, porque desde a Task 9.2 o próprio
+  // pointerdown já confirma um valor (clique direto = pulo exato numa
+  // marca), então o comprimento pode mudar entre tentativas; um ponto fixo
+  // sempre cai dentro da lança (mínimo real da tabela é 10,50m). 9m também
+  // fica FORA da área de tela ocupada pelos campos embutidos "Comprimento"
+  // e "Raio de trabalho" (Task 9.2) — cliques entre ~4m e ~8m nesta mesma
+  // configuração caem em cima desses <Html> (DOM real, sobreposto ao
+  // canvas), que capturam o clique antes de chegar no WebGL. O alvo do
+  // arrasto é um ponto mais adiante, na MESMA direção/ângulo, à distância do
+  // novo comprimento desejado (é assim que `projetarComprimento` em
+  // components/geometriaCanvas.ts interpreta o arrasto).
+  const pontoNaBarra = pontoAlvoArrasto3D(alturaPeDaLancaM, 9, anguloAtual)
   const pontoAlvo = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoAlvoM, anguloAtual)
   const origem = projetarPontoNaTela(pontoNaBarra, box.width, box.height)
   const destino = projetarPontoNaTela(pontoAlvo, box.width, box.height)
-  const campoComprimento = page.getByLabel('Comprimento exato — arraste a lança na cena (m)')
+  const campoComprimento = page.getByLabel('Comprimento (m)')
 
-  // O raycasting de hover do WebGL via renderização por software (headless,
-  // sem GPU real) é observadamente instável neste ambiente — a mesma
-  // sequência de mouse ora acerta a lança de primeira, ora não registra o
-  // hover a tempo. Não é um problema do código (a "alça" de clique já é bem
-  // maior que a barra visível, de propósito) nem do teste ficar tentando
-  // um alvo errado — é retentar a MESMA interação até o motor gráfico
-  // processar o raycast, prática normal para automação sobre WebGL.
-  let comprimentoObtido = Number(await campoComprimento.inputValue())
-  for (let tentativa = 0; tentativa < 5 && Math.abs(comprimentoObtido - comprimentoAlvoM) >= 0.3; tentativa++) {
-    await page.mouse.move(box.x + origem.x - 2, box.y + origem.y - 2)
-    await page.mouse.move(box.x + origem.x, box.y + origem.y, { steps: 3 })
-    await page.mouse.down()
-    await page.mouse.move(box.x + destino.x, box.y + destino.y, { steps: 12 })
-    await page.mouse.up()
-    comprimentoObtido = Number(await campoComprimento.inputValue())
-  }
+  await moverEArrastarComHover(
+    page,
+    { x: box.x + origem.x, y: box.y + origem.y },
+    { x: box.x + destino.x, y: box.y + destino.y },
+  )
+  const comprimentoObtido = Number(await campoComprimento.inputValue())
 
   expect(Math.abs(comprimentoObtido - comprimentoAlvoM)).toBeLessThan(0.3)
 
@@ -272,6 +323,46 @@ test('Task 8.2 — arrastar a própria lança (não o gancho) na cena 3D muda o 
   const raioEsperado = comprimentoAlvoM * Math.cos((anguloAtual * Math.PI) / 180) - recuoMD300L
   const raioObtido = Number(await page.getByLabel('Raio de trabalho (m)').inputValue())
   expect(Math.abs(raioObtido - raioEsperado)).toBeLessThan(0.3)
+})
+
+test('Task 9.2 — clicar numa marca de encaixe pula exatamente para aquele comprimento real', async ({ page }) => {
+  await page.goto('/')
+
+  await page.getByLabel('Comprimento (m)').fill('14.1')
+  await page.getByLabel('Comprimento (m)').blur()
+  await page.getByLabel('Raio de trabalho (m)').fill('4')
+  await page.getByLabel('Raio de trabalho (m)').blur()
+
+  const canvas = page.locator('.cena-3d canvas')
+  const box = await canvasEstavel(canvas)
+
+  const alturaPeDaLancaM = 3.0
+  const recuoMD300L = 1.4
+  const comprimentoInicialM = 14.1
+  const anguloAtual = anguloParaRaio(comprimentoInicialM, recuoMD300L, 4)
+  const comprimentoAlvoM = 21.3 // uma das 7 marcas reais da tabela
+
+  // Ponto de agarre fixo a 9m do pivot (ver comentário no teste anterior —
+  // fora da área ocupada pelos campos embutidos "Comprimento"/"Raio de
+  // trabalho", e não uma fração do comprimento atual).
+  const pontoNaBarra = pontoAlvoArrasto3D(alturaPeDaLancaM, 9, anguloAtual)
+  // Alvo exatamente sobre a marca — um clique simples (down+up sem mover)
+  // já deve pular para esse valor exato (ver `onPointerDownEstrutura`).
+  const pontoNaMarca = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoAlvoM, anguloAtual)
+  const origem = projetarPontoNaTela(pontoNaBarra, box.width, box.height)
+  const destino = projetarPontoNaTela(pontoNaMarca, box.width, box.height)
+  const campoComprimento = page.getByLabel('Comprimento (m)')
+
+  await moverEArrastarComHover(
+    page,
+    { x: box.x + origem.x, y: box.y + origem.y },
+    { x: box.x + destino.x, y: box.y + destino.y },
+  )
+  const comprimentoObtido = Number(await campoComprimento.inputValue())
+
+  // Diferente do teste anterior (valor livre) — aqui o resultado deve bater
+  // EXATO com o ponto real da tabela, não só "perto" (é o ímã em ação).
+  expect(comprimentoObtido).toBe(comprimentoAlvoM)
 })
 
 test('UC02 (TM-130) — arrastar o gancho na cena 3D muda o ângulo e a capacidade calculada (Zona I)', async ({

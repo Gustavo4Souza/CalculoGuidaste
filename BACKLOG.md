@@ -80,18 +80,18 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Achado da verificação (14/09/2026), para corrigir num próximo Claude Code:** `app/playwright.config.ts` não seta de fato `channel: 'chromium'` no bloco `use`, apesar do comentário do arquivo dizer que sim — ver ROADMAP.md (Épico 8) para o detalhe. Não é um bug de negócio nem trava o Gustavo hoje, mas deixa o comportamento real do arquivo divergente do que ele documenta.
 
-## Sprint 7 — Guindaste 3D mais realista + campos embutidos na cena (Épico 9) 🔲 Não iniciada (14/09/2026)
+## Sprint 7 — Guindaste 3D mais realista + campos embutidos na cena (Épico 9) ✅ Concluída (14/09/2026)
 
 | ID | Tarefa | Prioridade | Rastreio |
 |---|---|---|---|
-| S7-01 | 🔲 Modelo 3D mais detalhado do guindaste (cabine, rodas, base, lança em seções, moitão com risca), estilo técnico/linha amarelo/preto/cinza, para os dois guindastes (MD-300L e TM-130) | Alta | Task 9.1 |
-| S7-02 | 🔲 Remover o painel "Posição da lança" (incluindo o dropdown de comprimento) e embutir os campos de comprimento exato e raio de trabalho como rótulos sobre a própria lança, dentro do desenho 3D | Alta | Task 9.2 |
+| S7-01 | ✅ Modelo 3D mais detalhado do guindaste (cabine, rodas, base, lança em seções, moitão com risca), estilo técnico/linha amarelo/preto/cinza, para os dois guindastes (MD-300L e TM-130) | Alta | Task 9.1 |
+| S7-02 | ✅ Remover o painel "Posição da lança" (incluindo o dropdown de comprimento) e embutir os campos de comprimento exato e raio de trabalho como rótulos sobre a própria lança, dentro do desenho 3D | Alta | Task 9.2 |
 
-**Pronto quando**: o guindaste 3D parece de fato um guindaste (não uma forma abstrata), no estilo técnico/linha combinando com o tema HUD já existente (Épico 8), e os campos de comprimento/raio ficam embutidos no próprio desenho — sem alterar o motor de cálculo, o schema de dados ou as regras de negócio. Pedido explicitamente pelo Gustavo, com referências visuais anexadas e 3 decisões confirmadas nesta sessão do Claude Desktop (ver ROADMAP.md, Épico 9).
+**Pronto quando**: o guindaste 3D parece de fato um guindaste (não uma forma abstrata), no estilo técnico/linha combinando com o tema HUD já existente (Épico 8), e os campos de comprimento/raio ficam embutidos no próprio desenho — sem alterar o motor de cálculo, o schema de dados ou as regras de negócio. Pedido explicitamente pelo Gustavo, com referências visuais anexadas e 3 decisões confirmadas nesta sessão do Claude Desktop (ver ROADMAP.md, Épico 9). ✅ Atingido — 54 testes unitários + 9 e2e passando, typecheck/lint/build limpos (ver ROADMAP.md, Épico 9).
 
-**Ponto em aberto para a implementação:** como os 7 comprimentos reais da tabela do MD-300L ficam acessíveis sem o dropdown (ex.: marcas ao longo da lança) — a confirmar com o Gustavo antes de codar.
+**Ponto em aberto resolvido:** os 7 comprimentos reais da tabela do MD-300L viraram marcas de encaixe visuais ao longo da lança — decisão confirmada com o Gustavo via `AskUserQuestion` antes de codar (arrasto livre longe de uma marca, ímã perto dela, pulo exato ao clicar em cima).
 
-**Nota de processo:** esta sprint foi levantada e esclarecida no Claude Desktop (14/09/2026) — a implementação (Task 9.1/9.2) acontece numa sessão do Claude Code.
+**Nota de processo:** esta sprint foi levantada e esclarecida no Claude Desktop (14/09/2026) e implementada numa sessão do Claude Code no mesmo dia. Três bugs reais de integração R3F/drei/OrbitControls foram encontrados e corrigidos durante a implementação (digitação corrompida num `<input type="number">` dentro de `<Html>`, a câmera do `<Canvas>` brigando com o `OrbitControls` por um objeto de config recriado a cada render, e o `OrbitControls` podendo orbitar durante um arrasto customizado da lança/gancho) — ver ROADMAP.md, Épico 9, para o detalhe de cada um.
 
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 
@@ -107,11 +107,10 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 ## Próximos Passos Imediatos
 
-Com os Épicos 1 a 4, 7 e 8 concluídos (dados reais, motor de cálculo v2, interface gráfica de produção — agora em 3D/tela cheia, visual industrial e lança arrastável — e alertas/usabilidade), o próximo trabalho de desenvolvimento é o Épico 9, e falta fechar o Épico 5:
+Com os Épicos 1 a 4, 7, 8 e 9 concluídos (dados reais, motor de cálculo v2, interface gráfica de produção — agora em 3D/tela cheia, visual industrial e realista, lança arrastável com campos embutidos — e alertas/usabilidade), falta fechar o Épico 5:
 
-1. **S7-01/S7-02 (Épico 9)** — Modelo 3D mais realista do guindaste e campos de comprimento/raio embutidos na cena — próximo trabalho de desenvolvimento, feito no Claude Code.
-2. **Achado da verificação do Épico 8** — corrigir `app/playwright.config.ts` (falta a chave `channel: 'chromium'` que o próprio comentário do arquivo já diz existir) numa próxima sessão do Claude Code.
-3. **S4-04** — Roteiro e gravação do vídeo pitch com o protótipo de produção funcionando (vale regravar as capturas de tela depois do Épico 9, com o novo modelo 3D).
-4. Formalizar o S1-01 (deploy inicial no Vercel), pendência que ficou em aberto desde a Sprint 1.
-5. Manter a página do Notion atualizada a cada decisão — é a entrega acadêmica formal do projeto.
-6. Em paralelo, seguir o levantamento bibliográfico do artigo científico (**S4-05** — já há um template e um rascunho em `docs/`).
+1. **Achado da verificação do Épico 8** — corrigir `app/playwright.config.ts` (falta a chave `channel: 'chromium'` que o próprio comentário do arquivo já diz existir) numa próxima sessão do Claude Code.
+2. **S4-04** — Roteiro e gravação do vídeo pitch com o protótipo de produção funcionando (vale regravar as capturas de tela agora que o Épico 9 trouxe o novo modelo 3D).
+3. Formalizar o S1-01 (deploy inicial no Vercel), pendência que ficou em aberto desde a Sprint 1.
+4. Manter a página do Notion atualizada a cada decisão — é a entrega acadêmica formal do projeto.
+5. Em paralelo, seguir o levantamento bibliográfico do artigo científico (**S4-05** — já há um template e um rascunho em `docs/`).

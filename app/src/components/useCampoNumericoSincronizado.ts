@@ -38,7 +38,18 @@ export function useCampoNumericoSincronizado(
     },
     onChange: (e: ChangeEvent<HTMLInputElement>) => {
       setTexto(e.target.value)
-      const v = e.target.valueAsNumber
+      // `Number(...)`, não `e.target.valueAsNumber`: os campos que usam este
+      // hook hoje vivem dentro de um <Html> do react-three-fiber (Task 9.2)
+      // — um <input type="number"> ali sofre um problema real do navegador:
+      // ao React re-aplicar um valor intermediário inválido (ex.: "8.", no
+      // meio de digitar "8.5") via a propriedade `.value`, o próprio input
+      // numérico SANITIZA isso para "" (a digitação natural do usuário não
+      // sofre disso — só a escrita programática via React). `Number("8.")`
+      // já retorna 8 corretamente, sem essa armadilha.
+      // `Number('')` é 0, não NaN — sem este guard, apagar o campo para
+      // digitar de novo confirmaria um zero indesejado no meio do caminho.
+      if (e.target.value.trim() === '') return
+      const v = Number(e.target.value)
       if (!Number.isNaN(v)) aoConfirmar(v)
     },
   }

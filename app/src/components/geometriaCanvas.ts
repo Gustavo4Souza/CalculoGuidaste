@@ -42,3 +42,28 @@ export function projetarComprimento(dx: number, dy: number, anguloGraus: number,
   const projecao = dx * Math.cos(anguloRad) + dy * Math.sin(anguloRad)
   return Math.min(max, Math.max(min, projecao))
 }
+
+/**
+ * Task 9.2 — "ímã" para os comprimentos reais da tabela do fabricante,
+ * marcados como encaixes visuais na lança: se o valor arrastado cai perto
+ * de um dos comprimentos reais (dentro da tolerância), gruda exatamente
+ * nele; caso contrário, mantém o valor contínuo/livre (decisão do Épico 8
+ * — arrastar longe de uma marca continua dando um valor livre, não fica
+ * preso só aos 7 pontos).
+ */
+export function aplicarSnapComprimento(
+  valorM: number,
+  comprimentosReaisM: ReadonlyArray<number>,
+  toleranciaM = 0.35,
+): number {
+  let maisProximo: number | null = null
+  let menorDistancia = Infinity
+  for (const real of comprimentosReaisM) {
+    const distancia = Math.abs(valorM - real)
+    if (distancia < menorDistancia) {
+      menorDistancia = distancia
+      maisProximo = real
+    }
+  }
+  return maisProximo !== null && menorDistancia <= toleranciaM ? maisProximo : valorM
+}

@@ -207,6 +207,41 @@
   color: var(--sucesso);
 }
 
+/* Task 9.2 — campos de posição (comprimento/raio/ângulo) embutidos na
+   própria cena 3D, no lugar do painel lateral "Posição da lança". */
+.cena-3d__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--accent-forte);
+  background: rgba(13, 16, 18, 0.92);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  padding: 4px 7px;
+  pointer-events: auto;
+}
+
+.cena-3d__campo input {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-h);
+  background: var(--bg-instrumento);
+  border: 1px solid var(--border-forte);
+  border-radius: 3px;
+  padding: 3px 5px;
+  width: 84px;
+}
+
+.cena-3d__campo input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(242, 167, 27, 0.25);
+}
+
 .simulador__lateral {
   min-height: 0;
   overflow-y: auto;

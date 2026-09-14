@@ -9,7 +9,6 @@ import type { Quadrante, ZonaDeGiro } from '../types/guindaste'
 import { CenaGuindaste3D } from './CenaGuindaste3D'
 import { IndicadorStatus } from './IndicadorStatus'
 import { MedidorCapacidade } from './MedidorCapacidade'
-import { useCampoNumericoSincronizado } from './useCampoNumericoSincronizado'
 
 /**
  * Ângulo só ilustrativo da lança principal quando o JIB está em uso (RF12):
@@ -60,13 +59,6 @@ export function Simulador() {
     const v = e.target.valueAsNumber
     return Number.isNaN(v) ? 0 : v
   }
-
-  // Task 4.2 — evita que o campo "Raio de trabalho" (valor derivado do
-  // ângulo, reformatado a cada render) atrapalhe a digitação do usuário.
-  const campoRaio = useCampoNumericoSincronizado(raioAtualM, definirRaioM)
-  // Task 8.2 — mesmo padrão para o comprimento: agora é um valor contínuo
-  // (arrastável na cena 3D), então também precisa do campo sincronizado.
-  const campoComprimento = useCampoNumericoSincronizado(configuracao.comprimentoLancaM ?? 0, definirComprimentoLancaM)
 
   const anguloVisualTM130 = configuracao.anguloLancaGraus ?? 30
   const raioVisualTM130 = comprimentoVisualM * Math.cos((anguloVisualTM130 * Math.PI) / 180)
@@ -142,6 +134,9 @@ export function Simulador() {
                 onComprimentoChange={definirComprimentoLancaM}
                 comprimentoMinM={COMPRIMENTOS_LANCA_MD300L[0]}
                 comprimentoMaxM={COMPRIMENTO_LANCA_MAXIMO_MD300L}
+                comprimentosReaisM={COMPRIMENTOS_LANCA_MD300L}
+                raioAtualM={raioAtualM}
+                onRaioChange={definirRaioM}
                 corDestaque={corDestaque}
               />
             )
@@ -158,109 +153,56 @@ export function Simulador() {
         </section>
 
         <aside className="simulador__lateral">
-          <section className="painel">
-            <h2>Posição da lança</h2>
-
-            {usaJIB ? (
-              <>
-                <label>
-                  Comprimento do JIB (m)
-                  <select
-                    value={configuracao.jib?.comprimentoJibM}
-                    onChange={(e) => definirJIB({ comprimentoJibM: Number(e.target.value) })}
-                  >
-                    {COMPRIMENTOS_JIB_MD300L.map((c) => (
-                      <option key={c} value={c}>
-                        {c.toFixed(1)} m
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Ângulo do JIB (°)
-                  <select
-                    value={configuracao.jib?.anguloJibGraus}
-                    onChange={(e) => definirJIB({ anguloJibGraus: Number(e.target.value) })}
-                  >
-                    {ANGULOS_JIB_MD300L.map((a) => (
-                      <option key={a} value={a}>
-                        {a}°
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Raio de trabalho (m)
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={configuracao.raioM ?? ''}
-                    onChange={(e) => definirJIB({ raioM: numero(e) })}
-                  />
-                </label>
-                <p className="rf-note">
-                  Adicionar o JIB aumenta o alcance da lança, mas reduz a capacidade máxima em relação à lança
-                  principal sozinha — e essa capacidade também muda conforme o ângulo do JIB (tabela própria, RF12).
-                </p>
-              </>
-            ) : ehVarianteA ? (
-              <>
-                <label>
-                  Comprimento de lança — pontos reais da tabela (m)
-                  <select
-                    value=""
-                    onChange={(e) => e.target.value && definirComprimentoLancaM(Number(e.target.value))}
-                  >
-                    <option value="">selecionar…</option>
-                    {COMPRIMENTOS_LANCA_MD300L.map((c) => (
-                      <option key={c} value={c}>
-                        {c.toFixed(2)} m
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Comprimento exato — arraste a lança na cena (m)
-                  <input
-                    type="number"
-                    step="0.1"
-                    min={COMPRIMENTOS_LANCA_MD300L[0]}
-                    max={COMPRIMENTO_LANCA_MAXIMO_MD300L}
-                    value={campoComprimento.texto}
-                    onFocus={campoComprimento.onFocus}
-                    onBlur={campoComprimento.onBlur}
-                    onChange={campoComprimento.onChange}
-                  />
-                </label>
-                <label>
-                  Raio de trabalho (m)
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={campoRaio.texto}
-                    onFocus={campoRaio.onFocus}
-                    onBlur={campoRaio.onBlur}
-                    onChange={campoRaio.onChange}
-                  />
-                </label>
-                <p className="rf-note">
-                  Comprimento contínuo (Task 8.2) — o motor de cálculo interpola com segurança entre os 7
-                  comprimentos reais da tabela do fabricante; o valor é sempre limitado a esse intervalo real
-                  (10,50 m–32,10 m), nunca extrapolado.
-                </p>
-              </>
-            ) : (
+          {/* Task 9.2 — o painel "Posição da lança" saiu daqui: comprimento,
+              raio e ângulo agora são campos embutidos na própria cena 3D
+              (ver CenaGuindaste3D.tsx). O modo JIB é a exceção — a tabela de
+              JIB só tem 3 comprimentos × 3 ângulos discretos (sem arrasto
+              contínuo nem marcas de encaixe), então continua um formulário
+              simples aqui. */}
+          {usaJIB && (
+            <section className="painel">
+              <h2>Posição da lança (JIB)</h2>
               <label>
-                Ângulo da lança (°)
+                Comprimento do JIB (m)
+                <select
+                  value={configuracao.jib?.comprimentoJibM}
+                  onChange={(e) => definirJIB({ comprimentoJibM: Number(e.target.value) })}
+                >
+                  {COMPRIMENTOS_JIB_MD300L.map((c) => (
+                    <option key={c} value={c}>
+                      {c.toFixed(1)} m
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Ângulo do JIB (°)
+                <select
+                  value={configuracao.jib?.anguloJibGraus}
+                  onChange={(e) => definirJIB({ anguloJibGraus: Number(e.target.value) })}
+                >
+                  {ANGULOS_JIB_MD300L.map((a) => (
+                    <option key={a} value={a}>
+                      {a}°
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Raio de trabalho (m)
                 <input
                   type="number"
                   step="0.1"
-                  value={configuracao.anguloLancaGraus ?? ''}
-                  onChange={(e) => atualizarConfiguracao({ anguloLancaGraus: numero(e) })}
+                  value={configuracao.raioM ?? ''}
+                  onChange={(e) => definirJIB({ raioM: numero(e) })}
                 />
               </label>
-            )}
-          </section>
+              <p className="rf-note">
+                Adicionar o JIB aumenta o alcance da lança, mas reduz a capacidade máxima em relação à lança
+                principal sozinha — e essa capacidade também muda conforme o ângulo do JIB (tabela própria, RF12).
+              </p>
+            </section>
+          )}
 
           <section className="painel">
             <h2>Peso a içar</h2>
