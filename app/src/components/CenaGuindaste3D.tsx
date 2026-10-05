@@ -5,6 +5,7 @@ import { Group, Vector3 } from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { CATALOGO } from '../data/catalogo'
 import { calcularPonta } from '../engine/geometriaLanca'
+import type { MapaAreaOperacao } from '../engine/mapaAreaOperacao'
 import type { VistaPadrao } from '../store/useInterfaceStore'
 import { comprimentosReaisDaTabela, useSimulacaoStore } from '../store/useSimulacaoStore'
 import type { PosicaoSapata } from '../types/cenario'
@@ -14,6 +15,7 @@ import { Caminhao } from './cena/Caminhao'
 import { CargaSuspensa } from './cena/CargaSuspensa'
 import { CAMERA_FOV, ControladorDeVista, VISTA_ISOMETRICA } from './cena/ControladorDeVista'
 import { Cotas } from './cena/Cotas'
+import { MapaNoChao } from './cena/MapaNoChao'
 import { extremosDoCaminhao, giroDoPonto, rotacaoDoGiro } from './cena/geometriaCena'
 import {
   capturarPonteiro,
@@ -108,9 +110,12 @@ function contarFontes(esp: EspecificacaoGuindaste): { ficha: number; aproximadas
 export function CenaGuindaste3D({
   corDestaque,
   vista,
+  mapa,
 }: {
   corDestaque: string
   vista: { nome: VistaPadrao; pedido: number }
+  /** Épico 14 — mapa da área de operação a desenhar no chão (null = oculto). */
+  mapa: MapaAreaOperacao | null
 }) {
   const cenario = useSimulacaoStore((s) => s.cenario)
   const avaliacao = useSimulacaoStore((s) => s.avaliacao)
@@ -224,6 +229,7 @@ export function CenaGuindaste3D({
         <directionalLight position={[15, 22, 12]} intensity={0.9} />
 
         <Chao />
+        {mapa && <MapaNoChao mapa={mapa} />}
         <Caminhao esp={esp} />
         <Sapatas
           esp={esp}

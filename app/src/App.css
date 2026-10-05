@@ -702,3 +702,58 @@ label.checkbox {
   color: #8a5200;
   cursor: help;
 }
+
+/* Épico 14 — legenda do mapa da área de operação. */
+.segmento--separado {
+  margin-left: 8px;
+  border-left: 1px solid var(--border-forte) !important;
+  border-radius: 3px !important;
+}
+.legenda-mapa {
+  /* No painel de resultado (Épico 14): sobre a viewport ela cobria peças arrastáveis. */
+  margin: 0 14px 14px;
+  padding: 8px 10px;
+  font-size: 11.5px;
+  background: var(--bg-campo);
+  border: 1px solid var(--border-forte);
+  border-radius: 2px;
+}
+.legenda-mapa__titulo {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.legenda-mapa__item {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 0;
+}
+.legenda-mapa__amostra {
+  width: 14px;
+  height: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  opacity: 0.75;
+}
+.legenda-mapa__amostra--hachura {
+  background: repeating-linear-gradient(135deg, #3c4650 0 2px, #c9ced3 2px 5px);
+}
+.legenda-mapa__pct {
+  font-family: var(--mono);
+  color: var(--text-fraco);
+}
+.legenda-mapa__nota {
+  margin-top: 4px;
+  color: var(--text-fraco);
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+.legenda-mapa__aviso {
+  margin-top: 4px;
+  padding: 3px 5px;
+  background: #fff5e5;
+  border: 1px dashed var(--atencao);
+  color: #8a5200;
+  font-size: 10.5px;
+  line-height: 1.35;
+}

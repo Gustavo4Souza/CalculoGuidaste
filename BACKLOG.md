@@ -108,7 +108,7 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Pronto quando**: o motor v3 avalia qualquer cenário dos dois guindastes com dados reais, devolvendo "sem dado do fabricante" fora da cobertura. Hoje: 90 testes unitários + 9 e2e passando; falta só a tabela polar do TM-130.
 
-**Sprints seguintes (planejadas):** Épico 14 (mapa de área) → 15 (persistência/CRUD) → 16 (PDF). Ver ROADMAP.md.
+**Sprints seguintes (planejadas):** Épico 15 (persistência/CRUD) → 16 (PDF). Ver ROADMAP.md.
 
 ## Sprint 9 — Fonte única de estado (Épico 11) ✅ Concluída (05/10/2026)
 
@@ -144,6 +144,15 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 | S11-04 | ✅ Rótulos `<Html>` não bloqueiam mais o clique (bug real) | Alta | Task 13.4 |
 
 **Pronto quando**: o desenho usa as medidas das fichas (aproximadas marcadas) e todo parâmetro com sentido físico pode ser arrastado na cena. ✅ Atingido: 108 unitários + 15 e2e (30/30 em execução repetida).
+
+## Sprint 12 — Mapa da área de operação no chão (Épico 14) ✅ Concluída (05/10/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| S12-01 | ✅ `engine/mapaAreaOperacao.ts` — grade giro × raio avaliada por `avaliarCenario` (sem lógica duplicada), testes com valores reais | Alta | Task 14.1 / RF22 |
+| S12-02 | ✅ Mapa no chão (OK/Atenção/NOK em cor, sem dado hachurado) + botão liga/desliga + legenda | Alta | Task 14.2 / RF22 |
+
+**Pronto quando**: o chão mostra, para a configuração atual, onde a operação é OK, NOK ou sem dado do fabricante, usando a mesma função do motor. ✅ Atingido: 117 unitários + 16 e2e (32/32 em execução repetida).
 
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 

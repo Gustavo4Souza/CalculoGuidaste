@@ -581,3 +581,32 @@ test('Épico 13 — carga desenhada em escala com o centro de gravidade', async 
   await expect(page.locator('.cena-3d__cota--cg')).toHaveText('CG')
   await expect(page.locator('.cena-3d__fontes')).toContainText('medidas da ficha')
 })
+
+test('Épico 14 — mapa da área de operação no chão (RF22): legenda, recálculo e liga/desliga', async ({ page }) => {
+  await page.goto('/')
+  const legenda = page.getByTestId('legenda-mapa')
+  const pct = (status: string) => legenda.locator(`[data-status="${status}"] .legenda-mapa__pct`)
+
+  // Cenário inicial: sem a massa linear do cabo nada é validado — 100% "sem dado", com aviso.
+  await expect(pct('sem_dado')).toHaveText('100%')
+  await expect(legenda.locator('.legenda-mapa__aviso')).toBeVisible()
+
+  // Com o cabo informado e 9.000 kg na lança de 17,70 m, há regiões OK e NOK
+  // (frontal: 7 m = 10.800 kg passa; 8 m = 7.500 kg não passa — tabela real).
+  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
+  await page.getByLabel('Peso da carga (kg)').fill('9000')
+  await expect(legenda.locator('.legenda-mapa__aviso')).toHaveCount(0)
+  await expect(pct('ok')).not.toHaveText('0%')
+  await expect(pct('nok')).not.toHaveText('0%')
+
+  // Sapata parcial → nenhuma posição validada (regra de ouro).
+  await abrirNo(page, 'Sapatas')
+  await page.getByLabel('Sapata traseira esquerda (m)').fill('2')
+  await expect(pct('sem_dado')).toHaveText('100%')
+
+  // Liga/desliga pelo botão da barra de vistas.
+  await page.getByRole('button', { name: 'Área de operação' }).click()
+  await expect(legenda).toHaveCount(0)
+  await page.getByRole('button', { name: 'Área de operação' }).click()
+  await expect(legenda).toBeVisible()
+})

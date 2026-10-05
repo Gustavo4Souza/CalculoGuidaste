@@ -2,6 +2,8 @@ import { useInterfaceStore, type VistaPadrao } from '../store/useInterfaceStore'
 import { useSimulacaoStore } from '../store/useSimulacaoStore'
 import { ArvoreParametros } from './ArvoreParametros'
 import { CenaGuindaste3D } from './CenaGuindaste3D'
+import { LegendaMapa } from './cena/LegendaMapa'
+import { useMapaAreaOperacao } from './cena/useMapaAreaOperacao'
 import { PainelResultado } from './PainelResultado'
 
 // Mesmas cores de --ok/--atencao/--nok/--semdado (index.css) — repetidas
@@ -28,8 +30,12 @@ const VISTAS: { nome: VistaPadrao; rotulo: string }[] = [
  */
 export function Simulador() {
   const avaliacao = useSimulacaoStore((s) => s.avaliacao)
+  const cenario = useSimulacaoStore((s) => s.cenario)
   const vista = useInterfaceStore((s) => s.vista)
   const pedirVista = useInterfaceStore((s) => s.pedirVista)
+  const mostrarMapa = useInterfaceStore((s) => s.mostrarMapa)
+  const alternarMapa = useInterfaceStore((s) => s.alternarMapa)
+  const mapa = useMapaAreaOperacao(cenario)
 
   return (
     <div className="area-trabalho">
@@ -47,12 +53,23 @@ export function Simulador() {
               {v.rotulo}
             </button>
           ))}
+          <button
+            type="button"
+            className={`segmento segmento--separado ${mostrarMapa ? 'segmento--ativo' : ''}`}
+            aria-pressed={mostrarMapa}
+            onClick={alternarMapa}
+            title="Mapa da área de operação no chão (RF22)"
+          >
+            Área de operação
+          </button>
         </div>
-        <CenaGuindaste3D corDestaque={CORES_STATUS[avaliacao.status]} vista={vista} />
+        <CenaGuindaste3D corDestaque={CORES_STATUS[avaliacao.status]} vista={vista} mapa={mostrarMapa ? mapa : null} />
       </section>
 
       <aside className="painel-direito">
         <PainelResultado />
+        {/* Legenda do mapa fora da viewport: sobre a cena ela cobria peças arrastáveis (gancho, anel de giro). */}
+        {mostrarMapa && <LegendaMapa mapa={mapa} />}
       </aside>
     </div>
   )
