@@ -14,16 +14,19 @@ import { useEffect, useRef, useState } from 'react'
  * exemplo) quando o campo perde o foco ou o valor muda fora dele.
  */
 export function useCampoNumericoSincronizado(
-  valorExterno: number,
+  valorExterno: number | null,
   aoConfirmar: (valor: number) => void,
   casasDecimais = 2,
+  /** Épico 11 — presente → apagar o campo confirma "sem valor" (null) em vez de ser ignorado. */
+  aoLimpar?: () => void,
 ) {
-  const [texto, setTexto] = useState(valorExterno.toFixed(casasDecimais))
+  const formatar = (v: number | null) => (v === null ? '' : v.toFixed(casasDecimais))
+  const [texto, setTexto] = useState(formatar(valorExterno))
   const focado = useRef(false)
 
   useEffect(() => {
     if (!focado.current) {
-      setTexto(valorExterno.toFixed(casasDecimais))
+      setTexto(valorExterno === null ? '' : valorExterno.toFixed(casasDecimais))
     }
   }, [valorExterno, casasDecimais])
 
@@ -34,7 +37,7 @@ export function useCampoNumericoSincronizado(
     },
     onBlur: () => {
       focado.current = false
-      setTexto(valorExterno.toFixed(casasDecimais))
+      setTexto(formatar(valorExterno))
     },
     onChange: (e: ChangeEvent<HTMLInputElement>) => {
       setTexto(e.target.value)
@@ -48,8 +51,12 @@ export function useCampoNumericoSincronizado(
       // já retorna 8 corretamente, sem essa armadilha.
       // `Number('')` é 0, não NaN — sem este guard, apagar o campo para
       // digitar de novo confirmaria um zero indesejado no meio do caminho.
-      if (e.target.value.trim() === '') return
-      const v = Number(e.target.value)
+      if (e.target.value.trim() === '') {
+        aoLimpar?.()
+        return
+      }
+      // Aceita vírgula decimal (padrão brasileiro) além de ponto.
+      const v = Number(e.target.value.replace(',', '.'))
       if (!Number.isNaN(v)) aoConfirmar(v)
     },
   }

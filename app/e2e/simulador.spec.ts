@@ -170,8 +170,11 @@ test('carrega a tela de simulação e calcula a capacidade para uma configuraç�
   await page.getByLabel('Comprimento (m)').blur()
   await page.getByLabel('Raio de trabalho (m)').fill('4')
 
-  await expect(page.getByText('20.000 kg')).toBeVisible()
-  await expect(page.getByText('Dentro do limite')).toBeVisible()
+  await expect(page.locator('.resultado .capacidade')).toHaveText('20.000 kg')
+  // Épico 11 — massa linear do cabo não consta nas fichas: sem ela, "sem dado" (regra de ouro).
+  await expect(page.locator('.status-chip--semdado')).toContainText('Massa linear do cabo')
+  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
+  await expect(page.getByText('Dentro do limite seguro')).toBeVisible()
 })
 
 test('indicador visual de status (Task 4.1 / RF03) muda entre dentro do limite e excede a capacidade', async ({
@@ -183,16 +186,24 @@ test('indicador visual de status (Task 4.1 / RF03) muda entre dentro do limite e
   await page.getByLabel('Comprimento (m)').blur()
   await page.getByLabel('Raio de trabalho (m)').fill('4')
 
-  await page.getByLabel('Carga içada (kg)').fill('15000')
+  // Massa do cabo informada à mão (0 kg) para o somatório ficar exatamente igual à carga.
+  await page.getByLabel('Massa do cabo — valor manual (kg)').fill('0')
+
+  await page.getByLabel('Peso da carga (kg)').fill('15000')
   await expect(page.locator('.status-chip--good')).toContainText('Dentro do limite seguro')
-  await expect(page.locator('.status-chip--good')).toContainText('Margem de segurança: 25.0%')
+  await expect(page.locator('.status-chip--good')).toContainText('Utilização de 75.0%')
 
-  await page.getByLabel('Carga içada (kg)').fill('25000')
+  await page.getByLabel('Limite de utilização (%)').fill('70')
+  await expect(page.locator('.status-chip--warning')).toContainText('Acima do limite definido pelo engenheiro')
+
+  await page.getByLabel('Peso da carga (kg)').fill('25000')
   await expect(page.locator('.status-chip--critical')).toContainText('Carga excede a capacidade máxima')
-  await expect(page.locator('.status-chip--critical')).toContainText('Excedente de 25.0%')
+  await expect(page.locator('.status-chip--critical')).toContainText('Utilização de 125.0%')
 
+  // Raio inalcançável → lança deitada (raio 12,70 m), além da última célula da coluna 14,10 m (12 m).
   await page.getByLabel('Raio de trabalho (m)').fill('999')
-  await expect(page.locator('.status-chip--warning')).toContainText('fora da faixa operável')
+  await page.getByLabel('Raio de trabalho (m)').blur()
+  await expect(page.locator('.status-chip--semdado')).toContainText('sem célula na coluna 14,10 m')
 })
 
 test('Task 4.2 — digitar no campo "Raio de trabalho" tecla por tecla não reformata/engole o texto', async ({
@@ -221,12 +232,17 @@ test('toggle de JIB (RF12) aparece só para o MD-300L e calcula contra a tabela 
   await page.getByLabel(/Usar lança JIB/i).check()
 
   await page.getByLabel('Comprimento do JIB (m)').selectOption('9')
-  await page.getByLabel('Ângulo do JIB (°)').selectOption('10')
-  await page.getByLabel('Raio de trabalho (m)').fill('6')
+  await page.getByLabel('Ângulo do JIB (°)').fill('10')
+  await page.getByLabel('Raio de trabalho (JIB) (m)').fill('6')
 
-  await expect(page.getByText('3.000 kg')).toBeVisible()
+  await expect(page.locator('.resultado .capacidade')).toHaveText('3.000 kg')
 
-  // TM-130 não tem JIB — o toggle não deve existir para ele.
+  // Offset intermediário (17,5°, raio 8 m) é interpolado entre as tabelas de 10° e 25°: 3.000 e 2.050 → 2.525 kg.
+  await page.getByLabel('Ângulo do JIB (°)').fill('17.5')
+  await page.getByLabel('Raio de trabalho (JIB) (m)').fill('8')
+  await expect(page.locator('.resultado .capacidade')).toHaveText('2.525 kg')
+
+  // TM-130: o JIB da ficha fica desligado até a Ribas confirmar — sem toggle.
   await page.getByRole('combobox').first().selectOption('TM-130')
   await expect(page.getByLabel(/Usar lança JIB/i)).toHaveCount(0)
 })
@@ -365,30 +381,29 @@ test('Task 9.2 — clicar numa marca de encaixe pula exatamente para aquele comp
   expect(comprimentoObtido).toBe(comprimentoAlvoM)
 })
 
-test('UC02 (TM-130) — arrastar o gancho na cena 3D muda o ângulo e a capacidade calculada (Zona I)', async ({
+test('UC02 (TM-130) — arrastar o gancho muda o ângulo; a lança principal fica "sem dado" até a tabela polar', async ({
   page,
 }) => {
   await page.goto('/')
 
   await page.getByRole('combobox').first().selectOption('TM-130')
-  await page.getByLabel('Zona de giro').selectOption('I')
 
+  // Épico 11 — o TM-130 agora tem comprimento real (5,9–12,4 m) e o ângulo fica no painel de parâmetros.
+  const comprimentoM = 12
   const anguloInicial = 30
+  await page.getByLabel('Comprimento (m)').fill(String(comprimentoM))
+  await page.getByLabel('Comprimento (m)').blur()
   await page.getByLabel('Ângulo da lança (°)').fill(String(anguloInicial))
+  await page.getByLabel('Ângulo da lança (°)').blur()
 
   const canvas = page.locator('.cena-3d canvas')
   const box = await canvasEstavel(canvas)
 
-  // TM-130 não tem comprimento real na tabela — a cena usa 12m só como
-  // referência visual (COMPRIMENTO_VISUAL_TM130 na store), sem afetar o cálculo.
-  // Alvo de 65° (não 70°, o máximo da tabela) para dar folga a qualquer
-  // arredondamento de pixel — passar de 70° cairia em "fora da faixa".
   const alturaPeDaLancaM = 2.8
-  const comprimentoVisual = 12
-  const anguloAlvo = 65
+  const anguloAlvo = 65 // abaixo dos 70° máximos da ficha, com folga para arredondamento de pixel
 
-  const origem3D = posicaoGancho3D(alturaPeDaLancaM, comprimentoVisual, anguloInicial)
-  const destino3D = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoVisual, anguloAlvo)
+  const origem3D = posicaoGancho3D(alturaPeDaLancaM, comprimentoM, anguloInicial)
+  const destino3D = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoM, anguloAlvo)
   const origem = projetarPontoNaTela(origem3D, box.width, box.height)
   const destino = projetarPontoNaTela(destino3D, box.width, box.height)
 
@@ -398,16 +413,44 @@ test('UC02 (TM-130) — arrastar o gancho na cena 3D muda o ângulo e a capacida
   await page.mouse.up()
 
   const anguloFinal = await page.getByLabel('Ângulo da lança (°)').inputValue()
-  expect(Number(anguloFinal)).toBeCloseTo(65, 0) // arrastado para 65°, longe do 30° inicial
+  expect(Number(anguloFinal)).toBeCloseTo(65, 0)
 
-  // De 40° a 70° a Zona I é um platô de 3.800 kg (confirmado em Tabelas_Zonas_Giro.xlsx) —
-  // qualquer ângulo final nesse intervalo deve cair exatamente nesse valor.
-  const capacidadeTexto = await page.locator('.resultado .capacidade').innerText()
-  const capacidadeKg = Number(capacidadeTexto.replace(/[^\d]/g, ''))
-  expect(capacidadeKg).toBe(3800)
+  // A tabela zona×ângulo é a do JIB ("Com sapata para lança JIB"): a lança
+  // principal não tem valor até o diagrama polar ser transcrito — nada inventado.
+  await expect(page.locator('.resultado .capacidade')).toHaveText('Sem dado do fabricante')
+  await expect(page.locator('.status-chip--semdado')).toContainText('ainda não transcrita')
 })
 
-test('busca reversa por peso (RF05/RF15) lista o TM-130 antes do MD-300L', async ({ page }) => {
+test('RF18 — a área de operação é derivada do giro (MD-300L, critério provisório)', async ({ page }) => {
+  await page.goto('/')
+
+  // Estado inicial: 17,70 m, raio 8 m, giro 0° → frontal, 7.500 kg (ponto exato).
+  await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
+  await expect(page.getByTestId('regiao-derivada')).toContainText('área frontal')
+  await expect(page.locator('.simulador__barra .selo-provisorio')).toHaveText('Critério de giro provisório')
+
+  await page.getByLabel('Giro da superestrutura (°)').fill('90')
+  await expect(page.getByTestId('regiao-derivada')).toContainText('áreas lateral e traseira')
+  await expect(page.locator('.resultado .capacidade')).toHaveText('10.500 kg')
+
+  // Fronteira exata (55°): avalia as duas áreas e fica com a menor.
+  await page.getByLabel('Giro da superestrutura (°)').fill('55')
+  await expect(page.getByTestId('regiao-derivada')).toContainText('área frontal / áreas lateral e traseira')
+  await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
+})
+
+test('RF17 — sapata em extensão parcial: sem dado do fabricante, com o motivo', async ({ page }) => {
+  await page.goto('/')
+
+  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
+  await expect(page.getByText('Dentro do limite seguro')).toBeVisible()
+
+  await page.getByLabel('Sapata dianteira esquerda (m)').fill('2')
+  await expect(page.locator('.resultado .capacidade')).toHaveText('Sem dado do fabricante')
+  await expect(page.locator('.status-chip--semdado')).toContainText('Sapata dianteira esquerda')
+})
+
+test('busca reversa por peso (RF05/RF15) só sugere guindastes com tabela da lança principal', async ({ page }) => {
   await page.goto('/')
 
   // Busca reversa agora é uma aba própria, separada da tela de Simulação
@@ -416,8 +459,10 @@ test('busca reversa por peso (RF05/RF15) lista o TM-130 antes do MD-300L', async
 
   await page.getByLabel('Peso a içar (kg)').fill('2000')
 
+  // Épico 11 — o TM-130 sai da busca até a tabela da lança principal ser transcrita
+  // (a tabela zona×ângulo é a do JIB); a tela avisa isso explicitamente.
   const lista = page.locator('.busca-reversa__lista li')
-  await expect(lista).toHaveCount(2)
-  await expect(lista.nth(0)).toContainText('TM-130')
-  await expect(lista.nth(1)).toContainText('MD-300L')
+  await expect(lista).toHaveCount(1)
+  await expect(lista.nth(0)).toContainText('MD-300L')
+  await expect(page.getByText(/Fora da busca: TM-130/)).toBeVisible()
 })

@@ -474,7 +474,15 @@ export function CenaGuindaste3D({
 
   return (
     <div className="cena-3d">
-      <Canvas shadows={false} camera={cameraConfig} style={{ width: '100%', height: '100%', touchAction: 'none' }}>
+      {/* Épico 11 — frameloop "demand": só renderiza quando algo muda (props,
+          arrasto, OrbitControls — que já invalida sozinho). Com a cena parada,
+          o padrão "always" gastava ~20 quadros/s de CPU à toa. */}
+      <Canvas
+        frameloop="demand"
+        shadows={false}
+        camera={cameraConfig}
+        style={{ width: '100%', height: '100%', touchAction: 'none' }}
+      >
         <ambientLight intensity={0.75} />
         <directionalLight position={[15, 22, 12]} intensity={0.9} />
 
@@ -524,7 +532,9 @@ export function CenaGuindaste3D({
           />
 
           {jib && (
-            <group position={[comprimentoLancaM, 0, 0]} rotation={[0, 0, (jib.anguloJibGraus * Math.PI) / 180 - anguloRad]}>
+            // Épico 11 — o ângulo do JIB é um offset PARA BAIXO em relação à lança
+            // principal (planilha da Ribas, obs. G6), não um ângulo absoluto.
+            <group position={[comprimentoLancaM, 0, 0]} rotation={[0, 0, -(jib.anguloJibGraus * Math.PI) / 180]}>
               <SegmentoLanca
                 comprimentoM={jib.comprimentoJibM}
                 corEstrutura={COR_JIB}
@@ -671,11 +681,13 @@ export function CenaGuindaste3D({
         />
       </Canvas>
       <p className="cena-3d__dica">
-        {estruturaArrastavel
-          ? 'Arraste o gancho para o ângulo · arraste a lança para o comprimento (as marcas claras são os 7 comprimentos reais da tabela) · arraste fora do modelo para girar a câmera.'
-          : arrastavel
-            ? 'Arraste o gancho para ajustar o ângulo da lança · arraste fora do gancho para girar a câmera.'
-            : 'Visualização ilustrativa — arraste fora do modelo para girar a câmera.'}
+        {estruturaArrastavel && comprimentosReaisM
+          ? 'Arraste o gancho para o ângulo · arraste a lança para o comprimento (as marcas claras são os comprimentos reais da tabela) · arraste fora do modelo para girar a câmera.'
+          : estruturaArrastavel
+            ? 'Arraste o gancho para o ângulo · arraste a lança para o comprimento · arraste fora do modelo para girar a câmera.'
+            : arrastavel
+              ? 'Arraste o gancho para ajustar o ângulo da lança · arraste fora do gancho para girar a câmera.'
+              : 'Visualização ilustrativa — arraste fora do modelo para girar a câmera.'}
       </p>
     </div>
   )

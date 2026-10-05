@@ -108,7 +108,19 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Pronto quando**: o motor v3 avalia qualquer cenário dos dois guindastes com dados reais, devolvendo "sem dado do fabricante" fora da cobertura. Hoje: 90 testes unitários + 9 e2e passando; falta só a tabela polar do TM-130.
 
-**Sprints seguintes (planejadas):** Épico 11 (estado único) → 12 (UI CAD tema claro) → 13 (3D fiel) → 14 (mapa de área) → 15 (persistência/CRUD) → 16 (PDF). Ver ROADMAP.md.
+**Sprints seguintes (planejadas):** Épico 12 (UI CAD tema claro) → 13 (3D fiel) → 14 (mapa de área) → 15 (persistência/CRUD) → 16 (PDF). Ver ROADMAP.md.
+
+## Sprint 9 — Fonte única de estado (Épico 11) ✅ Concluída (05/10/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| S9-01 | ✅ Store com `cenario` único e `avaliacao` derivada; ações com limite mecânico | Alta | Task 11.1 / RF16 |
+| S9-02 | ✅ Seletor manual de quadrante/zona removido (área derivada do giro + selo provisório) | Alta | Task 11.2 / RF18 |
+| S9-03 | ✅ `CampoParametro` + painel com todos os parâmetros + resultado com 4 estados | Alta | Task 11.3 / RF16, RF17, RF19–RF21 |
+| S9-04 | ✅ Busca reversa sem o TM-130 até a tabela polar, com aviso | Média | Task 11.4 / RF15 |
+| S9-05 | ✅ `frameloop="demand"` na cena 3D (CPU parada: 26 → 0 tarefas longas/3 s) | Alta | Task 11.5 / RNF Desempenho |
+
+**Pronto quando**: todo parâmetro é editável e escreve num único estado, do qual o resultado é sempre derivado. ✅ Atingido: 102 testes unitários + 11 e2e (22/22 em execução repetida).
 
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 

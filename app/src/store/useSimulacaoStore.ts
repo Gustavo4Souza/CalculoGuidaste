@@ -1,201 +1,193 @@
+/**
+ * Estado da simulação (Épico 11 — fonte única de estado, RF16).
+ *
+ * `cenario` (ParametrosDoCenario) é o ÚNICO estado editável: campos
+ * numéricos, arrastos na cena 3D e (no Épico 15) cenários reabertos escrevem
+ * todos aqui. `avaliacao` é sempre DERIVADA dele pelo motor
+ * (engine/avaliarCenario.ts) a cada mudança — nunca editada à parte. Assim
+ * painel, cena, cotas e resultado não têm como divergir.
+ *
+ * As ações limitam (clamp) cada parâmetro aos limites MECÂNICOS da ficha;
+ * a cobertura da tabela (o que tem ou não capacidade validada) é decidida
+ * só pelo motor.
+ */
 import { create } from 'zustand'
+import { CATALOGO } from '../data/catalogo'
+import type { ContextoDoGuindaste } from '../engine/avaliarCenario'
+import { avaliarCenario, pernasPrevistasPelaTabela } from '../engine/avaliarCenario'
 import { buscarConfiguracoesViaveis } from '../engine/buscaReversa'
-import { calcularCapacidadeMaxima } from '../engine/calcularCapacidadeMaxima'
-import { calcularRaioReal } from '../engine/geometriaLanca'
-import guindastesData from '../data/guindastes.json'
-import tabelaJIBData from '../data/tabelas/md-300l-jib.json'
-import tabelaMD300L from '../data/tabelas/md-300l.json'
-import tabelaTM130 from '../data/tabelas/tm-130-jib.json'
-import type {
-  ConfiguracaoDeIcamento,
-  ConfiguracaoViavel,
-  Guindaste,
-  ResultadoDoCalculo,
-  TabelaCargaVarianteA,
-  TabelaCargaVarianteB,
-  TabelaJIB,
-} from '../types/guindaste'
+import { normalizarGiro } from '../engine/classificarGiro'
+import { calcularPonta, resolverAnguloParaRaio } from '../engine/geometriaLanca'
+import type { AvaliacaoDoCenario, ParametrosDoCenario, PosicaoSapata } from '../types/cenario'
+import type { ConfiguracaoViavel, Guindaste, TabelaCargaVarianteA } from '../types/guindaste'
+import { parametrosIniciais } from './parametrosIniciais'
 
-const guindastes = guindastesData as Guindaste[]
-const tabelas = {
-  varianteA: tabelaMD300L as TabelaCargaVarianteA[],
-  varianteB: tabelaTM130 as TabelaCargaVarianteB[],
-  jib: tabelaJIBData as TabelaJIB[],
+const GUINDASTE_INICIAL = 'MD-300L'
+
+function limitar(valor: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, valor))
 }
 
-/** Comprimentos de lança reais do MD-300L (colunas da tabela) — Task 3.4. */
-export const COMPRIMENTOS_LANCA_MD300L = [10.5, 14.1, 17.7, 21.3, 24.9, 28.5, 32.1]
+function contexto(cenario: ParametrosDoCenario): ContextoDoGuindaste {
+  return CATALOGO[cenario.guindasteId]
+}
 
-/** Combinações reais de JIB do MD-300L (RF12) — só comprimento×ângulo tabelados. */
-export const COMPRIMENTOS_JIB_MD300L = [9, 15.5, 20]
-export const ANGULOS_JIB_MD300L = [10, 25, 40]
+/** Comprimentos de lança reais (colunas da tabela principal) — marcas de encaixe na cena. */
+export function comprimentosReaisDaTabela(ctx: ContextoDoGuindaste): number[] {
+  const linhas = ctx.tabelas.principalVarianteA ?? []
+  return [...new Set(linhas.map((l) => l.comprimentoLancaM))].sort((a, b) => a - b)
+}
 
 /**
- * O TM-130 não tem um eixo de "comprimento de lança" na própria tabela
- * (é indexada só por zona+ângulo) — este valor é só a referência visual do
- * canvas (Task 3.1), não entra no motor de cálculo.
+ * Guindastes que entram na busca reversa (RF15): só os que têm a tabela da
+ * lança principal disponível. O TM-130 fica de fora até o diagrama polar ser
+ * transcrito (Task 10.1) — a tabela zona×ângulo é a do JIB, não da lança
+ * principal, e usá-la aqui seria rotular errado a configuração sugerida.
  */
-const COMPRIMENTO_VISUAL_TM130 = 12
-
-function anguloInicialParaRaio(guindaste: Guindaste, comprimentoLancaM: number, raioAlvoM: number): number {
-  const cosAngulo = (raioAlvoM + guindaste.recuoPeDaLancaM) / comprimentoLancaM
-  const anguloRad = Math.acos(Math.min(1, Math.max(-1, cosAngulo)))
-  return (anguloRad * 180) / Math.PI
+function frotaComTabelaPrincipal(): Guindaste[] {
+  return Object.values(CATALOGO)
+    .filter((c) => c.tabelas.principalVarianteA !== undefined)
+    .map((c) => c.guindaste)
 }
 
-function configuracaoInicial(guindaste: Guindaste): ConfiguracaoDeIcamento {
-  if (guindaste.tipoTabela === 'comprimento_raio_quadrante') {
-    const comprimentoLancaM = COMPRIMENTOS_LANCA_MD300L[2] // 17,70m — meio da frota
-    return {
-      guindasteId: guindaste.id,
-      comprimentoLancaM,
-      anguloLancaGraus: anguloInicialParaRaio(guindaste, comprimentoLancaM, 8),
-      quadranteOuZona: 'frontal',
-      usaJIB: false,
-      cargaIcadaKg: 0,
-      massaLingadaKg: 0,
-      massaCaboDeAcoKg: 0,
-      usaBalancim: false,
-    }
-  }
-  return {
-    guindasteId: guindaste.id,
-    anguloLancaGraus: 30,
-    quadranteOuZona: 'I',
-    usaJIB: false,
-    cargaIcadaKg: 0,
-    massaLingadaKg: 0,
-    massaCaboDeAcoKg: 0,
-    usaBalancim: false,
-  }
-}
+export const GUINDASTES_FORA_DA_BUSCA = Object.values(CATALOGO)
+  .filter((c) => c.tabelas.principalVarianteA === undefined)
+  .map((c) => c.guindaste.nome)
 
 interface SimulacaoState {
   guindastes: Guindaste[]
-  guindasteSelecionado: Guindaste
-  configuracao: ConfiguracaoDeIcamento
-  resultado: ResultadoDoCalculo | null
-
-  /** Raio real de trabalho — só para exibição/canvas (Task 3.4); o motor deriva o dele mesmo do ângulo. */
-  raioAtualM: number
-  /** Comprimento visual usado só para desenhar o canvas do TM-130 (não existe na tabela real). */
-  comprimentoVisualM: number
+  cenario: ParametrosDoCenario
+  /** Derivada de `cenario` — nunca editar diretamente. */
+  avaliacao: AvaliacaoDoCenario
 
   buscaPesoKg: number
   configuracoesViaveis: ConfiguracaoViavel[]
 
   selecionarGuindaste: (id: string) => void
-  atualizarConfiguracao: (parcial: Partial<ConfiguracaoDeIcamento>) => void
+  /** Substitui o cenário inteiro (ex.: reabrir um cenário salvo, Épico 15). */
+  carregarCenario: (cenario: ParametrosDoCenario) => void
+  /** Escrita genérica para campos sem regra de limite própria (carga, acessórios, ambiente...). */
+  atualizarCenario: (alterar: (rascunho: ParametrosDoCenario) => void) => void
+
+  definirComprimentoLancaM: (comprimentoM: number) => void
   definirAnguloGraus: (anguloGraus: number) => void
+  /** Ajusta o ângulo da lança para pôr o gancho no raio pedido (mantendo comprimentos). */
   definirRaioM: (raioM: number) => void
-  definirComprimentoLancaM: (comprimentoLancaM: number) => void
-  alternarUsoJIB: (ativo: boolean) => void
-  definirJIB: (parcial: { comprimentoJibM?: number; anguloJibGraus?: number; raioM?: number }) => void
+  definirGiroGraus: (giroGraus: number) => void
+  definirJIB: (parcial: Partial<ParametrosDoCenario['jib']>) => void
+  definirSapata: (posicao: PosicaoSapata, extensaoM: number) => void
+
   buscarPorPeso: (pesoKg: number) => void
-  recalcular: () => void
 }
 
-export const useSimulacaoStore = create<SimulacaoState>((set, get) => ({
-  guindastes,
-  guindasteSelecionado: guindastes[0],
-  configuracao: configuracaoInicial(guindastes[0]),
-  resultado: null,
-  raioAtualM: 0,
-  comprimentoVisualM: COMPRIMENTO_VISUAL_TM130,
-  buscaPesoKg: 0,
-  configuracoesViaveis: [],
+function comAvaliacao(cenario: ParametrosDoCenario): Pick<SimulacaoState, 'cenario' | 'avaliacao'> {
+  return { cenario, avaliacao: avaliarCenario(cenario, contexto(cenario)) }
+}
 
-  selecionarGuindaste: (id) => {
-    const guindaste = get().guindastes.find((g) => g.id === id)
-    if (!guindaste) return
-    set({ guindasteSelecionado: guindaste, configuracao: configuracaoInicial(guindaste), resultado: null })
-    get().recalcular()
-  },
+const cenarioInicial = parametrosIniciais(CATALOGO[GUINDASTE_INICIAL])
 
-  atualizarConfiguracao: (parcial) => {
-    set((state) => ({ configuracao: { ...state.configuracao, ...parcial } }))
-    get().recalcular()
-  },
+export const useSimulacaoStore = create<SimulacaoState>((set, get) => {
+  /** Aplica uma alteração num clone do cenário e recalcula a avaliação. */
+  const alterar = (fn: (rascunho: ParametrosDoCenario, ctx: ContextoDoGuindaste) => void) => {
+    const rascunho = structuredClone(get().cenario)
+    fn(rascunho, contexto(rascunho))
+    set(comAvaliacao(rascunho))
+  }
 
-  definirAnguloGraus: (anguloGraus) => {
-    get().atualizarConfiguracao({ anguloLancaGraus: anguloGraus })
-  },
+  return {
+    guindastes: Object.values(CATALOGO).map((c) => c.guindaste),
+    ...comAvaliacao(cenarioInicial),
+    buscaPesoKg: 0,
+    configuracoesViaveis: [],
 
-  definirRaioM: (raioM) => {
-    const { guindasteSelecionado, configuracao } = get()
-    if (guindasteSelecionado.tipoTabela !== 'comprimento_raio_quadrante' || configuracao.comprimentoLancaM === undefined) {
-      return
-    }
-    const anguloGraus = anguloInicialParaRaio(guindasteSelecionado, configuracao.comprimentoLancaM, raioM)
-    get().atualizarConfiguracao({ anguloLancaGraus: anguloGraus })
-  },
+    selecionarGuindaste: (id) => {
+      const ctx = CATALOGO[id]
+      if (!ctx) return
+      set(comAvaliacao(parametrosIniciais(ctx)))
+    },
 
-  definirComprimentoLancaM: (comprimentoLancaM) => {
-    // Task 8.2 — comprimento contínuo (arrasto da própria lança na cena 3D),
-    // além do seletor discreto (Task 3.4). Decisão de UX documentada no
-    // ROADMAP.md (Épico 8, Task 8.2): valor livre/contínuo, não "magnetizado"
-    // aos 7 pontos reais — o motor de cálculo já interpola com segurança
-    // (arredondando sempre para baixo) em qualquer ponto dentro do domínio
-    // real da tabela (10,50 m–32,10 m). Fora desse domínio seria
-    // extrapolação, não interpolação — por isso o valor é sempre limitado
-    // (clamp) aos extremos reais, nunca solto além deles.
-    const min = COMPRIMENTOS_LANCA_MD300L[0]
-    const max = COMPRIMENTOS_LANCA_MD300L[COMPRIMENTOS_LANCA_MD300L.length - 1]
-    const limitado = Math.min(max, Math.max(min, comprimentoLancaM))
-    get().atualizarConfiguracao({ comprimentoLancaM: limitado })
-  },
+    carregarCenario: (cenario) => {
+      if (!CATALOGO[cenario.guindasteId]) return
+      set(comAvaliacao(structuredClone(cenario)))
+    },
 
-  alternarUsoJIB: (ativo) => {
-    if (ativo) {
-      get().atualizarConfiguracao({
-        usaJIB: true,
-        jib: { comprimentoJibM: COMPRIMENTOS_JIB_MD300L[0], anguloJibGraus: ANGULOS_JIB_MD300L[0] },
-        raioM: 6,
-      })
-    } else {
-      get().atualizarConfiguracao({ usaJIB: false, jib: undefined, raioM: undefined })
-    }
-  },
+    atualizarCenario: (fn) => alterar((rascunho) => fn(rascunho)),
 
-  definirJIB: (parcial) => {
-    const { configuracao } = get()
-    get().atualizarConfiguracao({
-      jib: {
-        comprimentoJibM: parcial.comprimentoJibM ?? configuracao.jib?.comprimentoJibM ?? COMPRIMENTOS_JIB_MD300L[0],
-        anguloJibGraus: parcial.anguloJibGraus ?? configuracao.jib?.anguloJibGraus ?? ANGULOS_JIB_MD300L[0],
-      },
-      raioM: parcial.raioM ?? configuracao.raioM,
-    })
-  },
+    definirComprimentoLancaM: (comprimentoM) =>
+      alterar((c, { especificacao: esp }) => {
+        const anterior = c.lanca.comprimentoM
+        c.lanca.comprimentoM = limitar(comprimentoM, esp.lanca.comprimentoMinM.valor, esp.lanca.comprimentoMaxM.valor)
+        // A passagem de cabo acompanha a tabela enquanto o engenheiro não a
+        // tiver mudado à mão (pernas = o que a tabela previa antes).
+        if (!c.jib.ativo && pernasPrevistasPelaTabela(esp, anterior).includes(c.cabo.numeroDePernas)) {
+          const novas = pernasPrevistasPelaTabela(esp, c.lanca.comprimentoM)
+          if (novas.length > 0 && !novas.includes(c.cabo.numeroDePernas)) c.cabo.numeroDePernas = novas[0]
+        }
+      }),
 
-  buscarPorPeso: (pesoKg) => {
-    const configuracoesViaveis = buscarConfiguracoesViaveis(guindastes, tabelas, pesoKg)
-    set({ buscaPesoKg: pesoKg, configuracoesViaveis })
-  },
+    definirAnguloGraus: (anguloGraus) =>
+      alterar((c, { especificacao: esp }) => {
+        c.lanca.anguloGraus = limitar(anguloGraus, esp.lanca.anguloMinGraus.valor, esp.lanca.anguloMaxGraus.valor)
+      }),
 
-  recalcular: () => {
-    const { guindasteSelecionado, configuracao } = get()
+    definirRaioM: (raioM) =>
+      alterar((c, { especificacao: esp }) => {
+        const min = esp.lanca.anguloMinGraus.valor
+        const max = esp.lanca.anguloMaxGraus.valor
+        const pe = { alturaPeDaLancaM: esp.lanca.alturaPeM.valor, recuoPeDaLancaM: esp.lanca.recuoPeM.valor }
+        const posicao = {
+          comprimentoLancaM: c.lanca.comprimentoM,
+          jib: c.jib.ativo ? { comprimentoM: c.jib.comprimentoM, anguloGraus: c.jib.anguloGraus } : null,
+        }
+        const angulo = resolverAnguloParaRaio(pe, posicao, raioM, min, max)
+        if (angulo !== null) {
+          c.lanca.anguloGraus = angulo
+        } else {
+          // Raio inalcançável com esta lança: vai para o extremo mais próximo
+          // (alcance máximo = ângulo mínimo; raio mínimo = ângulo máximo).
+          const alcanceMaximoM = calcularPonta(pe, { ...posicao, anguloLancaGraus: min }).raioM
+          c.lanca.anguloGraus = raioM > alcanceMaximoM ? min : max
+        }
+      }),
 
-    // Raio real de trabalho, só para exibição/canvas — RF11/Task 2.2.
-    let raioAtualM = 0
-    if (guindasteSelecionado.tipoTabela === 'comprimento_raio_quadrante' && !configuracao.usaJIB) {
-      if (configuracao.comprimentoLancaM !== undefined && configuracao.anguloLancaGraus !== undefined) {
-        raioAtualM = calcularRaioReal(guindasteSelecionado, configuracao.comprimentoLancaM, configuracao.anguloLancaGraus)
-      }
-    } else if (configuracao.usaJIB) {
-      raioAtualM = configuracao.raioM ?? 0
-    }
+    definirGiroGraus: (giroGraus) =>
+      alterar((c, { especificacao: esp }) => {
+        const limite = esp.giro.limiteMecanicoGraus
+        const normalizado = normalizarGiro(giroGraus)
+        c.giroGraus = limite === null ? normalizado : limitar(normalizado, -limite, limite)
+      }),
 
-    try {
-      const resultado = calcularCapacidadeMaxima(guindasteSelecionado, configuracao, tabelas)
-      set({ resultado, raioAtualM })
-    } catch {
-      // Configuração ainda incompleta — sem resultado ainda.
-      set({ resultado: null, raioAtualM })
-    }
-  },
-}))
+    definirJIB: (parcial) =>
+      alterar((c, { especificacao: esp }) => {
+        const ativando = parcial.ativo === true && !c.jib.ativo
+        const desativando = parcial.ativo === false && c.jib.ativo
+        Object.assign(c.jib, parcial)
+        c.jib.anguloGraus = limitar(c.jib.anguloGraus, esp.jib.anguloMinGraus, esp.jib.anguloMaxGraus)
+        if (ativando) {
+          // A tabela de JIB exige a lança principal num comprimento fixo e 1 perna de cabo.
+          if (esp.jib.comprimentoLancaExigidoM !== null) c.lanca.comprimentoM = esp.jib.comprimentoLancaExigidoM
+          if (esp.jib.pernas !== null) c.cabo.numeroDePernas = esp.jib.pernas
+          if (esp.jib.massaGanchoIncluidaNaTabelaKg !== null) c.moitao.massaKg = esp.jib.massaGanchoIncluidaNaTabelaKg
+        }
+        if (desativando) {
+          const pernas = pernasPrevistasPelaTabela(esp, c.lanca.comprimentoM)
+          if (pernas.length > 0) c.cabo.numeroDePernas = pernas[0]
+          c.moitao.massaKg = esp.moitao.massaGanchoIncluidaNaTabelaKg
+        }
+      }),
 
-// Calcula o resultado inicial (guindaste padrão) assim que a store é criada,
-// em vez de esperar a primeira interação do usuário.
-useSimulacaoStore.getState().recalcular()
+    definirSapata: (posicao, extensaoM) =>
+      alterar((c, { especificacao: esp }) => {
+        const par = posicao.startsWith('dianteira') ? esp.sapatas.dianteiras : esp.sapatas.traseiras
+        c.sapatas[posicao] = limitar(extensaoM, par.recolhidaM.valor, par.estendidaM.valor)
+      }),
+
+    buscarPorPeso: (pesoKg) => {
+      const varianteA = Object.values(CATALOGO).flatMap(
+        (c) => (c.tabelas.principalVarianteA ?? []) as TabelaCargaVarianteA[],
+      )
+      const configuracoesViaveis = buscarConfiguracoesViaveis(frotaComTabelaPrincipal(), { varianteA, varianteB: [] }, pesoKg)
+      set({ buscaPesoKg: pesoKg, configuracoesViaveis })
+    },
+  }
+})

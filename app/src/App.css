@@ -504,3 +504,145 @@
   color: var(--text-fraco);
   font-style: italic;
 }
+
+/* ---------------------------------------------------------------------------
+ * Épico 11 — estado único: estado "sem dado do fabricante", selos, campos de
+ * parâmetro com faixa visível. (O Épico 12 substitui este tema escuro.)
+ * ------------------------------------------------------------------------- */
+:root {
+  --semdado: #9aa3ab;
+}
+
+.status-chip--semdado {
+  border-color: var(--semdado);
+  background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(154, 163, 171, 0.12) 6px 12px);
+}
+.status-chip--semdado .status-chip__titulo,
+.status-chip--semdado .status-chip__icone {
+  color: var(--text-h);
+}
+.status-chip__lista {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.capacidade--semdado {
+  color: var(--semdado);
+  font-size: 18px;
+}
+.resultado__origem {
+  font-size: 12px;
+  color: var(--text-fraco);
+  margin: 0;
+}
+.resultado__pontos {
+  margin: 0;
+  padding-left: 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+}
+.resultado__somatorio summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-h);
+}
+.resultado__somatorio ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: 12px;
+}
+.resultado__somatorio li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.resultado__somatorio li span:last-child {
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.selo-provisorio {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  border: 1px dashed var(--aviso);
+  color: var(--aviso);
+  font-size: 11px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.selo-aproximado {
+  margin-left: 4px;
+  padding: 0 4px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: help;
+}
+
+.simulador__regiao {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-h);
+}
+
+.campo-parametro {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.campo-parametro__rotulo {
+  font-size: 13px;
+  color: var(--text);
+}
+.campo-parametro input {
+  font-size: 14px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-forte);
+  border-radius: 4px;
+  background: var(--bg-instrumento);
+  color: var(--text-h);
+  font-family: var(--mono);
+  min-width: 0;
+}
+.campo-parametro__faixa {
+  font-size: 10.5px;
+  color: var(--text-fraco);
+}
+.painel input[type='text'] {
+  font-size: 14px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-forte);
+  border-radius: 4px;
+  background: var(--bg-instrumento);
+  color: var(--text-h);
+}
+.painel__grade3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.painel__derivado {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text);
+}
+.medidor__marca-limite {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--aviso);
+}
+.rf-note--aviso {
+  color: var(--aviso);
+}
+

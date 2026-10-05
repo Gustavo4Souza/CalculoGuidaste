@@ -15,9 +15,12 @@ const LIMITE_VISUAL_PERCENTUAL = 150
 export function MedidorCapacidade({
   capacidadeMaximaKg,
   somatorioDeCargasKg,
+  limiteUtilizacaoPercentual = 100,
 }: {
   capacidadeMaximaKg: number
   somatorioDeCargasKg: number
+  /** Épico 11 (RF21) — limite definido pelo engenheiro, marcado no trilho quando < 100%. */
+  limiteUtilizacaoPercentual?: number
 }) {
   if (capacidadeMaximaKg <= 0) return null
 
@@ -25,7 +28,12 @@ export function MedidorCapacidade({
   const larguraPreenchimento = Math.min(percentualUsado, LIMITE_VISUAL_PERCENTUAL)
   const marca100Posicao = (100 / LIMITE_VISUAL_PERCENTUAL) * 100
 
-  const cor = percentualUsado > 100 ? 'var(--perigo)' : percentualUsado >= 90 ? 'var(--aviso)' : 'var(--sucesso)'
+  const cor =
+    percentualUsado > 100
+      ? 'var(--perigo)'
+      : percentualUsado > limiteUtilizacaoPercentual
+        ? 'var(--aviso)'
+        : 'var(--sucesso)'
 
   return (
     <div className="medidor">
@@ -35,6 +43,13 @@ export function MedidorCapacidade({
           style={{ width: `${(larguraPreenchimento / LIMITE_VISUAL_PERCENTUAL) * 100}%`, background: cor }}
         />
         <div className="medidor__marca-100" style={{ left: `${marca100Posicao}%` }} />
+        {limiteUtilizacaoPercentual < 100 && (
+          <div
+            className="medidor__marca-limite"
+            title={`Limite do engenheiro: ${limiteUtilizacaoPercentual}%`}
+            style={{ left: `${(limiteUtilizacaoPercentual / LIMITE_VISUAL_PERCENTUAL) * 100}%` }}
+          />
+        )}
       </div>
       <div className="medidor__legenda">
         <span>0%</span>

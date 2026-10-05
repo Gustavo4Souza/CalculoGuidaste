@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import { useSimulacaoStore } from '../store/useSimulacaoStore'
+import { GUINDASTES_FORA_DA_BUSCA, useSimulacaoStore } from '../store/useSimulacaoStore'
 
 /**
  * Busca reversa por peso (Task 3.5 / RF05 / RF15) — a partir de um peso a
@@ -54,6 +54,13 @@ export function BuscaReversa({ tela = false }: { tela?: boolean }) {
             </ol>
           )}
         </>
+      )}
+
+      {GUINDASTES_FORA_DA_BUSCA.length > 0 && (
+        <p className="rf-note rf-note--aviso">
+          Fora da busca: {GUINDASTES_FORA_DA_BUSCA.join(', ')} — a tabela da lança principal (diagrama polar por raio)
+          ainda não foi transcrita da ficha. Nenhum valor é sugerido sem dado do fabricante.
+        </p>
       )}
 
       <p className="rf-note">
