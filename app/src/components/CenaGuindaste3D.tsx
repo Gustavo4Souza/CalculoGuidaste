@@ -1,8 +1,11 @@
 import { useMemo, useRef, useState } from 'react'
 import { Canvas, type ThreeEvent } from '@react-three/fiber'
-import { Grid, Html, Line, OrbitControls } from '@react-three/drei'
+import { GizmoHelper, GizmoViewcube, Grid, Html, Line, OrbitControls } from '@react-three/drei'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { anguloDoPonto, aplicarSnapComprimento, pontaDaLanca, projetarComprimento } from './geometriaCanvas'
+import type { VistaPadrao } from '../store/useInterfaceStore'
+import { CAMERA_FOV, ControladorDeVista, VISTA_ISOMETRICA } from './cena/ControladorDeVista'
+import { Cotas } from './cena/Cotas'
 import { useCampoNumericoSincronizado } from './useCampoNumericoSincronizado'
 
 /**
@@ -23,8 +26,8 @@ import { useCampoNumericoSincronizado } from './useCampoNumericoSincronizado'
  * (engine/geometriaLanca.ts).
  */
 
-// Task 8.1 — chão do piso de oficina/pátio, escuro.
-const COR_CHAO = '#181d21'
+// Épico 12 — tema claro estilo CAD (substitui o chão escuro do Épico 8).
+const COR_CHAO = '#dfe4ea'
 
 // Task 9.1 — paleta técnica em linha (amarelo/preto/cinza), no estilo de
 // guindaste real (referências enviadas pelo Gustavo), mantendo os acentos
@@ -47,9 +50,9 @@ const COR_FAIXA = '#111417' // preto — faixas de risca (chevron) do moitão/la
  * Exportados (não só locais ao componente) para os testes e2e projetarem
  * pontos 3D exatos em pixels de tela, sem duplicar esses números.
  */
-export const CAMERA_POSICAO: [number, number, number] = [40, 32, 40]
-export const CAMERA_ALVO: [number, number, number] = [14, 14, 0]
-export const CAMERA_FOV = 42
+export const CAMERA_POSICAO: [number, number, number] = VISTA_ISOMETRICA.posicao
+export const CAMERA_ALVO: [number, number, number] = VISTA_ISOMETRICA.alvo
+export { CAMERA_FOV }
 /** Deslocamento local do gancho em relação à ponta da lança (antes da rotação) — ver SegmentoLanca. */
 export const GANCHO_OFFSET_Y = -1.1
 
@@ -93,8 +96,22 @@ interface CenaGuindaste3DProps {
   onRaioChange?: (raioM: number) => void
   /** Cor do gancho/lança conforme o status do resultado (verde/âmbar/vermelho — Task 4.1). */
   corDestaque?: string
-  /** Quando presente, desenha a lança JIB (RF12) presa na ponta da lança principal, com ângulo próprio absoluto. */
+  /** Quando presente, desenha a lança JIB (RF12) presa na ponta da lança principal (offset para baixo). */
   jib?: SegmentoJIB
+  /**
+   * Épico 12 — cotas desenhadas na cena, com os valores do MOTOR (avaliação):
+   * raio a partir do centro de giro (que fica `recuoPeDaLancaM` à frente do
+   * pé da lança), altura da ponta, ângulo, giro e altura de içamento.
+   */
+  cotas?: {
+    recuoPeDaLancaM: number
+    raioM: number
+    alturaPontaM: number
+    giroGraus: number
+    alturaIcamentoM: number | null
+  }
+  /** Épico 12 — vista padrão pedida pela barra de vistas (frontal/lateral/superior/isométrica). */
+  vista?: { nome: VistaPadrao; pedido: number }
 }
 
 /** Ruído mínimo para não quebrar a regra dos hooks quando o setter não é passado (ex.: modo JIB/TM-130). */
@@ -203,14 +220,27 @@ function Caminhao({ alturaTorreM }: { alturaTorreM: number }) {
  * "ímã" ao arrastar perto dela são tratados num único lugar, no handler de
  * clique da própria lança (ver `aoClicarNaLanca` em CenaGuindaste3D).
  */
-function MarcaDeEncaixe({ x, espessura, ativa }: { x: number; espessura: number; ativa: boolean }) {
+function MarcaDeEncaixe({
+  x,
+  espessura,
+  ativa,
+  alemDaPonta,
+}: {
+  x: number
+  espessura: number
+  ativa: boolean
+  /** Épico 12 — marca de um comprimento ainda não estendido: desenhada clara/translúcida, como guia. */
+  alemDaPonta: boolean
+}) {
   return (
     <mesh position={[x, 0, 0]}>
       <boxGeometry args={[0.1, espessura * 1.5, espessura * 1.5]} />
       <meshStandardMaterial
-        color={ativa ? '#ffffff' : '#111417'}
-        emissive={ativa ? '#f2a71b' : '#000000'}
+        color={ativa ? '#ffffff' : alemDaPonta ? '#8b97a5' : '#111417'}
+        emissive={ativa ? '#1f5fbf' : '#000000'}
         emissiveIntensity={ativa ? 0.6 : 0}
+        transparent={alemDaPonta}
+        opacity={alemDaPonta ? 0.35 : 1}
       />
     </mesh>
   )
@@ -268,8 +298,30 @@ function SegmentoLanca({
       ))}
 
       {marcasComprimentoM?.map((valorM) => (
-        <MarcaDeEncaixe key={valorM} x={valorM} espessura={espessura} ativa={Math.abs(valorM - comprimentoM) < 0.05} />
+        <MarcaDeEncaixe
+          key={valorM}
+          x={valorM}
+          espessura={espessura}
+          ativa={Math.abs(valorM - comprimentoM) < 0.05}
+          alemDaPonta={valorM > comprimentoM + 0.05}
+        />
       ))}
+      {/* Épico 12 — guia tracejada da ponta até o maior comprimento real, onde ficam as marcas ainda não estendidas */}
+      {marcasComprimentoM && marcasComprimentoM[marcasComprimentoM.length - 1] > comprimentoM + 0.05 && (
+        <Line
+          points={[
+            [comprimentoM, 0, 0],
+            [marcasComprimentoM[marcasComprimentoM.length - 1], 0, 0],
+          ]}
+          color="#8b97a5"
+          lineWidth={1}
+          dashed
+          dashSize={0.4}
+          gapSize={0.4}
+          transparent
+          opacity={0.6}
+        />
+      )}
 
       {estruturaArrastavel && (
         // Área de clique bem maior que a barra visível (Task 8.2): pegar
@@ -373,10 +425,10 @@ function Chao() {
         args={[100, 100]}
         cellSize={2}
         cellThickness={0.8}
-        cellColor="#3a4249"
+        cellColor="#b9c2cc"
         sectionSize={10}
         sectionThickness={1.6}
-        sectionColor="#f2a71b"
+        sectionColor="#8b97a5"
         fadeDistance={70}
         fadeStrength={1}
         infiniteGrid={false}
@@ -399,6 +451,8 @@ export function CenaGuindaste3D({
   onRaioChange,
   corDestaque = '#f2a71b',
   jib,
+  cotas,
+  vista,
 }: CenaGuindaste3DProps) {
   const [arrastando, setArrastando] = useState(false)
   const [arrastandoComprimento, setArrastandoComprimento] = useState(false)
@@ -471,6 +525,15 @@ export function CenaGuindaste3D({
   // arrastar a órbita (bug real, não só de teste: a câmera visivelmente
   // se movia ao digitar em qualquer campo).
   const cameraConfig = useMemo(() => ({ position: CAMERA_POSICAO, fov: CAMERA_FOV }), [])
+
+  // Épico 12 — o que as vistas padrão precisam enquadrar: do caminhão (lado -X)
+  // até além do gancho, e do chão até acima da ponta.
+  const xGanchoCena = cotas ? cotas.raioM + cotas.recuoPeDaLancaM : ponta.x
+  const enquadramento = {
+    xMin: -12,
+    xMax: Math.max(xGanchoCena, ponta.x) + 4,
+    yMax: (cotas ? cotas.alturaPontaM : alturaPeDaLancaM + ponta.y) + 2,
+  }
 
   return (
     <div className="cena-3d">
@@ -616,23 +679,13 @@ export function CenaGuindaste3D({
           </Html>
         )}
 
-        {/* linha guia do raio no chão + linha guia vertical até o gancho */}
-        <Line
-          points={[
-            [0, 0.02, 0],
-            [ponta.x, 0.02, 0],
-          ]}
-          color="#9a9a8f"
-          dashed
-          dashSize={0.4}
-          gapSize={0.3}
-        />
+        {/* linha guia vertical até o gancho (o raio virou cota — Épico 12) */}
         <Line
           points={[
             [ponta.x, 0.02, 0],
             [ponta.x, alturaGancho, 0],
           ]}
-          color="#9a9a8f"
+          color="#8b97a5"
           dashed
           dashSize={0.4}
           gapSize={0.3}
@@ -640,10 +693,22 @@ export function CenaGuindaste3D({
         {/* Nas variantes com o ângulo arrastável, o raio/ângulo já aparece no campo embutido
             perto do pé da lança acima — este rótulo só sobra para o modo JIB (raio digitado
             manualmente no painel lateral, sem arrasto próprio nesta cena). */}
-        {!arrastavel && (
+        {!arrastavel && !cotas && (
           <Html position={posicaoRaioLabel} center distanceFactor={22}>
             <div className="cena-3d__rotulo cena-3d__rotulo--raio">raio {raioM.toFixed(1)} m</div>
           </Html>
+        )}
+
+        {cotas && (
+          <Cotas
+            recuoPeM={cotas.recuoPeDaLancaM}
+            alturaPeM={alturaPeDaLancaM}
+            raioM={cotas.raioM}
+            alturaPontaM={cotas.alturaPontaM}
+            anguloGraus={anguloGraus}
+            alturaIcamentoM={cotas.alturaIcamentoM}
+            giroGraus={cotas.giroGraus}
+          />
         )}
 
         {arrastando && (
@@ -671,6 +736,7 @@ export function CenaGuindaste3D({
         )}
 
         <OrbitControls
+          makeDefault
           ref={controlsRef}
           enabled={!arrastando && !arrastandoComprimento}
           target={CAMERA_ALVO}
@@ -679,6 +745,18 @@ export function CenaGuindaste3D({
           maxPolarAngle={Math.PI / 2 - 0.03}
           enableDamping
         />
+        {vista && <ControladorDeVista vista={vista} enquadramento={enquadramento} />}
+
+        {/* Épico 12 — cubo de orientação (clicar numa face leva a câmera àquela vista). */}
+        <GizmoHelper alignment="bottom-right" margin={[72, 72]}>
+          <GizmoViewcube
+            color="#f4f6f8"
+            hoverColor="#cfe0f7"
+            textColor="#22303c"
+            strokeColor="#8b97a5"
+            faces={['Frontal', 'Trás', 'Topo', 'Base', 'Lateral', 'Oposta']}
+          />
+        </GizmoHelper>
       </Canvas>
       <p className="cena-3d__dica">
         {estruturaArrastavel && comprimentosReaisM

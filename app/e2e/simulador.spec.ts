@@ -156,6 +156,14 @@ async function moverEArrastarComHover(
   await page.mouse.up()
 }
 
+/** Abre um nó recolhido da árvore de parâmetros (Épico 12), se ainda estiver fechado. */
+async function abrirNo(page: import('@playwright/test').Page, titulo: string) {
+  const no = page.locator('details.arvore__no', { has: page.locator('.arvore__titulo', { hasText: titulo }) })
+  if (!(await no.evaluate((d) => (d as HTMLDetailsElement).open))) {
+    await no.locator('summary').click()
+  }
+}
+
 // Smoke test — confirma que a tela de simulação carrega e reage a uma
 // configuração exata conhecida.
 test('carrega a tela de simulação e calcula a capacidade para uma configuração exata do MD-300L', async ({
@@ -193,6 +201,7 @@ test('indicador visual de status (Task 4.1 / RF03) muda entre dentro do limite e
   await expect(page.locator('.status-chip--good')).toContainText('Dentro do limite seguro')
   await expect(page.locator('.status-chip--good')).toContainText('Utilização de 75.0%')
 
+  await abrirNo(page, 'Limites e operação')
   await page.getByLabel('Limite de utilização (%)').fill('70')
   await expect(page.locator('.status-chip--warning')).toContainText('Acima do limite definido pelo engenheiro')
 
@@ -233,13 +242,13 @@ test('toggle de JIB (RF12) aparece só para o MD-300L e calcula contra a tabela 
 
   await page.getByLabel('Comprimento do JIB (m)').selectOption('9')
   await page.getByLabel('Ângulo do JIB (°)').fill('10')
-  await page.getByLabel('Raio de trabalho (JIB) (m)').fill('6')
+  await page.getByLabel('Raio de trabalho — do centro de giro (m)').fill('6')
 
   await expect(page.locator('.resultado .capacidade')).toHaveText('3.000 kg')
 
   // Offset intermediário (17,5°, raio 8 m) é interpolado entre as tabelas de 10° e 25°: 3.000 e 2.050 → 2.525 kg.
   await page.getByLabel('Ângulo do JIB (°)').fill('17.5')
-  await page.getByLabel('Raio de trabalho (JIB) (m)').fill('8')
+  await page.getByLabel('Raio de trabalho — do centro de giro (m)').fill('8')
   await expect(page.locator('.resultado .capacidade')).toHaveText('2.525 kg')
 
   // TM-130: o JIB da ficha fica desligado até a Ribas confirmar — sem toggle.
@@ -427,7 +436,7 @@ test('RF18 — a área de operação é derivada do giro (MD-300L, critério pro
   // Estado inicial: 17,70 m, raio 8 m, giro 0° → frontal, 7.500 kg (ponto exato).
   await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
   await expect(page.getByTestId('regiao-derivada')).toContainText('área frontal')
-  await expect(page.locator('.simulador__barra .selo-provisorio')).toHaveText('Critério de giro provisório')
+  await expect(page.locator('.barra-status .selo-provisorio')).toHaveText('Critério de giro provisório')
 
   await page.getByLabel('Giro da superestrutura (°)').fill('90')
   await expect(page.getByTestId('regiao-derivada')).toContainText('áreas lateral e traseira')
@@ -445,6 +454,7 @@ test('RF17 — sapata em extensão parcial: sem dado do fabricante, com o motivo
   await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
   await expect(page.getByText('Dentro do limite seguro')).toBeVisible()
 
+  await abrirNo(page, 'Sapatas')
   await page.getByLabel('Sapata dianteira esquerda (m)').fill('2')
   await expect(page.locator('.resultado .capacidade')).toHaveText('Sem dado do fabricante')
   await expect(page.locator('.status-chip--semdado')).toContainText('Sapata dianteira esquerda')
@@ -453,9 +463,9 @@ test('RF17 — sapata em extensão parcial: sem dado do fabricante, com o motivo
 test('busca reversa por peso (RF05/RF15) só sugere guindastes com tabela da lança principal', async ({ page }) => {
   await page.goto('/')
 
-  // Busca reversa agora é uma aba própria, separada da tela de Simulação
-  // (pedido do usuário: fluxo principal sempre visível, busca numa aba).
-  await page.getByRole('tab', { name: 'Buscar por peso' }).click()
+  // Épico 12 — a busca reversa abre num diálogo pela barra de comandos.
+  await page.getByRole('button', { name: 'Buscar por peso' }).click()
+  await expect(page.getByRole('dialog', { name: 'Buscar por peso' })).toBeVisible()
 
   await page.getByLabel('Peso a içar (kg)').fill('2000')
 
@@ -465,4 +475,40 @@ test('busca reversa por peso (RF05/RF15) só sugere guindastes com tabela da lan
   await expect(lista).toHaveCount(1)
   await expect(lista.nth(0)).toContainText('MD-300L')
   await expect(page.getByText(/Fora da busca: TM-130/)).toBeVisible()
+})
+
+test('Épico 12 — layout CAD: barra de status, cotas na cena, vistas padrão e unidade kg/t (RF14)', async ({ page }) => {
+  await page.goto('/')
+
+  // Barra de status sempre visível com o resultado resumido e a versão das tabelas.
+  await expect(page.getByTestId('status-barra')).toHaveText('Sem dado do fabricante')
+  await expect(page.locator('.barra-status')).toContainText('Capacidade: 7.500 kg (ponto exato)')
+  await expect(page.locator('.barra-status__versao')).toHaveText(/^tabelas-[0-9a-f]{8}$/)
+
+  // Cotas desenhadas na cena, com os valores do motor.
+  await expect(page.locator('.cena-3d__cota--raio')).toHaveText('R = 8,00 m')
+  await expect(page.locator('.cena-3d__cota--angulo')).toContainText('α = 57,')
+  await abrirNo(page, 'Limites e operação')
+  await page.getByLabel('Altura de içamento necessária (m)').fill('5')
+  await expect(page.locator('.cena-3d__cota--icamento')).toHaveText('içamento 5,00 m')
+
+  // Vistas padrão: o botão fica ativo e a cena continua desenhando (cotas presentes).
+  for (const vista of ['Lateral', 'Superior', 'Frontal', 'Isométrica']) {
+    await page.getByRole('toolbar', { name: 'Vistas padrão' }).getByRole('button', { name: vista }).click()
+    await expect(
+      page.getByRole('toolbar', { name: 'Vistas padrão' }).getByRole('button', { name: vista }),
+    ).toHaveClass(/segmento--ativo/)
+  }
+  await expect(page.locator('.cena-3d__cota--raio')).toHaveText('R = 8,00 m')
+
+  // RF14 — kg ⇄ t é só de exibição.
+  await page.getByRole('button', { name: 't', exact: true }).click()
+  await expect(page.locator('.resultado .capacidade')).toHaveText('7,500 t')
+  await expect(page.locator('.barra-status')).toContainText('Capacidade: 7,500 t')
+  await page.getByRole('button', { name: 'kg', exact: true }).click()
+  await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
+
+  // Comandos de persistência/PDF aparecem, desabilitados até os Épicos 15/16.
+  await expect(page.getByRole('button', { name: 'Exportar PDF' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Salvar', exact: true })).toBeDisabled()
 })

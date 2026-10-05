@@ -1,163 +1,306 @@
+/* ===========================================================================
+ * Épico 12 (RF23) — layout estilo SolidWorks, tema claro:
+ *   barra de comandos | (árvore de parâmetros | viewport 3D | resultado) | barra de status
+ * Tela inteira sem scroll de página; cada painel rola sozinho se precisar.
+ * ======================================================================== */
+
 .app {
   height: 100vh;
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  text-align: left;
-  box-sizing: border-box;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: inherit;
-}
-
-/* ---------- Cabeçalho + abas (Task 8.1 — painel industrial) ---------- */
-
-.app-header {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 10px 22px;
-  border-bottom: 2px solid var(--accent);
-  background: var(--bg-elevado);
-}
-
-.app-header__titulo {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-}
-
-.app-header__titulo h1 {
-  font-size: 18px;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.app-header__subtitulo {
-  font-size: 12px;
-  color: var(--text);
-  font-family: var(--mono);
-}
-
-.app-tabs {
-  display: flex;
-  gap: 6px;
-  margin-left: auto;
-}
-
-.app-tabs__botao {
-  padding: 8px 18px;
-  border-radius: 4px;
-  border: 1px solid var(--border-forte);
-  background: var(--bg-painel);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-}
-
-.app-tabs__botao--ativo {
-  background: var(--accent);
-  color: var(--accent-texto);
-  border-color: var(--accent);
-}
-
-.app-header__link {
-  font-size: 12px;
-  color: var(--text);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.app-header__link:hover {
-  color: var(--accent-forte);
-  text-decoration: underline;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
 .app-main {
-  flex: 1;
   min-height: 0;
-  display: flex;
-  overflow: auto;
 }
 
-/* ---------- Tela de Simulação (dashboard em tela cheia) ---------- */
+/* ---------------------------------------------------------------- comandos */
 
-.simulador {
-  flex: 1;
-  min-height: 0;
+.barra-comandos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: linear-gradient(#fdfdfe, #e9edf2);
+  border-bottom: 1px solid var(--border-forte);
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.barra-comandos__marca {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 14px 20px 16px;
-  width: 100%;
+  padding-right: 10px;
+  margin-right: 4px;
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+}
+.barra-comandos__marca h1 {
+  font-size: 15px;
+  color: var(--accent);
+}
+.barra-comandos__marca span {
+  font-size: 11px;
+  color: var(--text-fraco);
 }
 
-.simulador__barra {
-  flex: none;
+.barra-comandos__grupo {
   display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  align-items: flex-end;
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--bg-elevado);
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  border-right: 1px solid var(--border);
+}
+.barra-comandos__grupo--direita {
+  margin-left: auto;
+  border-right: 0;
+}
+.barra-comandos__rotulo {
+  font-size: 11px;
+  color: var(--text-fraco);
+  margin-right: 4px;
+}
+.barra-comandos__link {
+  margin-left: 10px;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.barra-comandos__link:hover {
+  text-decoration: underline;
 }
 
-.simulador__campo-barra {
+.comando {
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.comando:hover:not(:disabled) {
+  background: var(--accent-claro);
+  border-color: #9fbbe3;
+}
+.comando:disabled {
+  color: #9aa4ae;
+  cursor: not-allowed;
+}
+.comando--destaque {
+  border-color: var(--border-forte);
+  background: var(--bg-campo);
+}
+
+.segmento {
+  border: 1px solid var(--border-forte);
+  background: var(--bg-campo);
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.segmento + .segmento {
+  border-left: 0;
+}
+.segmento:first-of-type {
+  border-radius: 3px 0 0 3px;
+}
+.segmento:last-of-type {
+  border-radius: 0 3px 3px 0;
+}
+.segmento--ativo {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-texto);
+}
+
+/* ------------------------------------------------------- área de trabalho */
+
+.area-trabalho {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr) 320px;
+  min-height: 0;
+}
+
+/* --- árvore de parâmetros (FeatureManager) --- */
+
+.arvore {
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--bg-painel);
+  border-right: 1px solid var(--border-forte);
+}
+.arvore__cabecalho {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-fraco);
+  background: var(--bg-cabecalho);
+  border-bottom: 1px solid var(--border);
+}
+.arvore__no {
+  border-bottom: 1px solid var(--border);
+}
+.arvore__no > summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.arvore__no > summary::-webkit-details-marker {
+  display: none;
+}
+.arvore__no > summary::before {
+  content: '▸';
+  font-size: 10px;
+  color: var(--text-fraco);
+  transition: transform 0.1s;
+}
+.arvore__no[open] > summary::before {
+  transform: rotate(90deg);
+}
+.arvore__no > summary:hover {
+  background: var(--accent-claro);
+}
+.arvore__icone {
+  width: 16px;
+  text-align: center;
+  color: var(--accent);
+}
+.arvore__titulo {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-h);
+}
+.arvore__resumo {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-fraco);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+}
+.arvore__conteudo {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  padding: 4px 12px 12px 30px;
+}
+.arvore__nota {
   font-size: 11.5px;
   color: var(--text-fraco);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  line-height: 1.45;
 }
-
-.simulador__campo-barra select {
-  font-size: 14px;
-  padding: 6px 8px;
-  border: 1px solid var(--border-forte);
-  border-radius: 4px;
-  background: var(--bg-instrumento);
-  color: var(--text-h);
-  font-family: var(--mono);
-  text-transform: none;
-  letter-spacing: normal;
-}
-
-.simulador__campo-barra--checkbox {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  text-transform: none;
-}
-
-.simulador__corpo {
-  flex: 1;
-  min-height: 0;
+.arvore__grade3 {
   display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
 }
 
-.simulador__cena {
-  min-height: 0;
+/* --- campos --- */
+
+.campo-parametro {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.campo-parametro__rotulo {
+  font-size: 12px;
+  color: var(--text);
+}
+.campo-parametro input,
+.campo-simples input,
+.campo-simples select {
+  font-size: 13px;
+  padding: 3px 6px;
   border: 1px solid var(--border-forte);
-  border-radius: 4px;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 30%, #1c2429 0%, #0e1113 75%);
+  border-radius: 2px;
+  background: var(--bg-campo);
+  color: var(--text-h);
+  min-width: 0;
+}
+.campo-parametro input {
+  font-family: var(--mono);
+}
+.campo-parametro input:focus,
+.campo-simples input:focus,
+.campo-simples select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-claro);
+}
+.campo-parametro input:disabled {
+  background: #eef1f4;
+  color: var(--text-fraco);
+}
+.campo-parametro__faixa {
+  font-size: 10.5px;
+  color: var(--text-fraco);
+}
+.campo-simples {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+}
+label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+}
+
+.selo-aproximado {
+  margin-left: 4px;
+  padding: 0 4px;
+  border: 1px solid var(--atencao);
+  color: var(--atencao);
+  border-radius: 2px;
+  font-size: 10.5px;
+  cursor: help;
+}
+.selo-provisorio {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border: 1px dashed var(--atencao);
+  background: #fff5e5;
+  color: #8a5200;
+  font-size: 11px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+/* --- viewport --- */
+
+.viewport {
   position: relative;
+  min-width: 0;
+  min-height: 0;
+  /* Fundo em degradê, como a viewport do SolidWorks. */
+  background: linear-gradient(#ffffff 0%, #e3e9f0 55%, #c5d1de 100%);
+}
+.viewport__vistas {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .cena-3d {
@@ -166,49 +309,39 @@
   display: flex;
   flex-direction: column;
 }
-
 .cena-3d canvas {
   display: block;
   flex: 1;
   min-height: 0;
   touch-action: none;
 }
-
 .cena-3d__dica {
   margin: 0;
-  padding: 6px 12px;
+  padding: 4px 10px;
   font-size: 11px;
-  color: var(--text);
-  background: var(--bg-instrumento);
+  color: var(--text-fraco);
+  background: rgba(255, 255, 255, 0.7);
   border-top: 1px solid var(--border);
-  font-family: var(--mono);
 }
-
-/* Rótulos flutuantes na cena (readouts estilo HUD/instrumento — Task 8.1) */
 .cena-3d__rotulo {
   font-size: 11px;
   font-family: var(--mono);
-  padding: 3px 8px;
-  border-radius: 3px;
-  background: rgba(13, 16, 18, 0.92);
+  padding: 2px 7px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--border-forte);
   color: var(--text-h);
   white-space: nowrap;
   pointer-events: none;
 }
-
 .cena-3d__rotulo--jib {
-  border-color: var(--accent);
-  color: var(--accent-forte);
+  border-color: #b8860b;
+  color: #7a5600;
 }
-
 .cena-3d__rotulo--raio {
-  border-color: var(--sucesso);
-  color: var(--sucesso);
+  border-color: var(--accent);
+  color: var(--accent);
 }
-
-/* Task 9.2 — campos de posição (comprimento/raio/ângulo) embutidos na
-   própria cena 3D, no lugar do painel lateral "Posição da lança". */
 .cena-3d__campo {
   display: flex;
   flex-direction: column;
@@ -217,332 +350,94 @@
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--accent-forte);
-  background: rgba(13, 16, 18, 0.92);
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid var(--accent);
-  border-radius: 3px;
-  padding: 4px 7px;
+  border-radius: 2px;
+  padding: 3px 6px;
   pointer-events: auto;
 }
-
 .cena-3d__campo input {
   font-family: var(--mono);
   font-size: 13px;
   color: var(--text-h);
-  background: var(--bg-instrumento);
+  background: var(--bg-campo);
   border: 1px solid var(--border-forte);
-  border-radius: 3px;
-  padding: 3px 5px;
+  border-radius: 2px;
+  padding: 2px 5px;
   width: 84px;
 }
-
 .cena-3d__campo input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(242, 167, 27, 0.25);
+  box-shadow: 0 0 0 2px var(--accent-claro);
+}
+/* Cotas desenhadas na cena (Cotas.tsx) — texto de cota técnico, azul. */
+.cena-3d__cota {
+  font-size: 11px;
+  font-family: var(--mono);
+  padding: 1px 5px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #1f5fbf;
+  border-radius: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.cena-3d__cota--icamento {
+  color: #7a3db8;
+}
+.cena-3d__cota--giro {
+  color: var(--text-fraco);
 }
 
-.simulador__lateral {
+/* --- painel de resultado (direita) --- */
+
+.painel-direito {
   min-height: 0;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-right: 2px;
-}
-
-@media (max-width: 980px) {
-  .simulador__corpo {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(220px, 1.2fr) auto;
-    overflow-y: auto;
-  }
-}
-
-/* ---------- Painéis (compartilhado entre as duas telas) ---------- */
-
-.painel {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   background: var(--bg-painel);
-  flex: none;
+  border-left: 1px solid var(--border-forte);
 }
-
-.painel h2 {
-  font-size: 12px;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-fraco);
-}
-
-.painel label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
-  color: var(--text);
-}
-
-.painel label.checkbox {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-}
-
-.painel input[type='number'],
-.painel select {
-  font-size: 15px;
-  padding: 6px 8px;
-  border: 1px solid var(--border-forte);
-  border-radius: 4px;
-  background: var(--bg-instrumento);
-  color: var(--text-h);
-  font-family: var(--mono);
-}
-
-.painel input[type='number']:focus,
-.painel select:focus,
-.simulador__campo-barra select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(242, 167, 27, 0.25);
-}
-
-.painel input[type='checkbox'] {
-  accent-color: var(--accent);
-  width: 16px;
-  height: 16px;
-}
-
-/* ---------- Resultado — instrumento de leitura (Task 8.1) ---------- */
-
 .resultado {
-  border-width: 2px;
-}
-
-.resultado .capacidade {
-  font-size: 30px;
-  font-weight: 700;
-  color: var(--text-h);
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-
-.resultado--dentro_do_limite {
-  border-color: var(--sucesso);
-}
-
-.resultado--excede_capacidade {
-  border-color: var(--perigo);
-}
-
-.resultado--fora_da_faixa {
-  border-color: var(--aviso);
-}
-
-/* Barra de limite (mostrador estilo instrumento) — Task 8.1 */
-.medidor {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.medidor__trilho {
-  position: relative;
-  height: 10px;
-  border-radius: 5px;
-  background: var(--bg-instrumento);
-  border: 1px solid var(--border-forte);
-  overflow: hidden;
-}
-
-.medidor__preenchimento {
-  height: 100%;
-  border-radius: 5px 0 0 5px;
-  transition: width 0.15s ease-out;
-}
-
-.medidor__marca-100 {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--text-h);
-  opacity: 0.6;
-}
-
-.medidor__legenda {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10.5px;
-  font-family: var(--mono);
-  color: var(--text-fraco);
-}
-
-/* Indicador visual de status (Task 4.1 / RF03 / UC03) */
-.status-chip {
-  border-radius: 4px;
-  padding: 12px 14px;
-  display: flex;
   gap: 10px;
-  align-items: flex-start;
-  border: 1.5px solid var(--border);
-  background: var(--bg-instrumento);
+  padding: 12px 14px;
 }
-
-.status-chip__icone {
-  flex: none;
-  font-size: 16px;
-  line-height: 1;
-  margin-top: 1px;
-}
-
-.status-chip__titulo {
-  font-size: 13px;
-  font-weight: 700;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.status-chip__sub {
-  font-size: 12px;
-  margin: 2px 0 0;
-  line-height: 1.4;
-  color: var(--text);
-}
-
-.status-chip--good {
-  border-color: var(--sucesso);
-}
-.status-chip--good .status-chip__titulo {
-  color: var(--sucesso);
-}
-.status-chip--good .status-chip__icone {
-  color: var(--sucesso);
-}
-
-.status-chip--warning {
-  border-color: var(--aviso);
-}
-.status-chip--warning .status-chip__titulo {
-  color: var(--aviso);
-}
-.status-chip--warning .status-chip__icone {
-  color: var(--aviso);
-}
-
-.status-chip--critical {
-  border-color: var(--perigo);
-}
-.status-chip--critical .status-chip__titulo {
-  color: var(--perigo);
-}
-.status-chip--critical .status-chip__icone {
-  color: var(--perigo);
-}
-
-.status-chip--indefinido {
-  border-color: var(--border);
-}
-.status-chip--indefinido .status-chip__titulo {
-  color: var(--text-h);
-}
-
-.rf-note {
+.resultado h2 {
   font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-fraco);
-  line-height: 1.5;
 }
-
-/* ---------- Aba "Buscar por peso" (tela cheia própria) ---------- */
-
-.busca-reversa--tela {
-  flex: none;
-  width: 100%;
-  max-width: 720px;
-  margin: auto;
-  padding: 36px 40px;
-  justify-content: flex-start;
-}
-
-.busca-reversa--tela h2 {
-  font-size: 18px;
-}
-
-.busca-reversa--tela input[type='number'] {
-  font-size: 18px;
-  padding: 10px 12px;
-}
-
-.busca-reversa__lista {
-  margin: 0;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 14px;
-  color: var(--text);
-}
-
-.busca-reversa__lista li {
-  line-height: 1.5;
-}
-
-.busca-reversa__capacidade {
-  font-weight: 700;
-  color: var(--accent-forte);
+.resultado .capacidade {
   font-family: var(--mono);
-}
-
-.busca-reversa__vazio {
-  color: var(--text-fraco);
-  font-style: italic;
-}
-
-/* ---------------------------------------------------------------------------
- * Épico 11 — estado único: estado "sem dado do fabricante", selos, campos de
- * parâmetro com faixa visível. (O Épico 12 substitui este tema escuro.)
- * ------------------------------------------------------------------------- */
-:root {
-  --semdado: #9aa3ab;
-}
-
-.status-chip--semdado {
-  border-color: var(--semdado);
-  background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(154, 163, 171, 0.12) 6px 12px);
-}
-.status-chip--semdado .status-chip__titulo,
-.status-chip--semdado .status-chip__icone {
+  font-size: 26px;
+  font-weight: 600;
   color: var(--text-h);
 }
-.status-chip__lista {
-  margin: 4px 0 0;
-  padding-left: 16px;
-  font-size: 12px;
-  line-height: 1.45;
+.resultado--ok .capacidade {
+  color: var(--ok);
 }
-
+.resultado--atencao .capacidade {
+  color: var(--atencao);
+}
+.resultado--nok .capacidade {
+  color: var(--nok);
+}
 .capacidade--semdado {
-  color: var(--semdado);
-  font-size: 18px;
+  color: var(--semdado) !important;
+  font-size: 18px !important;
 }
 .resultado__origem {
   font-size: 12px;
   color: var(--text-fraco);
-  margin: 0;
 }
 .resultado__pontos {
   margin: 0;
   padding-left: 16px;
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--text);
 }
 .resultado__somatorio summary {
   cursor: pointer;
@@ -567,82 +462,224 @@
   white-space: nowrap;
 }
 
-.selo-provisorio {
-  display: inline-block;
-  margin-left: 8px;
-  padding: 1px 6px;
-  border: 1px dashed var(--aviso);
-  color: var(--aviso);
-  font-size: 11px;
-  border-radius: 3px;
-  white-space: nowrap;
-}
-.selo-aproximado {
-  margin-left: 4px;
-  padding: 0 4px;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  border-radius: 3px;
-  font-size: 11px;
-  cursor: help;
-}
-
-.simulador__regiao {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--text-h);
-}
-
-.campo-parametro {
+.medidor {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  min-width: 0;
+  gap: 4px;
 }
-.campo-parametro__rotulo {
-  font-size: 13px;
-  color: var(--text);
-}
-.campo-parametro input {
-  font-size: 14px;
-  padding: 5px 8px;
+.medidor__trilho {
+  position: relative;
+  height: 10px;
+  border-radius: 2px;
+  background: #e3e7ec;
   border: 1px solid var(--border-forte);
-  border-radius: 4px;
-  background: var(--bg-instrumento);
-  color: var(--text-h);
-  font-family: var(--mono);
-  min-width: 0;
+  overflow: hidden;
 }
-.campo-parametro__faixa {
-  font-size: 10.5px;
-  color: var(--text-fraco);
+.medidor__preenchimento {
+  height: 100%;
+  transition: width 0.15s ease-out;
 }
-.painel input[type='text'] {
-  font-size: 14px;
-  padding: 5px 8px;
-  border: 1px solid var(--border-forte);
-  border-radius: 4px;
-  background: var(--bg-instrumento);
-  color: var(--text-h);
-}
-.painel__grade3 {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-.painel__derivado {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text);
+.medidor__marca-100 {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--text-h);
+  opacity: 0.6;
 }
 .medidor__marca-limite {
   position: absolute;
   top: -3px;
   bottom: -3px;
   width: 2px;
-  background: var(--aviso);
+  background: var(--atencao);
 }
-.rf-note--aviso {
-  color: var(--aviso);
+.medidor__legenda {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-family: var(--mono);
+  color: var(--text-fraco);
 }
 
+.status-chip {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border: 1px solid var(--border-forte);
+  border-left-width: 4px;
+  border-radius: 2px;
+  background: var(--bg-campo);
+}
+.status-chip__icone {
+  font-size: 16px;
+  line-height: 1.2;
+}
+.status-chip__titulo {
+  font-weight: 600;
+  font-size: 13px;
+}
+.status-chip__sub {
+  font-size: 12px;
+  color: var(--text-fraco);
+}
+.status-chip__lista {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.status-chip--good {
+  border-color: var(--ok);
+}
+.status-chip--good .status-chip__titulo,
+.status-chip--good .status-chip__icone {
+  color: var(--ok);
+}
+.status-chip--warning {
+  border-color: var(--atencao);
+}
+.status-chip--warning .status-chip__titulo,
+.status-chip--warning .status-chip__icone {
+  color: var(--atencao);
+}
+.status-chip--critical {
+  border-color: var(--nok);
+}
+.status-chip--critical .status-chip__titulo,
+.status-chip--critical .status-chip__icone {
+  color: var(--nok);
+}
+/* "Sem dado do fabricante" — cinza hachurado, nunca confundido com OK/NOK. */
+.status-chip--semdado {
+  border-color: var(--semdado);
+  background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(107, 118, 128, 0.1) 6px 12px);
+}
+.status-chip--semdado .status-chip__titulo,
+.status-chip--semdado .status-chip__icone {
+  color: #3c4650;
+}
+
+.rf-note {
+  font-size: 11.5px;
+  color: var(--text-fraco);
+  line-height: 1.5;
+}
+.rf-note--aviso {
+  color: #8a5200;
+}
+
+/* ------------------------------------------------------------ status bar */
+
+.barra-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: var(--bg-cabecalho);
+  border-top: 1px solid var(--border-forte);
+  white-space: nowrap;
+  overflow-x: auto;
+}
+.barra-status strong {
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.barra-status__status {
+  padding: 1px 8px;
+  border-radius: 2px;
+  font-weight: 600;
+  color: #fff;
+}
+.barra-status__status--ok {
+  background: var(--ok);
+}
+.barra-status__status--atencao {
+  background: var(--atencao);
+}
+.barra-status__status--nok {
+  background: var(--nok);
+}
+.barra-status__status--sem_dado {
+  background: var(--semdado);
+}
+.barra-status__versao {
+  margin-left: auto;
+  font-family: var(--mono);
+  color: var(--text-fraco);
+}
+
+/* ------------------------------------------------------- diálogo de busca */
+
+.dialogo {
+  width: min(560px, 92vw);
+  padding: 0;
+  border: 1px solid var(--border-forte);
+  border-radius: 3px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  background: var(--bg-painel);
+  color: var(--text);
+}
+.dialogo::backdrop {
+  background: rgba(30, 40, 50, 0.35);
+}
+.dialogo__cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--bg-cabecalho);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+.busca-reversa {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+}
+.busca-reversa h2 {
+  font-size: 14px;
+}
+.busca-reversa label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+}
+.busca-reversa input {
+  font-size: 14px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-forte);
+  border-radius: 2px;
+}
+.busca-reversa__lista {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.busca-reversa__capacidade {
+  font-family: var(--mono);
+}
+.busca-reversa__vazio {
+  color: var(--nok);
+}
+
+/* ------------------------------------------------- telas menores (fallback) */
+
+@media (max-width: 1150px) {
+  .area-trabalho {
+    grid-template-columns: 270px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    overflow-y: auto;
+  }
+  .painel-direito {
+    grid-column: 1 / -1;
+    max-height: 40vh;
+    border-left: 0;
+    border-top: 1px solid var(--border-forte);
+  }
+}

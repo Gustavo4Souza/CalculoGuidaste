@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react'
+import { formatarMassa, useInterfaceStore } from '../store/useInterfaceStore'
 import { GUINDASTES_FORA_DA_BUSCA, useSimulacaoStore } from '../store/useSimulacaoStore'
 
 /**
@@ -7,13 +8,13 @@ import { GUINDASTES_FORA_DA_BUSCA, useSimulacaoStore } from '../store/useSimulac
  * menor guindaste primeiro (RT-MC07), inspirada no Liebherr Crane Finder
  * citado em ARQUITETURA.md.
  *
- * `tela`: quando true, renderiza como a própria aba "Buscar por peso" em
- * tela cheia (App.tsx) em vez de um painel dentro da tela de Simulação.
+ * Épico 12: aberta num diálogo pela barra de comandos (DialogoBuscaReversa).
  */
-export function BuscaReversa({ tela = false }: { tela?: boolean }) {
+export function BuscaReversa() {
   const buscaPesoKg = useSimulacaoStore((s) => s.buscaPesoKg)
   const configuracoesViaveis = useSimulacaoStore((s) => s.configuracoesViaveis)
   const buscarPorPeso = useSimulacaoStore((s) => s.buscarPorPeso)
+  const unidade = useInterfaceStore((s) => s.unidadeMassa)
 
   const onChangePeso = (e: ChangeEvent<HTMLInputElement>) => {
     const v = e.target.valueAsNumber
@@ -21,7 +22,7 @@ export function BuscaReversa({ tela = false }: { tela?: boolean }) {
   }
 
   return (
-    <section className={`painel busca-reversa ${tela ? 'busca-reversa--tela' : ''}`}>
+    <section className="busca-reversa">
       <h2>Qual guindaste eu preciso? (RF05/RF15)</h2>
       <label>
         Peso a içar (kg)
@@ -47,7 +48,7 @@ export function BuscaReversa({ tela = false }: { tela?: boolean }) {
                   {config.raioMaximoM !== undefined && <span> · raio até {config.raioMaximoM.toFixed(1)} m</span>}
                   <span className="busca-reversa__capacidade">
                     {' '}
-                    · capacidade {config.capacidadeNaConfiguracaoKg.toLocaleString('pt-BR')} kg
+                    · capacidade {formatarMassa(config.capacidadeNaConfiguracaoKg, unidade)}
                   </span>
                 </li>
               ))}

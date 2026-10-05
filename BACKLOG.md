@@ -108,7 +108,7 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Pronto quando**: o motor v3 avalia qualquer cenário dos dois guindastes com dados reais, devolvendo "sem dado do fabricante" fora da cobertura. Hoje: 90 testes unitários + 9 e2e passando; falta só a tabela polar do TM-130.
 
-**Sprints seguintes (planejadas):** Épico 12 (UI CAD tema claro) → 13 (3D fiel) → 14 (mapa de área) → 15 (persistência/CRUD) → 16 (PDF). Ver ROADMAP.md.
+**Sprints seguintes (planejadas):** Épico 13 (3D fiel) → 14 (mapa de área) → 15 (persistência/CRUD) → 16 (PDF). Ver ROADMAP.md.
 
 ## Sprint 9 — Fonte única de estado (Épico 11) ✅ Concluída (05/10/2026)
 
@@ -121,6 +121,18 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 | S9-05 | ✅ `frameloop="demand"` na cena 3D (CPU parada: 26 → 0 tarefas longas/3 s) | Alta | Task 11.5 / RNF Desempenho |
 
 **Pronto quando**: todo parâmetro é editável e escreve num único estado, do qual o resultado é sempre derivado. ✅ Atingido: 102 testes unitários + 11 e2e (22/22 em execução repetida).
+
+## Sprint 10 — Interface estilo SolidWorks, tema claro (Épico 12) ✅ Concluída (05/10/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| S10-01 | ✅ Shell CAD: barra de comandos, árvore de parâmetros, viewport, painel de resultado, barra de status; tema claro | Alta | Task 12.1 / RF23 |
+| S10-02 | ✅ Seletor kg ⇄ t (só exibição) | Média | Task 12.1 / RF14 |
+| S10-03 | ✅ Busca reversa em diálogo modal pela barra de comandos | Média | Task 12.1 / RF05, RF15 |
+| S10-04 | ✅ Cubo de orientação + vistas padrão que enquadram o guindaste atual | Alta | Task 12.2 / RF23 |
+| S10-05 | ✅ Cotas na cena (R, H, α, içamento, giro) com valores do motor | Alta | Task 12.2 / RF23 |
+
+**Pronto quando**: a tela segue o padrão CAD (comandos, árvore, viewport, status) em tema claro, sem scroll, com todo parâmetro visível com rótulo, unidade e faixa. ✅ Atingido: 102 unitários + 12 e2e (24/24 em execução repetida).
 
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 

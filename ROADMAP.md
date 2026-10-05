@@ -327,8 +327,26 @@ Confirmado com o Gustavo (3 perguntas de esclarecimento, nesta sessão do Claude
 
 **Verificação (05/10/2026):** 102 testes unitários (90 + 12 da store), 11/11 e2e (suíte completa 2x seguidas: 22/22), typecheck e `npm run build` limpos. Novos e2e: área derivada do giro (0° → 7.500 kg frontal; 90° → 10.500 kg lateral; 55° → fronteira, menor valor), sapata parcial → "sem dado", limite do engenheiro → "Atenção", JIB com offset interpolado (17,5° → 2.525 kg). `oxlint` segue bloqueado pela política de Controle de Aplicativo do Windows (ambiente).
 
-## Épicos 12–16 ⬜ Planejados
-- **12** Interface estilo SolidWorks, tema claro (barra de comandos, árvore de parâmetros, viewport com cubo de orientação e vistas padrão, cotas, barra de status)
+## Épico 12 — Interface estilo SolidWorks, tema claro ✅ Concluído (05/10/2026)
+
+Substitui o tema escuro/HUD do Épico 8 (RF23).
+
+### Task 12.1 — Shell em tela cheia no estilo CAD ✅
+- [x] `App.tsx`: barra de comandos | área de trabalho (árvore de parâmetros | viewport 3D | resultado) | barra de status. 100vh, sem scroll de página; cada painel rola sozinho. Abaixo de 1150 px o painel de resultado desce para baixo da viewport
+- [x] `index.css`/`App.css` reescritos: cinza claro, painéis brancos, acento azul de seleção, cores de status reservadas ao resultado (OK verde / Atenção âmbar / NOK vermelho / Sem dado cinza hachurado). Viewport com fundo em degradê, como no SolidWorks
+- [x] `components/BarraDeComandos.tsx`: Novo (recomeça o cenário), Buscar por peso (abre `DialogoBuscaReversa`, um `<dialog>` modal) e seletor de massa **kg ⇄ t (RF14)**, só de exibição: resultado, somatório, barra de status e busca. Os campos de entrada continuam em kg, com a unidade no rótulo. Abrir, Salvar, Salvar como cenário, Comparar, Importar/Exportar JSON e Exportar PDF aparecem **desabilitados**, com o motivo no tooltip (Épicos 15/16)
+- [x] `components/ArvoreParametros.tsx` (substitui `PainelParametros.tsx`): nós recolhíveis estilo FeatureManager (Guindaste, Lança, Giro, JIB, Sapatas, Cabo e moitão, Carga, Acessórios, Limites e operação, Ambiente), cada um com o resumo do valor atual visível mesmo recolhido. O seletor de guindaste e o toggle de JIB passaram para o nó "Guindaste"; comprimento e raio também estão na árvore (além dos campos embutidos na cena)
+- [x] `components/BarraDeStatus.tsx`: status, capacidade (e se é ponto exato ou interpolado), somatório, % de utilização, área derivada do giro, selo de critério provisório e `VERSAO_TABELAS`
+
+### Task 12.2 — Viewport com cubo de orientação, vistas padrão e cotas ✅
+- [x] Cubo de orientação (`GizmoHelper` + `GizmoViewcube` do drei, já instalado; faces Frontal/Trás/Topo/Base/Lateral/Oposta). `OrbitControls` passou a `makeDefault`, que é o que o cubo usa
+- [x] Barra de vistas padrão sobre a viewport: Frontal, Lateral, Superior e Isométrica (`cena/ControladorDeVista.tsx`). **Decisão**: as vistas frontal/lateral/superior **enquadram o guindaste atual** (alcance e altura reais, como o "zoom para ajustar" de um CAD); a isométrica é fixa porque é a câmera que os testes e2e projetam. Com distância fixa, uma lança curta ficava minúscula e as cotas ilegíveis (visto na revisão por captura de tela)
+- [x] Cotas desenhadas na cena (`cena/Cotas.tsx`), com os valores do **motor** (não da geometria da cena): raio a partir do centro de giro (R), altura da ponta (H), ângulo da lança (α, com arco), altura de içamento (quando informada) e giro. Hoje o giro é só rótulo: a rotação da superestrutura na cena é do Épico 13
+- [x] Marcas de encaixe dos comprimentos ainda não estendidos viraram "fantasmas" claros sobre uma guia tracejada até o comprimento máximo. No tema claro elas apareciam como blocos pretos flutuando além da ponta
+
+**Verificação (05/10/2026):** revisão visual por captura de tela (isométrica, lateral, superior) antes de fechar; 102 testes unitários; 12/12 e2e (suíte 2x seguidas: 24/24, ~28 s), incluindo um novo teste de barra de status, cotas, vistas padrão, kg/t e comandos desabilitados; typecheck e `npm run build` limpos. `oxlint` segue bloqueado pela política de Controle de Aplicativo do Windows.
+
+## Épicos 13–16 ⬜ Planejados
 - **13** Modelo 3D fiel às dimensões das fichas + arrasto de giro, sapatas, JIB, carga C×L×A com CG
 - **14** Mapa de área de operação no chão (OK/NOK/sem dado) com `avaliarCenario`
 - **15** Persistência IndexedDB atrás de `RepositorioProjetos` + CRUD Projeto/Orçamento/Cenário + comparação + export/import JSON
@@ -352,7 +370,8 @@ Confirmado com o Gustavo (3 perguntas de esclarecimento, nesta sessão do Claude
 | 9 — Guindaste 3D mais realista + campos embutidos na cena | ✅ Concluído — modelo 3D detalhado (estilo técnico/linha) para os dois guindastes; campos de comprimento/raio/ângulo embutidos na cena com marcas de encaixe magnéticas nos 7 comprimentos reais do MD-300L |
 | 10 — Dados corrigidos e motor v3 | 🟡 Em andamento — motor `avaliarCenario` pronto (90 testes); falta a tabela polar do TM-130 (depende do Gustavo) |
 | 11 — Fonte única de estado | ✅ Concluído — store com `cenario` único + avaliação derivada, todos os parâmetros editáveis, 102 unitários + 11 e2e |
-| 12–16 — Simulador profissional parametrizável | ⬜ Planejados (ver acima) |
+| 12 — Interface estilo SolidWorks, tema claro | ✅ Concluído — barra de comandos, árvore de parâmetros, viewport com cubo/vistas/cotas, barra de status, kg/t; 12 e2e |
+| 13–16 — Simulador profissional parametrizável | ⬜ Planejados (ver acima) |
 
 **Verificado em 13/09/2026 (Épico 7):** typecheck limpo, 44 testes unitários (Vitest) e 7 specs e2e (Playwright) passando, `npm run build` ok.
 

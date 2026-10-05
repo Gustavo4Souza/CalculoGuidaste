@@ -1,9 +1,8 @@
 import { rotuloRegiao } from '../engine/capacidadeDetalhada'
+import { formatarMassa, useInterfaceStore } from '../store/useInterfaceStore'
 import { useSimulacaoStore } from '../store/useSimulacaoStore'
 import { IndicadorStatus } from './IndicadorStatus'
 import { MedidorCapacidade } from './MedidorCapacidade'
-
-const kg = (v: number) => `${Math.round(v).toLocaleString('pt-BR')} kg`
 
 /**
  * Resultado da avaliação (Épico 11): capacidade da tabela (ou "sem dado"),
@@ -13,10 +12,12 @@ const kg = (v: number) => `${Math.round(v).toLocaleString('pt-BR')} kg`
 export function PainelResultado() {
   const avaliacao = useSimulacaoStore((s) => s.avaliacao)
   const limite = useSimulacaoStore((s) => s.cenario.limiteUtilizacaoPercentual)
+  const unidade = useInterfaceStore((s) => s.unidadeMassa)
+  const kg = (v: number) => formatarMassa(v, unidade)
   const { capacidade, somatorio, status } = avaliacao
 
   return (
-    <section className={`painel resultado resultado--${status}`} aria-label="Resultado">
+    <section className={`resultado resultado--${status}`} aria-label="Resultado">
       <h2>Resultado</h2>
       {capacidade.capacidadeKg !== null ? (
         <>

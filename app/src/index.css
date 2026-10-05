@@ -1,41 +1,42 @@
 :root {
   /*
-   * Task 8.1 (Épico 8) — painel de controle industrial escuro, estilo HUD.
-   * Decisão deliberada de UI/UX (confirmada com o Gustavo): NÃO é um tema
-   * escuro opcional/condicional a `prefers-color-scheme` — é a identidade
-   * visual fixa da ferramenta, pensada para uso industrial real (cabine de
-   * operação, pouca luz ambiente), com acentos em amarelo/laranja de
-   * segurança (mesma linguagem visual de faixas de atenção em equipamentos
-   * reais) em vez de um dashboard corporativo claro.
+   * Épico 12 (RF23) — tema claro inspirado na interface do SolidWorks
+   * (substitui o painel industrial escuro do Épico 8, a pedido do Gustavo):
+   * fundo cinza claro, painéis brancos, acento azul de seleção e cores de
+   * status reservadas só para o resultado. Paleta fixa da ferramenta (não
+   * depende de `prefers-color-scheme`).
    */
-  --bg: #14181b;
-  --bg-elevado: #1b2126;
-  --bg-painel: #20272c;
-  --bg-instrumento: #0d1012;
-  --border: #333d44;
-  --border-forte: #4a5861;
-  --text: #9fadb6;
-  --text-h: #f2f6f7;
-  --text-fraco: #6b7880;
+  --bg: #e6e9ed;
+  --bg-barra: #f4f6f8;
+  --bg-painel: #fbfcfd;
+  --bg-campo: #ffffff;
+  --bg-cabecalho: #dde2e8;
+  --border: #c9d0d8;
+  --border-forte: #a9b3bf;
+  --text: #2b3540;
+  --text-h: #111a24;
+  --text-fraco: #5d6976;
 
-  /* Acento de segurança (amarelo/laranja industrial) — usar em bordas,
-     estados ativos e elementos de destaque, não como cor de texto corrido
-     (contraste insuficiente para texto pequeno sobre fundo escuro). */
-  --accent: #f2a71b;
-  --accent-forte: #ffc247;
-  /* Texto escuro para usar SOBRE fundos na cor de acento (AA exige isso —
-     texto claro sobre âmbar não passa no contraste). */
-  --accent-texto: #1a1206;
+  /* Acento de seleção/foco (azul CAD). */
+  --accent: #1f5fbf;
+  --accent-claro: #dce8f8;
+  --accent-texto: #ffffff;
 
-  --sucesso: #35d07f;
-  --aviso: #ffc247;
-  --perigo: #ff5c5c;
+  /* Status do resultado — só para OK / Atenção / NOK / Sem dado. */
+  --ok: #1e8e3e;
+  --atencao: #c77700;
+  --nok: #c62828;
+  --semdado: #6b7680;
+  /* Nomes antigos, usados por componentes existentes (MedidorCapacidade). */
+  --sucesso: var(--ok);
+  --aviso: var(--atencao);
+  --perigo: var(--nok);
 
   --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
   --mono: 'Cascadia Code', ui-monospace, Consolas, monospace;
 
-  font: 16px/145% var(--sans);
-  color-scheme: dark;
+  font: 14px/1.4 var(--sans);
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -44,8 +45,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Layout em tela cheia (Épico 7) — sem scroll de página; painéis internos
-   podem rolar sozinhos como fallback em telas pequenas. */
+/* Tela inteira sem scroll de página (Épico 7); painéis internos rolam sozinhos. */
 html,
 body,
 #root {
@@ -58,9 +58,9 @@ body,
 h1,
 h2 {
   font-family: var(--sans);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-h);
-  letter-spacing: 0.01em;
+  margin: 0;
 }
 
 p {
@@ -69,4 +69,16 @@ p {
 
 code {
   font-family: var(--mono);
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
