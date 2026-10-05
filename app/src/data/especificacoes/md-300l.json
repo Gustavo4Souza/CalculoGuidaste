@@ -50,6 +50,29 @@
     "massaGanchoIncluidaNaTabelaKg": 235,
     "distanciaMinimaPontaAoGanchoM": { "valor": 1.5, "fonte": "aproximado" }
   },
+  "giroZeroApontaPara": "frente",
+  "caminhao": {
+    "eixosM": [
+      { "valor": 5.94, "fonte": "ficha p.4 (1.360 + 4.580 mm do 2º eixo traseiro)" },
+      { "valor": 1.36, "fonte": "ficha p.4 (1.360 mm do 2º eixo traseiro)" },
+      { "valor": 0, "fonte": "ficha p.4 (centro de giro sobre o 2º eixo traseiro)" }
+    ],
+    "dianteiraM": { "valor": 9.989, "fonte": "ficha p.4 (12.444 − 2.075 − 380 mm)" },
+    "traseiraM": { "valor": -2.455, "fonte": "ficha p.4 (2.075 + 380 mm atrás do 2º eixo)" },
+    "sapataDianteiraM": { "valor": 4.2, "fonte": "aproximado" },
+    "sapataTraseiraM": { "valor": -2.075, "fonte": "ficha p.4 (2.075 mm atrás do 2º eixo traseiro)" },
+    "larguraM": { "valor": 2.6, "fonte": "ficha p.4" },
+    "bitolaM": { "valor": 2.4, "fonte": "ficha p.4" },
+    "alturaChassiM": { "valor": 1.25, "fonte": "aproximado" },
+    "cabineComprimentoM": { "valor": 2.2, "fonte": "aproximado" },
+    "cabineAlturaM": { "valor": 3.0, "fonte": "aproximado" }
+  },
+  "superestrutura": {
+    "raioTraseiroM": { "valor": 3.016, "fonte": "ficha p.4 (centro de giro → traseira da superestrutura)" },
+    "alturaBaseM": { "valor": 2.543, "fonte": "ficha p.4 (altura da plataforma)" },
+    "alturaTopoM": { "valor": 3.858, "fonte": "ficha p.4 (altura de transporte)" },
+    "larguraM": { "valor": 2.5, "fonte": "aproximado" }
+  },
   "dimensoes": {
     "comprimentoTransporteM": { "valor": 12.444, "fonte": "ficha p.4" },
     "eixoDianteiroAoPrimeiroTraseiroM": { "valor": 4.58, "fonte": "ficha p.4" },
@@ -64,7 +87,6 @@
     "larguraM": { "valor": 2.6, "fonte": "ficha p.4" },
     "distanciaEntreSapatasM": { "valor": 6.5, "fonte": "ficha p.2/p.4" },
     "centroDeGiroAoSegundoEixoTraseiroM": { "valor": 0, "fonte": "ficha p.4 (linha tracejada sobre o 2º eixo traseiro)" },
-    "posicaoSapataDianteiraM": { "valor": 5.0, "fonte": "aproximado" },
     "comprimentoSecaoLancaM": { "valor": 10.5, "fonte": "aproximado" }
   },
   "notas": [

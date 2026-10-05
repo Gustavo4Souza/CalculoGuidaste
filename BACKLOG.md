@@ -108,7 +108,7 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Pronto quando**: o motor v3 avalia qualquer cenário dos dois guindastes com dados reais, devolvendo "sem dado do fabricante" fora da cobertura. Hoje: 90 testes unitários + 9 e2e passando; falta só a tabela polar do TM-130.
 
-**Sprints seguintes (planejadas):** Épico 13 (3D fiel) → 14 (mapa de área) → 15 (persistência/CRUD) → 16 (PDF). Ver ROADMAP.md.
+**Sprints seguintes (planejadas):** Épico 14 (mapa de área) → 15 (persistência/CRUD) → 16 (PDF). Ver ROADMAP.md.
 
 ## Sprint 9 — Fonte única de estado (Épico 11) ✅ Concluída (05/10/2026)
 
@@ -133,6 +133,17 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 | S10-05 | ✅ Cotas na cena (R, H, α, içamento, giro) com valores do motor | Alta | Task 12.2 / RF23 |
 
 **Pronto quando**: a tela segue o padrão CAD (comandos, árvore, viewport, status) em tema claro, sem scroll, com todo parâmetro visível com rótulo, unidade e faixa. ✅ Atingido: 102 unitários + 12 e2e (24/24 em execução repetida).
+
+## Sprint 11 — Modelo 3D fiel e arrasto de todos os parâmetros (Épico 13) ✅ Concluída (05/10/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| S11-01 | ✅ Origem no centro de giro; caminhão parado, superestrutura gira; medidas do caminhão/superestrutura das fichas (com fonte) | Alta | Task 13.1 / RF16 |
+| S11-02 | ✅ Cena dividida em módulos (`components/cena/`) | Média | Task 13.2 |
+| S11-03 | ✅ Arrasto de giro (anel + setores no chão), sapatas, JIB (ângulo/comprimento/raio), carga em escala com CG | Alta | Task 13.3 / RF16, RF18, RF19 |
+| S11-04 | ✅ Rótulos `<Html>` não bloqueiam mais o clique (bug real) | Alta | Task 13.4 |
+
+**Pronto quando**: o desenho usa as medidas das fichas (aproximadas marcadas) e todo parâmetro com sentido físico pode ser arrastado na cena. ✅ Atingido: 108 unitários + 15 e2e (30/30 em execução repetida).
 
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 

@@ -683,3 +683,22 @@ label.checkbox {
     border-top: 1px solid var(--border-forte);
   }
 }
+
+/* Épico 13 — rótulos da cena: sapata fora da extensão máxima, CG, setores de giro, fontes do desenho. */
+.cena-3d__cota--alerta {
+  color: #b35c00;
+  border: 1px solid #d9822b;
+}
+.cena-3d__cota--cg {
+  color: #c62828;
+  font-weight: 600;
+}
+.cena-3d__cota--setor {
+  color: var(--text-fraco);
+  font-size: 10px;
+}
+.cena-3d__fontes {
+  margin-left: 6px;
+  color: #8a5200;
+  cursor: help;
+}

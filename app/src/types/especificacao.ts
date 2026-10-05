@@ -86,7 +86,41 @@ export interface EspecificacaoGuindaste {
     distanciaMinimaPontaAoGanchoM: ValorComFonte
   }
 
-  /** Dimensões gerais para o desenho 3D (Épico 13). Chaves livres, sempre em metros. */
+  /**
+   * Épico 13 — para onde aponta o giro 0° deste guindaste: MD-300L = frente
+   * do caminhão (cabine, setor frontal); TM-130 = traseira (ver
+   * config/criteriosDeGiro.ts).
+   */
+  giroZeroApontaPara: 'frente' | 'traseira'
+
+  /**
+   * Épico 13 — geometria do caminhão para o desenho 3D. Posições ao longo do
+   * eixo do caminhão, em metros, medidas A PARTIR DO CENTRO DE GIRO, com o
+   * sinal positivo no sentido da FRENTE do caminhão (cabine).
+   */
+  caminhao: {
+    eixosM: ValorComFonte[]
+    dianteiraM: ValorComFonte
+    traseiraM: ValorComFonte
+    sapataDianteiraM: ValorComFonte
+    sapataTraseiraM: ValorComFonte
+    larguraM: ValorComFonte
+    bitolaM: ValorComFonte
+    alturaChassiM: ValorComFonte
+    cabineComprimentoM: ValorComFonte
+    cabineAlturaM: ValorComFonte
+  }
+
+  /** Épico 13 — parte giratória (torre/plataforma + casa de máquinas). */
+  superestrutura: {
+    /** Do centro de giro até a traseira da superestrutura (raio de varredura traseiro). */
+    raioTraseiroM: ValorComFonte
+    alturaBaseM: ValorComFonte
+    alturaTopoM: ValorComFonte
+    larguraM: ValorComFonte
+  }
+
+  /** Dimensões gerais (referência e relatório). Chaves livres, sempre em metros. */
   dimensoes: Record<string, ValorComFonte>
 
   /** Notas da ficha que vão para o relatório. */

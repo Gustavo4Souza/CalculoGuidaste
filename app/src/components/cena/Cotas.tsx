@@ -1,5 +1,6 @@
 import { Html, Line } from '@react-three/drei'
 import { useMemo } from 'react'
+import { SEM_PONTEIRO } from './primitivas'
 
 /**
  * Cotas desenhadas na própria cena (Épico 12, RF23) — estilo desenho técnico:
@@ -7,9 +8,10 @@ import { useMemo } from 'react'
  * MOTOR (avaliação do cenário), não da geometria da cena, para que a cota e
  * o resultado nunca divirjam.
  *
- * Coordenadas da cena: X = alcance a partir do pé da lança, Y = altura,
- * plano de operação Z = 0. O centro de giro fica em X = recuo do pé (RF11):
- * o raio de trabalho é medido a partir dele.
+ * Coordenadas: referencial LOCAL da superestrutura (Épico 13 — gira junto
+ * com ela): centro de giro em X = 0, pé da lança em X = -recuo (RF11), plano
+ * de operação Z = 0. O raio de trabalho é medido a partir do centro de giro.
+ * (O giro tem a própria cota, no chão — ver AnelDeGiro.tsx.)
  */
 const COR_COTA = '#1f5fbf'
 const COR_COTA_ICAMENTO = '#7a3db8'
@@ -59,7 +61,7 @@ function CotaLinear({
       <Line points={[de, ate]} color={cor} lineWidth={1.5} dashed={tracejada} dashSize={0.5} gapSize={0.3} />
       <Line points={tracoDe} color={cor} lineWidth={1.5} />
       <Line points={tracoAte} color={cor} lineWidth={1.5} />
-      <Html position={meio} center distanceFactor={22} zIndexRange={[20, 0]}>
+      <Html style={SEM_PONTEIRO} position={meio} center distanceFactor={22} zIndexRange={[20, 0]}>
         <div className={`cena-3d__cota ${classe ?? ''}`}>{texto}</div>
       </Html>
     </group>
@@ -73,7 +75,6 @@ export function Cotas({
   alturaPontaM,
   anguloGraus,
   alturaIcamentoM,
-  giroGraus,
 }: {
   recuoPeM: number
   alturaPeM: number
@@ -81,10 +82,10 @@ export function Cotas({
   alturaPontaM: number
   anguloGraus: number
   alturaIcamentoM: number | null
-  giroGraus: number
 }) {
-  const xCentroGiro = recuoPeM
-  const xGancho = raioM + recuoPeM
+  const xCentroGiro = 0
+  const xGancho = raioM
+  const xPe = -recuoPeM
 
   // Os pontos são memoizados por VALOR (não por referência): ver nota da
   // Task 9.2 sobre <Html> reancorando a cada render com arrays literais.
@@ -107,23 +108,22 @@ export function Cotas({
     const passos = Math.max(2, Math.ceil(anguloGraus / 3))
     for (let i = 0; i <= passos; i++) {
       const a = ((anguloGraus * i) / passos) * (Math.PI / 180)
-      pontos.push([raioArco * Math.cos(a), alturaPeM + raioArco * Math.sin(a), 0])
+      pontos.push([xPe + raioArco * Math.cos(a), alturaPeM + raioArco * Math.sin(a), 0])
     }
     return pontos
-  }, [anguloGraus, alturaPeM])
+  }, [anguloGraus, alturaPeM, xPe])
   const referenciaHorizontal = useMemo<V3[]>(
     () => [
-      [0, alturaPeM, 0],
-      [raioArco + 1, alturaPeM, 0],
+      [xPe, alturaPeM, 0],
+      [xPe + raioArco + 1, alturaPeM, 0],
     ],
-    [alturaPeM],
+    [alturaPeM, xPe],
   )
   const metadeAngulo = (anguloGraus / 2) * (Math.PI / 180)
   const posicaoRotuloAngulo = useMemo<V3>(
-    () => [(raioArco + 1.4) * Math.cos(metadeAngulo), alturaPeM + (raioArco + 1.4) * Math.sin(metadeAngulo), 0],
-    [metadeAngulo, alturaPeM],
+    () => [xPe + (raioArco + 1.4) * Math.cos(metadeAngulo), alturaPeM + (raioArco + 1.4) * Math.sin(metadeAngulo), 0],
+    [metadeAngulo, alturaPeM, xPe],
   )
-  const posicaoRotuloGiro = useMemo<V3>(() => [xCentroGiro, 0.05, 6], [xCentroGiro])
 
   return (
     <group>
@@ -137,11 +137,8 @@ export function Cotas({
       />
       <Line points={referenciaHorizontal} color={COR_COTA} lineWidth={1} dashed dashSize={0.3} gapSize={0.2} />
       <Line points={arco} color={COR_COTA} lineWidth={1.5} />
-      <Html position={posicaoRotuloAngulo} center distanceFactor={22} zIndexRange={[20, 0]}>
+      <Html style={SEM_PONTEIRO} position={posicaoRotuloAngulo} center distanceFactor={22} zIndexRange={[20, 0]}>
         <div className="cena-3d__cota cena-3d__cota--angulo">α = {fmt(anguloGraus, 1)}°</div>
-      </Html>
-      <Html position={posicaoRotuloGiro} center distanceFactor={22} zIndexRange={[20, 0]}>
-        <div className="cena-3d__cota cena-3d__cota--giro">giro {fmt(giroGraus, 1)}°</div>
       </Html>
       {alturaIcamentoM !== null && (
         <CotaLinear

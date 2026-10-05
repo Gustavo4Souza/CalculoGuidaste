@@ -42,6 +42,29 @@
     "massaGanchoIncluidaNaTabelaKg": null,
     "distanciaMinimaPontaAoGanchoM": { "valor": 1.0, "fonte": "aproximado" }
   },
+  "giroZeroApontaPara": "traseira",
+  "caminhao": {
+    "eixosM": [
+      { "valor": 6.3, "fonte": "aproximado" },
+      { "valor": 2.3, "fonte": "aproximado" },
+      { "valor": 1.0, "fonte": "aproximado" }
+    ],
+    "dianteiraM": { "valor": 8.0, "fonte": "aproximado" },
+    "traseiraM": { "valor": -0.9, "fonte": "aproximado" },
+    "sapataDianteiraM": { "valor": 3.757, "fonte": "derivado da ficha p.2 (4.715,3 mm do centro de giro à sapata, com 2,85 m de meia-abertura)" },
+    "sapataTraseiraM": { "valor": 0.3, "fonte": "aproximado" },
+    "larguraM": { "valor": 2.5, "fonte": "aproximado" },
+    "bitolaM": { "valor": 2.0, "fonte": "aproximado" },
+    "alturaChassiM": { "valor": 1.1, "fonte": "aproximado" },
+    "cabineComprimentoM": { "valor": 2.0, "fonte": "aproximado" },
+    "cabineAlturaM": { "valor": 3.0, "fonte": "aproximado" }
+  },
+  "superestrutura": {
+    "raioTraseiroM": { "valor": 0.8, "fonte": "aproximado" },
+    "alturaBaseM": { "valor": 1.3, "fonte": "aproximado" },
+    "alturaTopoM": { "valor": 2.6, "fonte": "aproximado" },
+    "larguraM": { "valor": 1.6, "fonte": "aproximado" }
+  },
   "dimensoes": {
     "alturaTransporteM": { "valor": 3.0994, "fonte": "ficha p.2" },
     "cotaEixos5260M": { "valor": 5.26, "fonte": "ficha p.2" },

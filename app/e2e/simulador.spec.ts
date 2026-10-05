@@ -1,6 +1,12 @@
 import { expect, test, type Locator } from '@playwright/test'
 import * as THREE from 'three'
-import { CAMERA_ALVO, CAMERA_FOV, CAMERA_POSICAO, GANCHO_OFFSET_Y } from '../src/components/CenaGuindaste3D'
+// Importa só módulos sem dados (JSON): o carregador do Playwright não aceita
+// importar os JSON do catálogo sem "import attributes".
+import { CAMERA_FOV, VISTA_ISOMETRICA } from '../src/components/cena/ControladorDeVista'
+import { GANCHO_OFFSET_Y } from '../src/components/geometriaCanvas'
+
+const CAMERA_POSICAO = VISTA_ISOMETRICA.posicao
+const CAMERA_ALVO = VISTA_ISOMETRICA.alvo
 
 // Ângulos de recuo/geometria replicados aqui só para computar o alvo exato
 // do arrasto (mesma fórmula de engine/geometriaLanca.ts) — não reimplementa
@@ -51,13 +57,15 @@ function posicaoGancho3D(
   alturaPeDaLancaM: number,
   comprimentoLancaM: number,
   anguloGraus: number,
+  recuoPeDaLancaM = 0,
 ): [number, number, number] {
   const anguloRad = (anguloGraus * Math.PI) / 180
   const localX = comprimentoLancaM
   const localY = GANCHO_OFFSET_Y
   const rotX = localX * Math.cos(anguloRad) - localY * Math.sin(anguloRad)
   const rotY = localX * Math.sin(anguloRad) + localY * Math.cos(anguloRad)
-  return [rotX, alturaPeDaLancaM + rotY, 0]
+  // Épico 13 — origem do mundo no centro de giro; o pé da lança fica em x = -recuo.
+  return [rotX - recuoPeDaLancaM, alturaPeDaLancaM + rotY, 0]
 }
 
 /**
@@ -74,9 +82,14 @@ function pontoAlvoArrasto3D(
   alturaPeDaLancaM: number,
   comprimentoLancaM: number,
   anguloGraus: number,
+  recuoPeDaLancaM = 0,
 ): [number, number, number] {
   const anguloRad = (anguloGraus * Math.PI) / 180
-  return [comprimentoLancaM * Math.cos(anguloRad), alturaPeDaLancaM + comprimentoLancaM * Math.sin(anguloRad), 0]
+  return [
+    comprimentoLancaM * Math.cos(anguloRad) - recuoPeDaLancaM,
+    alturaPeDaLancaM + comprimentoLancaM * Math.sin(anguloRad),
+    0,
+  ]
 }
 
 /**
@@ -131,6 +144,7 @@ async function moverEArrastarComHover(
   page: import('@playwright/test').Page,
   origemPx: { x: number; y: number },
   destinoPx: { x: number; y: number },
+  cursorEsperado = 'ew-resize',
 ) {
   // Uma única leitura de hover pode cair "entre" dois frames de raycasting
   // do renderizador por software — em vez de esperar parado, insiste com um
@@ -145,12 +159,12 @@ async function moverEArrastarComHover(
         return page.evaluate(() => document.body.style.cursor)
       },
       {
-        message: 'cursor nunca virou ew-resize — raycast não achou a lança',
+        message: `cursor nunca virou ${cursorEsperado} — raycast não achou o alvo`,
         timeout: 8000,
         intervals: [50],
       },
     )
-    .toBe('ew-resize')
+    .toBe(cursorEsperado)
   await page.mouse.down()
   await page.mouse.move(destinoPx.x, destinoPx.y, { steps: 12 })
   await page.mouse.up()
@@ -274,11 +288,11 @@ test('UC02 (MD-300L) — arrastar o gancho na cena 3D muda o raio e a capacidade
   const anguloInicial = anguloParaRaio(comprimentoLancaM, recuoMD300L, 4)
   const anguloAlvo = 60 // dentro do range de arrasto (5°–85°)
 
-  const origem3D = posicaoGancho3D(alturaPeDaLancaM, comprimentoLancaM, anguloInicial)
+  const origem3D = posicaoGancho3D(alturaPeDaLancaM, comprimentoLancaM, anguloInicial, recuoMD300L)
   // O alvo do arrasto usa o ponto "cru" (sem GANCHO_OFFSET_Y): é assim que
   // CenaGuindaste3D converte a interseção do arrasto em ângulo (ver
   // pontoAlvoArrasto3D acima).
-  const destino3D = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoLancaM, anguloAlvo)
+  const destino3D = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoLancaM, anguloAlvo, recuoMD300L)
   const origem = projetarPontoNaTela(origem3D, box.width, box.height)
   const destino = projetarPontoNaTela(destino3D, box.width, box.height)
 
@@ -328,8 +342,8 @@ test('Task 8.2 — arrastar a própria lança (não o gancho) na cena 3D muda o 
   // arrasto é um ponto mais adiante, na MESMA direção/ângulo, à distância do
   // novo comprimento desejado (é assim que `projetarComprimento` em
   // components/geometriaCanvas.ts interpreta o arrasto).
-  const pontoNaBarra = pontoAlvoArrasto3D(alturaPeDaLancaM, 9, anguloAtual)
-  const pontoAlvo = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoAlvoM, anguloAtual)
+  const pontoNaBarra = pontoAlvoArrasto3D(alturaPeDaLancaM, 9, anguloAtual, recuoMD300L)
+  const pontoAlvo = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoAlvoM, anguloAtual, recuoMD300L)
   const origem = projetarPontoNaTela(pontoNaBarra, box.width, box.height)
   const destino = projetarPontoNaTela(pontoAlvo, box.width, box.height)
   const campoComprimento = page.getByLabel('Comprimento (m)')
@@ -370,10 +384,10 @@ test('Task 9.2 — clicar numa marca de encaixe pula exatamente para aquele comp
   // Ponto de agarre fixo a 9m do pivot (ver comentário no teste anterior —
   // fora da área ocupada pelos campos embutidos "Comprimento"/"Raio de
   // trabalho", e não uma fração do comprimento atual).
-  const pontoNaBarra = pontoAlvoArrasto3D(alturaPeDaLancaM, 9, anguloAtual)
+  const pontoNaBarra = pontoAlvoArrasto3D(alturaPeDaLancaM, 9, anguloAtual, recuoMD300L)
   // Alvo exatamente sobre a marca — um clique simples (down+up sem mover)
   // já deve pular para esse valor exato (ver `onPointerDownEstrutura`).
-  const pontoNaMarca = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoAlvoM, anguloAtual)
+  const pontoNaMarca = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoAlvoM, anguloAtual, recuoMD300L)
   const origem = projetarPontoNaTela(pontoNaBarra, box.width, box.height)
   const destino = projetarPontoNaTela(pontoNaMarca, box.width, box.height)
   const campoComprimento = page.getByLabel('Comprimento (m)')
@@ -511,4 +525,59 @@ test('Épico 12 — layout CAD: barra de status, cotas na cena, vistas padrão e
   // Comandos de persistência/PDF aparecem, desabilitados até os Épicos 15/16.
   await expect(page.getByRole('button', { name: 'Exportar PDF' })).toBeDisabled()
   await expect(page.getByRole('button', { name: 'Salvar', exact: true })).toBeDisabled()
+})
+
+test('Épico 13 — arrastar o anel de giro no chão gira a superestrutura e troca a área derivada', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByTestId('regiao-derivada')).toContainText('área frontal')
+
+  const box = await canvasEstavel(page.locator('.cena-3d canvas'))
+  // Anel em volta do centro de giro: raio traseiro da superestrutura (3,016 m, ficha p.4) + 1,4 m.
+  const raioAnel = 3.016 + 1.4
+  const origem = projetarPontoNaTela([raioAnel, 0.06, 0], box.width, box.height) // giro 0°
+  const destino = projetarPontoNaTela([0, 0.06, raioAnel], box.width, box.height) // giro 90° (+Z)
+
+  await moverEArrastarComHover(
+    page,
+    { x: box.x + origem.x, y: box.y + origem.y },
+    { x: box.x + destino.x, y: box.y + destino.y },
+    'grab',
+  )
+
+  await abrirNo(page, 'Giro')
+  const giro = Number(await page.getByLabel('Giro da superestrutura (°)').inputValue())
+  expect(Math.abs(giro - 90)).toBeLessThan(3)
+  await expect(page.getByTestId('regiao-derivada')).toContainText('áreas lateral e traseira')
+})
+
+test('Épico 13 — arrastar o pé de uma sapata muda só a extensão dela (e cai em "sem dado")', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
+  await expect(page.getByText('Dentro do limite seguro')).toBeVisible()
+
+  const box = await canvasEstavel(page.locator('.cena-3d canvas'))
+  // Sapata dianteira esquerda do MD-300L: 4,2 m à frente do centro de giro (≈), 3,25 m para a esquerda (-Z).
+  // (A direita fica, nesta câmera, por baixo do campo "Raio de trabalho" — que é clicável de propósito.)
+  const origem = projetarPontoNaTela([4.2, 0.4, -3.25], box.width, box.height)
+  const destino = projetarPontoNaTela([4.2, 0.4, -2.0], box.width, box.height)
+
+  await moverEArrastarComHover(
+    page,
+    { x: box.x + origem.x, y: box.y + origem.y },
+    { x: box.x + destino.x, y: box.y + destino.y },
+    'ns-resize',
+  )
+
+  await abrirNo(page, 'Sapatas')
+  const extensao = Number(await page.getByLabel('Sapata dianteira esquerda (m)').inputValue())
+  expect(Math.abs(extensao - 2.0)).toBeLessThan(0.2)
+  await expect(page.getByLabel('Sapata dianteira direita (m)')).toHaveValue('3.25')
+  await expect(page.locator('.status-chip--semdado')).toContainText('Sapata dianteira esquerda')
+})
+
+test('Épico 13 — carga desenhada em escala com o centro de gravidade', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('Comprimento da carga (m)').fill('4')
+  await expect(page.locator('.cena-3d__cota--cg')).toHaveText('CG')
+  await expect(page.locator('.cena-3d__fontes')).toContainText('medidas da ficha')
 })

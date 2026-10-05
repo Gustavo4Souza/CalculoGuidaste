@@ -10,6 +10,9 @@
  * só que devolvido como coordenadas para desenhar, não para validar carga.
  */
 
+/** Deslocamento local da esfera de arrasto em relação à ponta da lança (antes da rotação) — ver cena/SegmentoLanca. */
+export const GANCHO_OFFSET_Y = -1.1
+
 export const ANGULO_MIN_GRAUS = 5
 export const ANGULO_MAX_GRAUS = 85
 
