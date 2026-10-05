@@ -2,7 +2,7 @@
 
 > Espelha as seções 4 e 7 da [documentação no Notion](https://app.notion.com/p/3da034f53a1280df8666fc97c0590e38). Não existe um `SRS_Guindastes_Ribas.docx` separado da empresa — os RF01–RF15 abaixo, consolidados no Notion, cumprem esse papel.
 
-## Requisitos Funcionais (RF01–RF15)
+## Requisitos Funcionais (RF01–RF26)
 
 RF01–RF07 vêm do escopo original do projeto; RF08 em diante são novos, identificados a partir dos 3 arquivos reais recebidos da empresa em 13/09/2026.
 
@@ -23,6 +23,19 @@ RF01–RF07 vêm do escopo original do projeto; RF08 em diante são novos, ident
 | **RF13** | Cadastro/administração de guindastes e tabelas (ator Administrador do Sistema). |
 | **RF14** *(novo)* | Permitir ao usuário alternar a unidade de exibição da carga entre kg e toneladas (conversão só de exibição — o cálculo interno permanece sempre em kg). |
 | **RF15** *(novo)* | Ao informar o peso de uma carga a içar, exibir uma lista ordenada de configurações viáveis (guindaste + comprimento de lança + raio) dentre a frota que atendem aquele peso, em vez de validar só a configuração atual — inspirado no Liebherr Crane Finder. **Critério de ordenação: menor guindaste primeiro, por capacidade nominal.** |
+| **RF16** *(Épico 10+, 05/10/2026)* | Parametrização completa: todo ponto ajustável do guindaste real (comprimento e ângulo da lança, giro, JIB, sapatas, cabo, moitão, carga, acessórios) pode ser digitado em campo numérico (rótulo, unidade e faixa válida visíveis) e, quando fizer sentido, arrastado na cena 3D. Limites = limites mecânicos da ficha. |
+| **RF17** | Regra de ouro: ponto exato → valor exato; entre pontos → interpolação arredondada para baixo; fora da cobertura da tabela → estado próprio **"Sem dado do fabricante — operação não validada"** (diferente de OK/NOK), com o motivo, na interface e no relatório. Vale também para configurações não tabeladas (sapata parcial, passagem de cabo diferente, JIB fora da lança exigida). |
+| **RF18** *(revisa RF08)* | Giro da superestrutura 0–360° (ou o limite mecânico da ficha); quadrante (MD-300L) e zona (TM-130) passam a ser **derivados do giro**, com os limites angulares num único arquivo de configuração (`app/src/config/criteriosDeGiro.ts`) e selo "Critério de giro provisório" enquanto não confirmado. Na fronteira exata, vale a menor capacidade. |
+| **RF19** | Carga com peso, dimensões C × L × A, centro de gravidade e descrição; verificação de altura de içamento necessária. |
+| **RF20** | Cabo de içamento: massa = comprimento pendente × nº de pernas × massa linear (calculada, sempre visível, sobrescrevível); moitão (só o excedente sobre o gancho já incluído na tabela entra no somatório); verificação de carga por perna (dado da ficha). |
+| **RF21** | Limite de utilização definido pelo engenheiro (status "Atenção" acima de X% da capacidade). |
+| **RF22** | Mapa de área de operação no chão (OK / NOK / sem dado), usando a mesma função do motor. |
+| **RF23** | Interface estilo CAD (SolidWorks), tema claro, com árvore de parâmetros, viewport com cubo de orientação, vistas padrão, cotas e barra de status. |
+| **RF24** | Projetos → Orçamentos → Cenários: CRUD completo, duplicar, comparar 2+ cenários, reabrir com o mesmo estado; cada cenário registra a versão das tabelas e do critério de giro. |
+| **RF25** | Persistência no navegador (IndexedDB) atrás de uma interface substituível, com exportar/importar JSON. |
+| **RF26** | Relatório PDF por cenário e por orçamento (comparativo), com somatório detalhado, origem da capacidade (exato/interpolado e pontos usados), selo provisório, versões e campo de assinatura do engenheiro. |
+
+> **Revisões de 05/10/2026 (Épico 10):** RF08 — o seletor manual de quadrante/zona sai (RF18). RF12 — a tabela zona × ângulo do TM-130 é, pela legenda da ficha, a **"Com sapata para lança JIB"**; o TM-130 tem uma tabela de JIB, mantida nos dados mas desligada até a Ribas confirmar se a unidade dela tem JIB. A lança principal do TM-130 usa o diagrama polar por raio ("Com sapata para lança principal").
 
 ### Requisitos não-funcionais (FURPS+)
 

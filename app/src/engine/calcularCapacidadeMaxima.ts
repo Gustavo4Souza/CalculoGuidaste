@@ -9,7 +9,12 @@ import type {
   ZonaDeGiro,
 } from '../types/guindaste'
 import { calcularRaioReal } from './geometriaLanca'
-import { arredondarParaBaixo, interpolarLinear } from './interpolacao'
+import {
+  capacidadeJIBDetalhada,
+  capacidadeVarianteADetalhada,
+  capacidadeVarianteBDetalhada,
+  type CapacidadeDetalhada,
+} from './capacidadeDetalhada'
 
 export interface CapacidadeInterpolada {
   capacidadeKg: number | null
@@ -22,10 +27,8 @@ export interface CapacidadeInterpolada {
  * Interpola por raio dentro de um comprimento de lança; se o comprimento
  * alvo não bate exatamente com nenhuma linha da tabela, faz uma segunda
  * interpolação (bilinear) entre os dois comprimentos mais próximos.
- *
- * Ponto de atenção (corrigido a partir de um bug encontrado no POC): em
- * t≈0 ou t≈1 (comprimento exato de um dos dois lados), só o "foraDaFaixa"
- * do lado relevante deve invalidar o resultado — não o dos dois lados.
+ * Delega para `capacidadeVarianteADetalhada` (./capacidadeDetalhada.ts),
+ * que também devolve os pontos usados e o motivo quando não há dado.
  */
 export function calcularCapacidadeMaximaVarianteA(
   linhas: ReadonlyArray<TabelaCargaVarianteA>,
@@ -33,87 +36,30 @@ export function calcularCapacidadeMaximaVarianteA(
   raioM: number,
   quadrante: Quadrante,
 ): CapacidadeInterpolada {
-  const doQuadrante = linhas.filter((l) => l.quadrante === quadrante)
-  if (doQuadrante.length === 0) {
-    return { capacidadeKg: null, foraDaFaixa: true }
-  }
-
-  const comprimentos = [...new Set(doQuadrante.map((l) => l.comprimentoLancaM))].sort(
-    (a, b) => a - b,
-  )
-
-  if (comprimentoLancaM < comprimentos[0] || comprimentoLancaM > comprimentos[comprimentos.length - 1]) {
-    return { capacidadeKg: null, foraDaFaixa: true }
-  }
-
-  const interpolarRaioNoComprimento = (comprimento: number): ResultadoInterpolacaoLocal => {
-    const linha = doQuadrante.find((l) => l.comprimentoLancaM === comprimento)!
-    const pontos = linha.pontos.map((p) => ({ chave: p.raioM, valor: p.capacidadeKgf }))
-    return interpolarLinear(pontos, raioM)
-  }
-
-  const comprimentoExato = comprimentos.find((c) => Math.abs(c - comprimentoLancaM) < 1e-9)
-  if (comprimentoExato !== undefined) {
-    const r = interpolarRaioNoComprimento(comprimentoExato)
-    return { capacidadeKg: r.valor === null ? null : arredondarParaBaixo(r.valor), foraDaFaixa: r.foraDaFaixa }
-  }
-
-  let lo = comprimentos[0]
-  let hi = comprimentos[comprimentos.length - 1]
-  for (let i = 0; i < comprimentos.length - 1; i++) {
-    if (comprimentoLancaM >= comprimentos[i] && comprimentoLancaM <= comprimentos[i + 1]) {
-      lo = comprimentos[i]
-      hi = comprimentos[i + 1]
-      break
-    }
-  }
-
-  const t = (comprimentoLancaM - lo) / (hi - lo)
-  const rLo = interpolarRaioNoComprimento(lo)
-  const rHi = interpolarRaioNoComprimento(hi)
-
-  if (t <= 1e-9) {
-    return { capacidadeKg: rLo.valor === null ? null : arredondarParaBaixo(rLo.valor), foraDaFaixa: rLo.foraDaFaixa }
-  }
-  if (t >= 1 - 1e-9) {
-    return { capacidadeKg: rHi.valor === null ? null : arredondarParaBaixo(rHi.valor), foraDaFaixa: rHi.foraDaFaixa }
-  }
-  if (rLo.foraDaFaixa || rHi.foraDaFaixa || rLo.valor === null || rHi.valor === null) {
-    return { capacidadeKg: null, foraDaFaixa: true }
-  }
-
-  const valor = rLo.valor + t * (rHi.valor - rLo.valor)
-  return { capacidadeKg: arredondarParaBaixo(valor), foraDaFaixa: false }
+  return paraInterpolada(capacidadeVarianteADetalhada(linhas, comprimentoLancaM, raioM, quadrante))
 }
 
 /**
- * Variante B (zona + ângulo) — usada pelo TM-130.
+ * Variante B (zona + ângulo). As zonas (I / II) são regiões discretas de
+ * operação, não um contínuo — não se interpola "entre zonas". Só o ângulo
+ * da lança é interpolado, dentro da zona escolhida.
  *
- * As zonas (I / II) são regiões discretas de operação, não um contínuo —
- * não se interpola "entre zonas". Só o ângulo da lança é interpolado,
- * dentro da zona escolhida.
+ * Atenção (Épico 10): pela legenda da ficha do TM-130, a tabela zona×ângulo
+ * é a "Com sapata para lança JIB" — ver data/tabelas/README.md.
  */
 export function calcularCapacidadeMaximaVarianteB(
   linhas: ReadonlyArray<TabelaCargaVarianteB>,
   anguloGraus: number,
   zona: ZonaDeGiro,
 ): CapacidadeInterpolada {
-  const linha = linhas.find((l) => l.zona === zona)
-  if (!linha) {
-    return { capacidadeKg: null, foraDaFaixa: true }
-  }
-
-  const pontos = linha.pontos.map((p) => ({ chave: p.anguloGraus, valor: p.capacidadeKg }))
-  const r = interpolarLinear(pontos, anguloGraus)
-  return { capacidadeKg: r.valor === null ? null : arredondarParaBaixo(r.valor), foraDaFaixa: r.foraDaFaixa }
+  return paraInterpolada(capacidadeVarianteBDetalhada(linhas, anguloGraus, zona, 'Zona × ângulo'))
 }
 
 /**
- * JIB opcional (RF12) — só para guindastes com `possuiJIB = true` (hoje, só
- * o MD-300L). Cada combinação de comprimento de JIB + ângulo de JIB é uma
- * linha discreta da tabela (não se interpola entre combinações, só dentro
- * do raio de uma mesma combinação) — mesmo raciocínio da Zona I/II do
- * TM-130: a combinação em si não é contínua, só o raio dentro dela é.
+ * JIB opcional (RF12) — só para guindastes com `possuiJIB = true`.
+ * Comprimento do JIB é discreto; o ângulo do JIB entre dois valores
+ * tabelados é interpolado (decisão de 05/10/2026, Épico 10) — ver
+ * `capacidadeJIBDetalhada`.
  */
 export function calcularCapacidadeMaximaJIB(
   linhas: ReadonlyArray<TabelaJIB>,
@@ -122,22 +68,12 @@ export function calcularCapacidadeMaximaJIB(
   raioM: number,
   quadrante: Quadrante,
 ): CapacidadeInterpolada {
-  const linha = linhas.find(
-    (l) =>
-      l.quadrante === quadrante &&
-      Math.abs(l.comprimentoJibM - comprimentoJibM) < 1e-9 &&
-      Math.abs(l.anguloJibGraus - anguloJibGraus) < 1e-9,
-  )
-  if (!linha) {
-    return { capacidadeKg: null, foraDaFaixa: true }
-  }
-
-  const pontos = linha.pontos.map((p) => ({ chave: p.raioM, valor: p.capacidadeKgf }))
-  const r = interpolarLinear(pontos, raioM)
-  return { capacidadeKg: r.valor === null ? null : arredondarParaBaixo(r.valor), foraDaFaixa: r.foraDaFaixa }
+  return paraInterpolada(capacidadeJIBDetalhada(linhas, comprimentoJibM, anguloJibGraus, raioM, quadrante))
 }
 
-type ResultadoInterpolacaoLocal = ReturnType<typeof interpolarLinear>
+function paraInterpolada(d: CapacidadeDetalhada): CapacidadeInterpolada {
+  return { capacidadeKg: d.capacidadeKg, foraDaFaixa: d.capacidadeKg === null }
+}
 
 /** RF09/RF10 — soma tudo que precisa ser suportado pelo guindaste, nunca só a carga isolada. */
 export function calcularSomatorioDeCargas(configuracao: ConfiguracaoDeIcamento): number {

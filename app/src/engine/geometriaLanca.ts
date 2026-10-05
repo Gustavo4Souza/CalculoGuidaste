@@ -16,7 +16,7 @@
  * de giro, então precisa ser subtraído do alcance horizontal da lança.
  */
 
-interface GeometriaDoPeDaLanca {
+export interface GeometriaDoPeDaLanca {
   alturaPeDaLancaM: number
   recuoPeDaLancaM: number
 }
@@ -52,4 +52,56 @@ export function calcularAlturaDoGancho(
 ): number {
   const anguloRad = (anguloGraus * Math.PI) / 180
   return guindaste.alturaPeDaLancaM + comprimentoLancaM * Math.sin(anguloRad)
+}
+
+/** Lança (e JIB opcional) no plano vertical do giro — Épico 10. */
+export interface PosicaoDaLanca {
+  comprimentoLancaM: number
+  anguloLancaGraus: number
+  /** JIB montado na ponta: comprimento e offset (para baixo) em relação à lança principal. */
+  jib?: { comprimentoM: number; anguloGraus: number } | null
+}
+
+/**
+ * Ponta da lança (ou do JIB, se montado): `raioM` horizontal a partir do
+ * centro de giro (já com o recuo do pé descontado — RF11) e `alturaM` do
+ * solo. O gancho pende verticalmente dessa ponta, então o raio de trabalho é
+ * o raio da ponta.
+ */
+export function calcularPonta(pe: GeometriaDoPeDaLanca, posicao: PosicaoDaLanca): { raioM: number; alturaM: number } {
+  const theta = (posicao.anguloLancaGraus * Math.PI) / 180
+  let raioM = calcularRaioReal(pe, posicao.comprimentoLancaM, posicao.anguloLancaGraus)
+  let alturaM = pe.alturaPeDaLancaM + posicao.comprimentoLancaM * Math.sin(theta)
+  if (posicao.jib) {
+    const phi = theta - (posicao.jib.anguloGraus * Math.PI) / 180
+    raioM += posicao.jib.comprimentoM * Math.cos(phi)
+    alturaM += posicao.jib.comprimentoM * Math.sin(phi)
+  }
+  return { raioM, alturaM }
+}
+
+/**
+ * Inversa de `calcularPonta` no ângulo da lança principal: qual ângulo, dentro
+ * de [anguloMinGraus, anguloMaxGraus], põe a ponta no raio pedido (mantendo
+ * comprimentos e offset do JIB). O raio cai conforme o ângulo sobe nessa
+ * faixa, então basta uma bisseção. null = raio inalcançável com essa lança.
+ */
+export function resolverAnguloParaRaio(
+  pe: GeometriaDoPeDaLanca,
+  posicao: Omit<PosicaoDaLanca, 'anguloLancaGraus'>,
+  raioAlvoM: number,
+  anguloMinGraus: number,
+  anguloMaxGraus: number,
+): number | null {
+  const raio = (a: number) => calcularPonta(pe, { ...posicao, anguloLancaGraus: a }).raioM
+  let lo = anguloMinGraus
+  let hi = anguloMaxGraus
+  // raio(lo) é o maior alcance, raio(hi) o menor.
+  if (raioAlvoM > raio(lo) + 1e-9 || raioAlvoM < raio(hi) - 1e-9) return null
+  for (let i = 0; i < 100; i++) {
+    const meio = (lo + hi) / 2
+    if (raio(meio) > raioAlvoM) lo = meio
+    else hi = meio
+  }
+  return (lo + hi) / 2
 }

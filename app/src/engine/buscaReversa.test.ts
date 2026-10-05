@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import guindastesData from '../data/guindastes.json'
 import tabelaMD300L from '../data/tabelas/md-300l.json'
-import tabelaTM130 from '../data/tabelas/tm-130.json'
+import tabelaTM130 from '../data/tabelas/tm-130-jib.json'
 import type { Guindaste, TabelaCargaVarianteA, TabelaCargaVarianteB } from '../types/guindaste'
 import { buscarConfiguracoesViaveis } from './buscaReversa'
 

@@ -1,0 +1,64 @@
+{
+  "guindasteId": "TM-130",
+  "documentoFonte": "docs/TM_130.pdf (p.2) + docs/Informações gerais - içamento.xlsx",
+  "tipoTabelaPrincipal": "zona_raio_faixas",
+  "lanca": {
+    "comprimentoMinM": { "valor": 5.9, "fonte": "ficha p.2 (comprimento da lança recolhida)" },
+    "comprimentoMaxM": { "valor": 12.4, "fonte": "aproximado" },
+    "numeroDeSecoes": { "valor": 4, "fonte": "aproximado" },
+    "anguloMinGraus": { "valor": 0, "fonte": "ficha p.2 (gráfico de alcance)" },
+    "anguloMaxGraus": { "valor": 70, "fonte": "ficha p.2 (ângulo máximo de elevação)" },
+    "alturaPeM": { "valor": 2.8, "fonte": "planilha (Altura do pé da lança)" },
+    "recuoPeM": { "valor": 0, "fonte": "planilha (Recuo do pé da lança)" },
+    "pernasPorComprimento": []
+  },
+  "jib": {
+    "habilitado": false,
+    "comprimentosM": [5.1],
+    "anguloMinGraus": 0,
+    "anguloMaxGraus": 0,
+    "comprimentoLancaExigidoM": null,
+    "pernas": 1,
+    "massaGanchoIncluidaNaTabelaKg": null
+  },
+  "giro": {
+    "limiteMecanicoGraus": 60
+  },
+  "sapatas": {
+    "dianteiras": {
+      "estendidaM": { "valor": 2.85, "fonte": "ficha p.2 (5,7 m entre sapatas dianteiras estendidas)" },
+      "recolhidaM": { "valor": 1.15, "fonte": "ficha p.2 (2,3 m entre sapatas dianteiras recolhidas)" }
+    },
+    "traseiras": {
+      "estendidaM": { "valor": 1.85, "fonte": "ficha p.2 (3,7 m entre sapatas traseiras estendidas)" },
+      "recolhidaM": { "valor": 1.15, "fonte": "ficha p.2 (2,3 m entre sapatas traseiras recolhidas)" }
+    }
+  },
+  "cabo": {
+    "bitola": "5/8\" NR",
+    "cargaMaximaPorPernaKg": { "valor": 4300, "fonte": "ficha p.2 (capacidade máxima por cabo de aço)" }
+  },
+  "moitao": {
+    "massaGanchoIncluidaNaTabelaKg": null,
+    "distanciaMinimaPontaAoGanchoM": { "valor": 1.0, "fonte": "aproximado" }
+  },
+  "dimensoes": {
+    "alturaTransporteM": { "valor": 3.0994, "fonte": "ficha p.2" },
+    "cotaEixos5260M": { "valor": 5.26, "fonte": "ficha p.2" },
+    "cotaEixos2580M": { "valor": 2.58, "fonte": "ficha p.2" },
+    "alturaSapataTraseiraM": { "valor": 0.3563, "fonte": "ficha p.2" },
+    "centroDeGiroASapataM": { "valor": 4.7153, "fonte": "ficha p.2 (vista superior)" },
+    "distanciaEntreRoletesM": { "valor": 1.7, "fonte": "ficha p.2" },
+    "vigaSapataAlturaM": { "valor": 0.361, "fonte": "ficha p.2 (seção B-B)" },
+    "vigaSapataLarguraM": { "valor": 0.233, "fonte": "ficha p.2 (seção B-B)" },
+    "comprimentoJibM": { "valor": 5.1, "fonte": "ficha p.2" },
+    "comprimentoChassiM": { "valor": 9.5, "fonte": "aproximado" },
+    "larguraM": { "valor": 2.5, "fonte": "aproximado" }
+  },
+  "notas": [
+    "Tabela da lança principal: diagrama polar \"Com sapata para lança principal\" (Zona I 0°~16°, Zona II 16°~60°, raios de 4 a 12 m).",
+    "Tabela zona × ângulo da lança: \"Com sapata para lança JIB\".",
+    "Ângulo de giro total: 120°. Ângulo máximo de elevação: 70°.",
+    "Capacidade máxima de elevação: 26.000 kgf a 5 metros."
+  ]
+}

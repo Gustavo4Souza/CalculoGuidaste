@@ -5,7 +5,7 @@ import { calcularRaioReal } from '../engine/geometriaLanca'
 import guindastesData from '../data/guindastes.json'
 import tabelaJIBData from '../data/tabelas/md-300l-jib.json'
 import tabelaMD300L from '../data/tabelas/md-300l.json'
-import tabelaTM130 from '../data/tabelas/tm-130.json'
+import tabelaTM130 from '../data/tabelas/tm-130-jib.json'
 import type {
   ConfiguracaoDeIcamento,
   ConfiguracaoViavel,

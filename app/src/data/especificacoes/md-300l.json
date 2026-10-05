@@ -1,0 +1,77 @@
+{
+  "guindasteId": "MD-300L",
+  "documentoFonte": "docs/Tabela Guindaste MD-300L.pdf + docs/Informações gerais - içamento.xlsx",
+  "tipoTabelaPrincipal": "comprimento_raio_quadrante",
+  "lanca": {
+    "comprimentoMinM": { "valor": 10.5, "fonte": "ficha p.2 (lança recolhida, 4 seções)" },
+    "comprimentoMaxM": { "valor": 32.1, "fonte": "ficha p.2 (lança estendida)" },
+    "numeroDeSecoes": { "valor": 4, "fonte": "ficha p.2" },
+    "anguloMinGraus": { "valor": 0, "fonte": "ficha p.4 (gráfico de alcance)" },
+    "anguloMaxGraus": { "valor": 85, "fonte": "aproximado" },
+    "alturaPeM": { "valor": 3.0, "fonte": "planilha (Altura do pé da lança)" },
+    "recuoPeM": { "valor": 1.4, "fonte": "planilha (Recuo do pé da lança)" },
+    "pernasPorComprimento": [
+      { "comprimentoLancaM": 10.5, "pernas": 8 },
+      { "comprimentoLancaM": 14.1, "pernas": 8 },
+      { "comprimentoLancaM": 17.7, "pernas": 6 },
+      { "comprimentoLancaM": 21.3, "pernas": 6 },
+      { "comprimentoLancaM": 24.9, "pernas": 6 },
+      { "comprimentoLancaM": 28.5, "pernas": 4 },
+      { "comprimentoLancaM": 32.1, "pernas": 4 }
+    ]
+  },
+  "jib": {
+    "habilitado": true,
+    "comprimentosM": [9, 15.5, 20],
+    "anguloMinGraus": 10,
+    "anguloMaxGraus": 40,
+    "comprimentoLancaExigidoM": 32.1,
+    "pernas": 1,
+    "massaGanchoIncluidaNaTabelaKg": 67
+  },
+  "giro": {
+    "limiteMecanicoGraus": null
+  },
+  "sapatas": {
+    "dianteiras": {
+      "estendidaM": { "valor": 3.25, "fonte": "ficha p.2/p.4 (6.500 mm entre sapatas)" },
+      "recolhidaM": { "valor": 1.3, "fonte": "aproximado" }
+    },
+    "traseiras": {
+      "estendidaM": { "valor": 3.25, "fonte": "ficha p.2/p.4 (6.500 mm entre sapatas)" },
+      "recolhidaM": { "valor": 1.3, "fonte": "aproximado" }
+    }
+  },
+  "cabo": {
+    "bitola": "5/8\"",
+    "cargaMaximaPorPernaKg": { "valor": 3900, "fonte": "ficha p.2 (força de tração máxima do guincho principal)" }
+  },
+  "moitao": {
+    "massaGanchoIncluidaNaTabelaKg": 235,
+    "distanciaMinimaPontaAoGanchoM": { "valor": 1.5, "fonte": "aproximado" }
+  },
+  "dimensoes": {
+    "comprimentoTransporteM": { "valor": 12.444, "fonte": "ficha p.4" },
+    "eixoDianteiroAoPrimeiroTraseiroM": { "valor": 4.58, "fonte": "ficha p.4" },
+    "entreEixosTraseirosM": { "valor": 1.36, "fonte": "ficha p.4" },
+    "segundoEixoTraseiroASapataTraseiraM": { "valor": 2.075, "fonte": "ficha p.4" },
+    "sapataTraseiraAoExtremoM": { "valor": 0.38, "fonte": "ficha p.4" },
+    "pontaDaLancaAFrenteDaCabineM": { "valor": 2.336, "fonte": "ficha p.4" },
+    "alturaTransporteM": { "valor": 3.858, "fonte": "ficha p.4" },
+    "alturaPlataformaM": { "valor": 2.543, "fonte": "ficha p.4" },
+    "raioTraseiroDeGiroM": { "valor": 3.016, "fonte": "ficha p.4 (centro de giro → traseira da superestrutura)" },
+    "bitolaM": { "valor": 2.4, "fonte": "ficha p.4" },
+    "larguraM": { "valor": 2.6, "fonte": "ficha p.4" },
+    "distanciaEntreSapatasM": { "valor": 6.5, "fonte": "ficha p.2/p.4" },
+    "centroDeGiroAoSegundoEixoTraseiroM": { "valor": 0, "fonte": "ficha p.4 (linha tracejada sobre o 2º eixo traseiro)" },
+    "posicaoSapataDianteiraM": { "valor": 5.0, "fonte": "aproximado" },
+    "comprimentoSecaoLancaM": { "valor": 10.5, "fonte": "aproximado" }
+  },
+  "notas": [
+    "Tabela a 85% de tombamento, incluindo o peso do gancho principal (235 kg) — JIB: gancho do JIB (67 kg).",
+    "Cargas acima da linha em negrito calculadas com base na resistência da estrutura; abaixo, com base na estabilidade.",
+    "Cargas calculadas com sapatas na extensão máxima, terreno plano e firme.",
+    "A extensão da lança deverá ser feita somente sem carga. Depois de posicionada a altura, a carga deverá ser movimentada com cilindro hidráulico de elevação ou com guincho.",
+    "Equipado com indicador de momento de carga."
+  ]
+}

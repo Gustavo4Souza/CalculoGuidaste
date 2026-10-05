@@ -25,20 +25,50 @@ export function interpolarLinear(
   pontos: ReadonlyArray<{ chave: number; valor: number }>,
   chaveAlvo: number,
 ): ResultadoInterpolacao {
-  if (pontos.length === 0) {
-    return { valor: null, foraDaFaixa: true }
+  const r = interpolarComDetalhe(pontos, chaveAlvo)
+  return { valor: r.valor, foraDaFaixa: r.foraDaFaixa }
+}
+
+/**
+ * Tolerância para considerar a chave "exatamente" um ponto da tabela — 1 µm
+ * de raio (ou 1 µ° de ângulo): absorve o erro de ponto flutuante de um raio
+ * derivado de comprimento + ângulo, sem nunca mudar o valor de forma
+ * perceptível.
+ */
+export const TOLERANCIA_PONTO_EXATO = 1e-6
+
+export interface PontoChaveValor {
+  chave: number
+  valor: number
+}
+
+export interface ResultadoInterpolacaoDetalhado extends ResultadoInterpolacao {
+  /** true quando a chave caiu exatamente num ponto da tabela. */
+  exato: boolean
+  /** Os pontos da tabela usados: 1 (exato) ou 2 (interpolado); vazio se fora da faixa. */
+  vizinhos: PontoChaveValor[]
+}
+
+/** Igual a `interpolarLinear`, mas devolve também quais pontos da tabela foram usados. */
+export function interpolarComDetalhe(
+  pontos: ReadonlyArray<PontoChaveValor>,
+  chaveAlvo: number,
+): ResultadoInterpolacaoDetalhado {
+  const fora: ResultadoInterpolacaoDetalhado = { valor: null, foraDaFaixa: true, exato: false, vizinhos: [] }
+  if (pontos.length === 0 || !Number.isFinite(chaveAlvo)) {
+    return fora
   }
 
   const ordenados = [...pontos].sort((a, b) => a.chave - b.chave)
 
-  if (chaveAlvo < ordenados[0].chave || chaveAlvo > ordenados[ordenados.length - 1].chave) {
-    return { valor: null, foraDaFaixa: true }
+  // Ponto exato (evita erro de ponto flutuante em comparações de igualdade).
+  const exato = ordenados.find((p) => Math.abs(p.chave - chaveAlvo) <= TOLERANCIA_PONTO_EXATO)
+  if (exato) {
+    return { valor: exato.valor, foraDaFaixa: false, exato: true, vizinhos: [exato] }
   }
 
-  // Ponto exato (evita erro de ponto flutuante em comparações de igualdade).
-  const exato = ordenados.find((p) => Math.abs(p.chave - chaveAlvo) < 1e-9)
-  if (exato) {
-    return { valor: exato.valor, foraDaFaixa: false }
+  if (chaveAlvo < ordenados[0].chave || chaveAlvo > ordenados[ordenados.length - 1].chave) {
+    return fora
   }
 
   for (let i = 0; i < ordenados.length - 1; i++) {
@@ -46,12 +76,12 @@ export function interpolarLinear(
     const hi = ordenados[i + 1]
     if (chaveAlvo >= lo.chave && chaveAlvo <= hi.chave) {
       const t = (chaveAlvo - lo.chave) / (hi.chave - lo.chave)
-      return { valor: lo.valor + t * (hi.valor - lo.valor), foraDaFaixa: false }
+      return { valor: lo.valor + t * (hi.valor - lo.valor), foraDaFaixa: false, exato: false, vizinhos: [lo, hi] }
     }
   }
 
   // Não deveria chegar aqui dado o check de faixa acima.
-  return { valor: null, foraDaFaixa: true }
+  return fora
 }
 
 /**

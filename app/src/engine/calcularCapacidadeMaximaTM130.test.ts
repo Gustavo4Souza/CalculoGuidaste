@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import guindastes from '../data/guindastes.json'
-import tabelaTM130 from '../data/tabelas/tm-130.json'
+import tabelaTM130 from '../data/tabelas/tm-130-jib.json'
 import type { ConfiguracaoDeIcamento, Guindaste, TabelaCargaVarianteB } from '../types/guindaste'
 import { calcularCapacidadeMaxima } from './calcularCapacidadeMaxima'
 
@@ -23,7 +23,7 @@ function configuracaoBase(overrides: Partial<ConfiguracaoDeIcamento>): Configura
 // Pontos exatos digitalizados a partir de docs/Tabelas_Zonas_Giro.xlsx
 // (Task 1.2), extraídos mecanicamente do XML da planilha — mesma técnica
 // usada para o MD-300L, sem depender de leitura de texto de PDF.
-describe('calcularCapacidadeMaxima — TM-130 (variante B, zona + ângulo)', () => {
+describe('calcularCapacidadeMaxima — TM-130, tabela zona + ângulo ("Com sapata para lança JIB" na ficha — ver data/tabelas/README.md)', () => {
   it.each([
     { zona: 'I' as const, anguloGraus: 0, esperadoKg: 3000 },
     { zona: 'I' as const, anguloGraus: 35, esperadoKg: 3500 },

@@ -256,6 +256,60 @@ Confirmado com o Gustavo (3 perguntas de esclarecimento, nesta sessão do Claude
 
 **Status:** ✅ concluído (14/09/2026, Claude Code) — modelo 3D redesenhado para os dois guindastes, painel "Posição da lança" embutido na cena com marcas de encaixe magnéticas, e 3 bugs reais de integração R3F/drei/OrbitControls corrigidos ao longo do caminho.
 
+## Épicos 10–16 — Simulador de içamento profissional e 100% parametrizável (planejado em 05/10/2026)
+
+*Pedido do Gustavo:* transformar o simulador numa ferramenta de engenharia para planejar operações e montar orçamentos entregues a clientes. Todo ponto ajustável do guindaste real é parametrizável (campo + arrasto), o giro vai a 360° e deriva quadrante/zona, há um estado próprio "Sem dado do fabricante" (regra de ouro, RF17), mapa de área no chão, UI estilo SolidWorks em tema claro (substitui o Épico 8), CRUD Projeto → Orçamento → Cenários em IndexedDB e relatório PDF. Novos requisitos RF16–RF26 em `REQUISITOS_TECNICOS.md`. O plano completo, com o levantamento das fichas (pontos ajustáveis, cobertura das tabelas e dimensões encontradas e faltantes), foi aprovado pelo Gustavo antes de qualquer código.
+
+**Decisões do Gustavo (AskUserQuestion, 05/10/2026):**
+1. TM-130: a tabela polar por raio ("Com sapata para lança principal") vira a tabela da lança principal. A tabela zona × ângulo, que é a "Com sapata para lança JIB", fica como tabela de JIB, desligada até a Ribas confirmar.
+2. Faixas da tabela polar: degrau conservador (o valor vale até o arco externo da faixa; não se interpola entre faixas).
+3. Offset do JIB do MD-300L entre 10°/25°/40°: interpolar entre as tabelas vizinhas, arredondando para baixo; fora de 10–40° → sem dado.
+4. "Massa do cabo de aço" da planilha = cabo de içamento pendurado (ponta → moitão), calculado e sobrescrevível.
+
+**Ordem de dependência:** 10 (dados + motor v3) → 11 (fonte única de estado) → 12 (UI CAD tema claro) → 13 (modelo 3D fiel + arrasto de tudo) → 14 (mapa de área no chão) → 15 (persistência + CRUD) → 16 (relatório PDF). Testes unitários + e2e ao fim de cada épico, mostrados ao Gustavo antes de seguir.
+
+## Épico 10 — Dados corrigidos e motor v3 🟡 Em andamento (05/10/2026)
+
+### Task 10.0 — `channel: 'chromium'` no Playwright ✅
+- [x] Adicionado ao bloco `use` de `app/playwright.config.ts` (pendência registrada nos Épicos 8 e 9).
+
+### Task 10.1 — Tabela polar da lança principal do TM-130 ⏳ Bloqueada (depende do Gustavo)
+- [x] `tm-130.json` renomeado para `tm-130-jib.json` (conteúdo idêntico): é a tabela "Com sapata para lança JIB" (ver `app/src/data/tabelas/README.md`)
+- [ ] Gustavo transcreve o diagrama polar na aba `Principal_Polar` de `docs/Tabelas_Zonas_Giro.xlsx` (`zona | raio_inicial_m | raio_final_m | capacidade_kg`)
+- [ ] Extração mecânica para `tm-130-principal.json` + `TipoTabela` `zona_raio_faixas` + schema + testes com valores reais
+
+### Task 10.2 — Resultado rico (RF17) ✅
+- [x] `engine/capacidadeDetalhada.ts`: capacidade + origem (exato/interpolado) + pontos reais usados + motivo quando não há dado. As funções antigas de `calcularCapacidadeMaxima.ts` passaram a delegar para elas (sem lógica duplicada)
+- [x] `engine/interpolacao.ts`: `interpolarComDetalhe` (tolerância de ponto exato de 1 µm, que absorve o erro de ponto flutuante de um raio derivado de comprimento + ângulo)
+
+### Task 10.3 — Modelo de parâmetros e especificações ✅
+- [x] `types/cenario.ts` (`ParametrosDoCenario`, `AvaliacaoDoCenario`) e `types/especificacao.ts`
+- [x] `data/especificacoes/{md-300l,tm-130}.json`: limites mecânicos, dimensões, passagem de cabo e moitão, cada valor com `fonte` (ficha/planilha ou `"aproximado"`)
+
+### Task 10.4 — Giro → quadrante/zona (RF18) ✅
+- [x] `config/criteriosDeGiro.ts` (arquivo único): MD-300L frontal |giro| ≤ 55° / lateral+traseira no resto (**PROVISÓRIO**). TM-130 Zona I ≤ 16° / Zona II ≤ 60°, da ficha, com limite mecânico de ±60°. `VERSAO_CRITERIO_GIRO`
+- [x] `engine/classificarGiro.ts`: na fronteira exata, as duas regiões são avaliadas e vale a menor capacidade
+- [x] **Achado**: os `#VALUE!` das Figuras A/B da planilha não são erro de fórmula. São imagens dentro da célula (recurso "Imagem na célula" do Excel) e mostram os setores de 110° (frontal) e 250° (lateral/traseira), iguais aos da p.3 do PDF
+
+### Task 10.5 — `avaliarCenario` (ponto de entrada único do motor v3) ✅
+- [x] `engine/avaliarCenario.ts`: limites mecânicos, giro, sapatas (só a máxima é tabelada), JIB (exige lança 32,10 m), passagem de cabo prevista pela tabela, geometria (`calcularPonta`/`resolverAnguloParaRaio` em `geometriaLanca.ts`), somatório expandido (cabo calculado/sobrescrito, excedente do moitão sobre o gancho já incluído na tabela, balancim), verificações (capacidade, limite do engenheiro, carga por perna, altura de içamento) e status `ok | atencao | nok | sem_dado`
+- [x] **Achado**: com o ângulo máximo de 80°, o JIB não alcança raios que a própria tabela de JIB lista (ex.: 9 m a 25° no raio 8 m exige ~84°). O gráfico de alcance (p.4) marca 80° e 85°, então `anguloMaxGraus` passou a 85° (segue como "aproximado", a confirmar)
+
+### Task 10.6 — Versionamento ✅
+- [x] `data/catalogo.ts`: `CATALOGO` (contexto por guindaste) e `VERSAO_TABELAS` (hash FNV-1a do conteúdo de todos os JSON de dados)
+
+### Task 10.7 — Busca reversa com a tabela polar ⏳ Depende da 10.1
+
+**Verificação parcial (05/10/2026):** 90 testes unitários (54 anteriores + 36 novos, todos com células reais), 9/9 e2e (agora com `channel: 'chromium'` de fato), typecheck e `npm run build` limpos. `oxlint` não roda nesta máquina: uma política de Controle de Aplicativo do Windows bloqueia o binário nativo (`oxlint.win32-x64-msvc.node`). É problema de ambiente, não do código. A UI ainda usa o motor antigo; ela passa para `avaliarCenario` no Épico 11.
+
+## Épicos 11–16 ⬜ Planejados
+- **11** Fonte única de estado (`cenario: ParametrosDoCenario` na store, derivados memoizados, seletor manual de quadrante/zona removido, `CampoParametro` com rótulo/unidade/faixa/selo ≈)
+- **12** Interface estilo SolidWorks, tema claro (barra de comandos, árvore de parâmetros, viewport com cubo de orientação e vistas padrão, cotas, barra de status)
+- **13** Modelo 3D fiel às dimensões das fichas + arrasto de giro, sapatas, JIB, carga C×L×A com CG
+- **14** Mapa de área de operação no chão (OK/NOK/sem dado) com `avaliarCenario`
+- **15** Persistência IndexedDB atrás de `RepositorioProjetos` + CRUD Projeto/Orçamento/Cenário + comparação + export/import JSON
+- **16** Relatório PDF por cenário e por orçamento
+
 ---
 
 ## Status resumido
@@ -272,6 +326,8 @@ Confirmado com o Gustavo (3 perguntas de esclarecimento, nesta sessão do Claude
 | 7 — Redesenho de layout: 3D (WebGL) e tela cheia | ✅ Concluído — cena WebGL (react-three-fiber), layout em tela cheia com abas, JIB exposto visualmente |
 | 8 — UI/UX industrial (painel escuro) + lança ajustável por arrasto | ✅ Concluído — tema industrial escuro, medidor de capacidade e arrasto de comprimento, 49 testes unitários + 8 e2e |
 | 9 — Guindaste 3D mais realista + campos embutidos na cena | ✅ Concluído — modelo 3D detalhado (estilo técnico/linha) para os dois guindastes; campos de comprimento/raio/ângulo embutidos na cena com marcas de encaixe magnéticas nos 7 comprimentos reais do MD-300L |
+| 10 — Dados corrigidos e motor v3 | 🟡 Em andamento — motor `avaliarCenario` pronto (90 testes); falta a tabela polar do TM-130 (depende do Gustavo) |
+| 11–16 — Simulador profissional parametrizável | ⬜ Planejados (ver acima) |
 
 **Verificado em 13/09/2026 (Épico 7):** typecheck limpo, 44 testes unitários (Vitest) e 7 specs e2e (Playwright) passando, `npm run build` ok.
 

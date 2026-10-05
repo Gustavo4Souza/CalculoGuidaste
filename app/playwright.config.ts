@@ -18,6 +18,7 @@ export default defineConfig({
   },
   use: {
     baseURL: 'http://localhost:5173',
+    channel: 'chromium',
     // A cena do guindaste agora é WebGL real (react-three-fiber/three.js,
     // Épico 3 → layout 3D). O "chromium_headless_shell" (padrão do
     // Playwright para performance) não tem suporte WebGL confiável — por
