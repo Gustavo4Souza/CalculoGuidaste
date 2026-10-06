@@ -522,9 +522,8 @@ test('Épico 12 — layout CAD: barra de status, cotas na cena, vistas padrão e
   await page.getByRole('button', { name: 'kg', exact: true }).click()
   await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
 
-  // Comandos de persistência/PDF aparecem, desabilitados até os Épicos 15/16.
+  // O relatório PDF fica desabilitado até o Épico 16 (os comandos de arquivo funcionam desde o Épico 15).
   await expect(page.getByRole('button', { name: 'Exportar PDF' })).toBeDisabled()
-  await expect(page.getByRole('button', { name: 'Salvar', exact: true })).toBeDisabled()
 })
 
 test('Épico 13 — arrastar o anel de giro no chão gira a superestrutura e troca a área derivada', async ({ page }) => {
@@ -609,4 +608,109 @@ test('Épico 14 — mapa da área de operação no chão (RF22): legenda, recál
   await expect(legenda).toHaveCount(0)
   await page.getByRole('button', { name: 'Área de operação' }).click()
   await expect(legenda).toBeVisible()
+})
+
+// ------------------------------------------------------------------ Épico 15
+
+/** Salva a simulação atual como cenário novo, criando projeto e orçamento na hora. */
+async function salvarComoCenarioNovoProjeto(page: import('@playwright/test').Page, nome: string) {
+  await page.getByRole('button', { name: 'Salvar como cenário' }).click()
+  const dialogo = page.getByRole('dialog', { name: 'Salvar como cenário' })
+  await dialogo.getByLabel('Cliente').fill('Indústria Alfa')
+  await dialogo.getByLabel('Obra').fill('Troca do transformador')
+  await dialogo.getByLabel('Local').fill('Caxias do Sul/RS')
+  await dialogo.getByLabel('Responsável técnico').fill('Eng. Fulano')
+  await dialogo.getByLabel('Nome do novo orçamento').fill('Orçamento A')
+  await dialogo.getByLabel('Nome do cenário').fill(nome)
+  await dialogo.getByRole('button', { name: 'Salvar cenário' }).click()
+  await expect(dialogo).toBeHidden()
+}
+
+test('Épico 15 — salvar, alterar, salvar como novo, recarregar a página, reabrir idêntico e comparar', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
+  await page.getByLabel('Peso da carga (kg)').fill('6000')
+
+  await salvarComoCenarioNovoProjeto(page, 'Frontal 17,70 m')
+  const aberto = page.getByTestId('cenario-aberto')
+  await expect(aberto).toContainText('Indústria Alfa — Troca do transformador › Orçamento A')
+  await expect(aberto).toContainText('Frontal 17,70 m')
+  await expect(aberto).not.toContainText('alterações não salvas')
+
+  // Alterar marca o cenário como não salvo; "Salvar como cenário" no mesmo orçamento.
+  await page.getByLabel('Giro da superestrutura (°)').fill('90')
+  await expect(aberto).toContainText('alterações não salvas')
+  await page.getByRole('button', { name: 'Salvar como cenário' }).click()
+  const dialogo = page.getByRole('dialog', { name: 'Salvar como cenário' })
+  await dialogo.getByLabel('Nome do cenário').fill('Lateral 17,70 m')
+  await dialogo.getByRole('button', { name: 'Salvar cenário' }).click()
+  await expect(aberto).toContainText('Lateral 17,70 m')
+
+  // Recarregar a página: os dados vivem no IndexedDB do navegador.
+  await page.reload()
+  await expect(page.getByTestId('cenario-aberto')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Abrir', exact: true }).click()
+  const gerenciador = page.getByRole('dialog', { name: 'Projetos e cenários' })
+  await gerenciador.getByRole('button', { name: /Indústria Alfa/ }).click()
+  await gerenciador.getByRole('button', { name: 'Orçamento A' }).click()
+  const linhaFrontal = gerenciador.getByRole('row', { name: /Frontal 17,70 m/ })
+  await expect(linhaFrontal).toContainText('OK')
+  await linhaFrontal.getByRole('button', { name: 'Abrir' }).click()
+
+  // Reaberto exatamente como foi salvo: giro 0°, 6.000 kg, 7.500 kg de capacidade (frontal, ponto exato).
+  await expect(page.getByTestId('cenario-aberto')).toContainText('Frontal 17,70 m')
+  await expect(page.getByTestId('cenario-aberto')).not.toContainText('alterações não salvas')
+  await expect(page.getByLabel('Giro da superestrutura (°)')).toHaveValue('0.0')
+  await expect(page.getByLabel('Peso da carga (kg)')).toHaveValue('6000')
+  await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
+
+  // Comparar os dois lado a lado.
+  await page.getByRole('button', { name: 'Abrir', exact: true }).click()
+  await gerenciador.getByLabel('Comparar Frontal 17,70 m').check()
+  await gerenciador.getByLabel('Comparar Lateral 17,70 m').check()
+  await gerenciador.getByRole('button', { name: /Comparar selecionados \(2\)/ }).click()
+  const comparacao = page.getByRole('dialog', { name: 'Comparar cenários' })
+  await expect(comparacao.getByRole('columnheader', { name: 'Frontal 17,70 m' })).toBeVisible()
+  await expect(comparacao.getByRole('columnheader', { name: 'Lateral 17,70 m' })).toBeVisible()
+  await expect(comparacao.getByRole('row', { name: /Capacidade da tabela/ })).toContainText('7.500 kg')
+  await expect(comparacao.getByRole('row', { name: /Capacidade da tabela/ })).toContainText('10.500 kg')
+})
+
+test('Épico 15 — exportar o projeto em JSON e importar de volta (como cópia); arquivo inválido é recusado', async ({ page }) => {
+  await page.goto('/')
+  await salvarComoCenarioNovoProjeto(page, 'Cenário exportado')
+
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Exportar JSON' }).click()])
+  expect(download.suggestedFilename()).toBe('projeto-industria-alfa-troca-do-transformador.json')
+  const caminho = await download.path()
+
+  await page.getByTestId('importar-json').setInputFiles(caminho!)
+  const gerenciador = page.getByRole('dialog', { name: 'Projetos e cenários' })
+  await expect(gerenciador.getByRole('status')).toContainText('importado (como cópia)')
+  await expect(gerenciador.getByRole('button', { name: /Indústria Alfa/ })).toHaveCount(2)
+  await gerenciador.getByRole('button', { name: 'Fechar', exact: true }).click()
+
+  await page.getByTestId('importar-json').setInputFiles({
+    name: 'invalido.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ formato: 'outra-coisa' })),
+  })
+  await expect(gerenciador.getByRole('status')).toContainText('não é um projeto do simulador')
+  await expect(gerenciador.getByRole('button', { name: /Indústria Alfa/ })).toHaveCount(2)
+})
+
+test('Épico 15 — excluir projeto (com confirmação) leva orçamentos e cenários junto', async ({ page }) => {
+  page.on('dialog', (d) => void d.accept())
+  await page.goto('/')
+  await salvarComoCenarioNovoProjeto(page, 'Para excluir')
+  await expect(page.getByTestId('cenario-aberto')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Abrir', exact: true }).click()
+  const gerenciador = page.getByRole('dialog', { name: 'Projetos e cenários' })
+  await gerenciador.getByRole('button', { name: /Indústria Alfa/ }).click()
+  await gerenciador.getByRole('button', { name: 'Excluir', exact: true }).click()
+  await expect(gerenciador.getByText('Nenhum projeto.')).toBeVisible()
+  await gerenciador.getByRole('button', { name: 'Fechar', exact: true }).click()
+  // O cenário que estava aberto deixou de existir: a simulação fica desvinculada.
+  await expect(page.getByTestId('cenario-aberto')).toHaveCount(0)
 })

@@ -32,7 +32,7 @@ RF01–RF07 vêm do escopo original do projeto; RF08 em diante são novos, ident
 | **RF22** | Mapa de área de operação no chão (OK / NOK / sem dado), usando a mesma função do motor. |
 | **RF23** | Interface estilo CAD (SolidWorks), tema claro, com árvore de parâmetros, viewport com cubo de orientação, vistas padrão, cotas e barra de status. |
 | **RF24** | Projetos → Orçamentos → Cenários: CRUD completo, duplicar, comparar 2+ cenários, reabrir com o mesmo estado; cada cenário registra a versão das tabelas e do critério de giro. |
-| **RF25** | Persistência no navegador (IndexedDB) atrás de uma interface substituível, com exportar/importar JSON. |
+| **RF25** Implementado no Épico 15: importar sempre como cópia (IDs novos), arquivo validado e versionado (`schemaVersion`). | Persistência no navegador (IndexedDB) atrás de uma interface substituível, com exportar/importar JSON. Implementado no Épico 15: importar sempre como cópia (IDs novos), arquivo validado e versionado (`schemaVersion`). |
 | **RF26** | Relatório PDF por cenário e por orçamento (comparativo), com somatório detalhado, origem da capacidade (exato/interpolado e pontos usados), selo provisório, versões e campo de assinatura do engenheiro. |
 
 > **Revisões de 05/10/2026 (Épico 10):** RF08 — o seletor manual de quadrante/zona sai (RF18). RF12 — a tabela zona × ângulo do TM-130 é, pela legenda da ficha, a **"Com sapata para lança JIB"**; o TM-130 tem uma tabela de JIB, mantida nos dados mas desligada até a Ribas confirmar se a unidade dela tem JIB. A lança principal do TM-130 usa o diagrama polar por raio ("Com sapata para lança principal").

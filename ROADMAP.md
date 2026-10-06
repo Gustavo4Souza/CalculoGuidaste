@@ -392,8 +392,32 @@ Substitui o tema escuro/HUD do Épico 8 (RF23).
 
 **Verificação (05/10/2026):** revisão visual por captura (planta e isométrica, com e sem dado); 117 testes unitários (+9 do mapa); 16/16 e2e (suíte 2x seguidas: 32/32, ~41 s), incluindo um novo teste de legenda, recálculo (cabo + 9.000 kg → regiões OK e NOK), sapata parcial → 100% sem dado e liga/desliga; typecheck e `npm run build` limpos.
 
-## Épicos 15–16 ⬜ Planejados
-- **15** Persistência IndexedDB atrás de `RepositorioProjetos` + CRUD Projeto/Orçamento/Cenário + comparação + export/import JSON
+## Épico 15 — Persistência e projetos/orçamentos/cenários (RF24/RF25) ✅ Concluído (05/10/2026)
+
+### Task 15.1 — Camada de persistência isolada ✅
+- [x] `persistencia/RepositorioProjetos.ts`: interface única que a UI conhece (listar/buscar/obter/criar/atualizar/excluir projetos, orçamentos e cenários; duplicar cenário; exportar/importar projeto). Tudo assíncrono, e os métodos devolvem cópias. Um backend futuro implementa a mesma interface; a troca é uma linha em `persistencia/repositorio.ts`
+- [x] `persistencia/RepositorioIndexedDB.ts`: implementação no IndexedDB com a lib `idb` (~1 kB). Banco `guindastes-ribas`, stores `projetos`, `orcamentos` (índice por projeto) e `cenarios` (índice por orçamento). Exclusão em **cascata** (projeto → orçamentos → cenários) numa única transação. Busca sem diferenciar maiúsculas nem acentos ("industria" acha "Indústria"). Listas do mais recente para o mais antigo
+- [x] **Por que IndexedDB** (pedido de prós e contras): funciona offline, sem servidor e sem login, e aguenta os dados de cenários (e as capturas do Épico 16). O contra é que os dados ficam presos ao navegador, resolvido pelo exportar/importar JSON. Alternativas avaliadas: File System Access API (só Chromium, mais atrito) e backend tipo Supabase (sincroniza, mas traz auth, custo e LGPD fora do escopo do semestre)
+
+### Task 15.2 — Modelo e versionamento ✅
+- [x] `types/projeto.ts`: Projeto {cliente, obra, local, responsável} → Orçamento {nome, descrição} → CenarioSalvo {nome, **parametros completos**, **resultado no momento do salvamento**, `versaoTabelas`, `versaoCriterioGiro`, `criterioGiroProvisorio`}
+- [x] `persistencia/montarCenario.ts`: monta o registro com o resultado avaliado agora pelo motor e as versões. `versoesDiferentes()` diz se o cenário foi salvo com outras tabelas ou outro critério de giro
+- [x] Arquivo de projeto (`persistencia/arquivoDeProjeto.ts`): `formato: "guindastes-ribas/projeto"` + `schemaVersion` (1), com ponto de migração para versões futuras. **Importar sempre como cópia** (IDs novos, vínculos remapeados), nunca sobrescrevendo um projeto existente. Validação com mensagens em português: JSON inválido, formato errado, versão mais nova, guindaste fora da frota, campo numérico inválido (ex.: "17,7" como texto), cenário apontando para orçamento inexistente. Nada é gravado se o arquivo é recusado
+
+### Task 15.3 — Interface ✅
+- [x] Barra de comandos: **Novo** (desvincula o cenário; pede confirmação se houver alterações não salvas), **Abrir** (gerenciador), **Salvar** (sobrescreve o cenário aberto; sem cenário aberto, vira "Salvar como"; mostra ● com alterações pendentes), **Salvar como cenário**, **Comparar**, **Importar JSON**, **Exportar JSON**. Só o **Exportar PDF** segue desabilitado (Épico 16)
+- [x] `components/projetos/DialogoProjetos.tsx`: gerenciador em 3 colunas (projetos com busca, criar e editar | orçamentos do projeto | cenários do orçamento com guindaste, % de utilização e status), com abrir, duplicar, renomear e excluir (exclusões confirmadas) e caixas para escolher cenários a comparar
+- [x] `components/projetos/DialogoSalvarCenario.tsx`: escolhe (ou cria na hora) projeto e orçamento e dá nome ao cenário
+- [x] `components/projetos/DialogoComparar.tsx`: 2 ou mais cenários lado a lado (status, guindaste, lança, JIB, raio, giro/área, sapatas, carga, somatório, capacidade exata/interpolada, utilização, limite do engenheiro, versões), com o resultado **como foi salvo** e ⚠ quando a versão difere da atual
+- [x] `components/projetos/CenarioAberto.tsx` no topo do painel de resultado: projeto › orçamento › cenário, "● alterações não salvas" e, se o cenário foi salvo com outra versão das tabelas ou do critério de giro, o resultado **salvo × recalculado** lado a lado
+- [x] `components/Dialogo.tsx`: diálogo modal genérico (`<dialog>` nativo); a busca reversa passou a usá-lo. `useInterfaceStore.dialogo` substituiu o antigo `buscaAberta`
+- [x] `store/useProjetosStore.ts`: estado do gerenciador e do cenário aberto. Abrir um cenário carrega os parâmetros na store da simulação (`carregarCenario`), e o resultado é recalculado na hora
+
+**Verificação (05/10/2026):** 125 testes unitários (+8 do repositório com `fake-indexeddb`: CRUD, busca, cópias, sobrescrever/duplicar, cascata, ida e volta do JSON e 6 tipos de arquivo inválido); 19/19 e2e (suíte 2x seguidas: 38/38, em duas rodadas independentes), com 3 testes novos: salvar → alterar → salvar como novo → **recarregar a página** → reabrir idêntico → comparar; exportar → importar como cópia → arquivo inválido recusado; excluir em cascata com confirmação. Typecheck e `npm run build` limpos. Revisão visual do gerenciador e da comparação por captura.
+
+**Nota de verificação:** numa rodada intermediária a suíte falhou de forma espalhada (testes diferentes a cada vez, com "Target crashed", ou seja, o processo do navegador caindo). Repetida com o ambiente limpo (sem servidores sobrando, ~5 GB livres), passou 38/38 em duas rodadas seguidas. Foi instabilidade da máquina, não do código.
+
+## Épico 16 ⬜ Planejado
 - **16** Relatório PDF por cenário e por orçamento
 
 ---
@@ -417,7 +441,8 @@ Substitui o tema escuro/HUD do Épico 8 (RF23).
 | 12 — Interface estilo SolidWorks, tema claro | ✅ Concluído — barra de comandos, árvore de parâmetros, viewport com cubo/vistas/cotas, barra de status, kg/t; 12 e2e |
 | 13 — Modelo 3D fiel + arrasto de tudo | ✅ Concluído — origem no centro de giro, caminhão das fichas, giro/sapatas/JIB/carga arrastáveis; 108 unitários + 15 e2e |
 | 14 — Mapa da área de operação no chão | ✅ Concluído — grade polar avaliada pelo próprio motor, OK/NOK/sem dado no chão, legenda; 117 unitários + 16 e2e |
-| 15–16 — Simulador profissional parametrizável | ⬜ Planejados (ver acima) |
+| 15 — Persistência e projetos/orçamentos/cenários | ✅ Concluído — IndexedDB atrás de `RepositorioProjetos`, CRUD, comparação, export/import JSON; 125 unitários + 19 e2e |
+| 16 — Relatório PDF | ⬜ Planejado |
 
 **Verificado em 13/09/2026 (Épico 7):** typecheck limpo, 44 testes unitários (Vitest) e 7 specs e2e (Playwright) passando, `npm run build` ok.
 

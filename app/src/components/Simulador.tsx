@@ -5,6 +5,7 @@ import { CenaGuindaste3D } from './CenaGuindaste3D'
 import { LegendaMapa } from './cena/LegendaMapa'
 import { useMapaAreaOperacao } from './cena/useMapaAreaOperacao'
 import { PainelResultado } from './PainelResultado'
+import { CenarioAberto } from './projetos/CenarioAberto'
 
 // Mesmas cores de --ok/--atencao/--nok/--semdado (index.css) — repetidas
 // aqui em hex porque a cena 3D (WebGL) não lê variáveis CSS.
@@ -67,6 +68,7 @@ export function Simulador() {
       </section>
 
       <aside className="painel-direito">
+        <CenarioAberto />
         <PainelResultado />
         {/* Legenda do mapa fora da viewport: sobre a cena ela cobria peças arrastáveis (gancho, anel de giro). */}
         {mostrarMapa && <LegendaMapa mapa={mapa} />}

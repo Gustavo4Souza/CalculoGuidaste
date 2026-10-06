@@ -757,3 +757,224 @@ label.checkbox {
   font-size: 10.5px;
   line-height: 1.35;
 }
+
+/* ===================== Épico 15 — projetos, orçamentos e cenários ===================== */
+.dialogo__corpo {
+  max-height: 78vh;
+  overflow: auto;
+}
+.comando--perigo:hover:not(:disabled) {
+  background: #fde8e8;
+  border-color: #e6a3a3;
+}
+.projetos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+.projetos__mensagem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 2px;
+  font-size: 12.5px;
+}
+.projetos__mensagem--ok {
+  background: #e6f4ea;
+  border: 1px solid #9fd1ad;
+}
+.projetos__mensagem--erro {
+  background: #fde8e8;
+  border: 1px solid #e6a3a3;
+  color: #8b1c1c;
+}
+.projetos__colunas {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1.6fr;
+  gap: 12px;
+  min-height: 360px;
+}
+.projetos__coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding-right: 10px;
+  border-right: 1px solid var(--border);
+}
+.projetos__coluna:last-child {
+  border-right: 0;
+}
+.projetos__coluna h3 {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-fraco);
+}
+.projetos__busca,
+.projetos__inline input,
+.salvar-cenario input,
+.salvar-cenario select,
+.projetos__formulario input {
+  font-size: 13px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-forte);
+  border-radius: 2px;
+  min-width: 0;
+}
+.projetos__inline {
+  display: flex;
+  gap: 4px;
+}
+.projetos__inline input {
+  flex: 1;
+}
+.projetos__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  max-height: 46vh;
+}
+.projetos__linha {
+  display: flex;
+  gap: 2px;
+}
+.projetos__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 1px;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--bg-campo);
+  cursor: pointer;
+  font-size: 12.5px;
+}
+.projetos__item small {
+  color: var(--text-fraco);
+}
+.projetos__item--ativo {
+  border-color: var(--accent);
+  background: var(--accent-claro);
+}
+.projetos__vazio {
+  color: var(--text-fraco);
+  font-size: 12px;
+}
+.projetos__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.projetos__formulario,
+.salvar-cenario {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.salvar-cenario {
+  padding: 14px;
+}
+.salvar-cenario__grupo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 8px;
+  background: var(--bg-cabecalho);
+}
+.projetos__tabela,
+.comparacao__tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.projetos__tabela th,
+.projetos__tabela td,
+.comparacao__tabela th,
+.comparacao__tabela td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+}
+.projetos__tabela-aberto {
+  background: var(--accent-claro);
+}
+.projetos__tabela-acoes {
+  white-space: nowrap;
+}
+.comparacao {
+  padding: 12px;
+}
+.comparacao__tabela th {
+  color: var(--text-fraco);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.comparacao__tabela thead th {
+  color: var(--text-h);
+}
+.selo-status {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 2px;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.selo-status--ok {
+  background: var(--ok);
+}
+.selo-status--atencao {
+  background: var(--atencao);
+}
+.selo-status--nok {
+  background: var(--nok);
+}
+.selo-status--sem_dado {
+  background: var(--semdado);
+}
+.cenario-aberto {
+  margin: 12px 14px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--accent);
+  border-left-width: 4px;
+  background: var(--accent-claro);
+  font-size: 12px;
+}
+.cenario-aberto__caminho {
+  color: var(--text-fraco);
+}
+.cenario-aberto__nome {
+  font-weight: 600;
+  font-size: 13px;
+}
+.cenario-aberto__alterado {
+  color: #8a5200;
+  font-weight: 400;
+}
+.cenario-aberto__versao {
+  margin-top: 6px;
+  padding: 6px;
+  background: #fff5e5;
+  border: 1px dashed var(--atencao);
+}
+.cenario-aberto__versao table {
+  width: 100%;
+  margin-top: 4px;
+  font-size: 11.5px;
+}
+.cenario-aberto__versao th {
+  text-align: left;
+  color: var(--text-fraco);
+}

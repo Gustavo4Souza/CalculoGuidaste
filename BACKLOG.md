@@ -108,7 +108,7 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Pronto quando**: o motor v3 avalia qualquer cenário dos dois guindastes com dados reais, devolvendo "sem dado do fabricante" fora da cobertura. Hoje: 90 testes unitários + 9 e2e passando; falta só a tabela polar do TM-130.
 
-**Sprints seguintes (planejadas):** Épico 15 (persistência/CRUD) → 16 (PDF). Ver ROADMAP.md.
+**Sprints seguintes (planejadas):** Épico 16 (PDF). Ver ROADMAP.md.
 
 ## Sprint 9 — Fonte única de estado (Épico 11) ✅ Concluída (05/10/2026)
 
@@ -153,6 +153,17 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 | S12-02 | ✅ Mapa no chão (OK/Atenção/NOK em cor, sem dado hachurado) + botão liga/desliga + legenda | Alta | Task 14.2 / RF22 |
 
 **Pronto quando**: o chão mostra, para a configuração atual, onde a operação é OK, NOK ou sem dado do fabricante, usando a mesma função do motor. ✅ Atingido: 117 unitários + 16 e2e (32/32 em execução repetida).
+
+## Sprint 13 — Persistência e projetos/orçamentos/cenários (Épico 15) ✅ Concluída (05/10/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| S13-01 | ✅ `RepositorioProjetos` (interface) + `RepositorioIndexedDB` (idb), cascata, busca, cópias | Alta | Task 15.1 / RF25 |
+| S13-02 | ✅ Cenário salvo com parâmetros completos, resultado e versões das tabelas/critério de giro | Alta | Task 15.2 / RF24 |
+| S13-03 | ✅ Exportar/importar projeto em JSON (sempre como cópia, com validação e schemaVersion) | Alta | Task 15.2 / RF25 |
+| S13-04 | ✅ Gerenciador, salvar/salvar como, abrir (estado idêntico), comparar 2+ cenários, aviso de versão | Alta | Task 15.3 / RF24 |
+
+**Pronto quando**: o engenheiro cria projetos, orçamentos e cenários, reabre um cenário exatamente como salvou, compara cenários e leva o projeto para outra máquina por JSON. ✅ Atingido: 125 unitários + 19 e2e (38/38 em execução repetida).
 
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 
