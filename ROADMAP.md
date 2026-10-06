@@ -436,8 +436,33 @@ Substitui o tema escuro/HUD do Épico 8 (RF23).
 
 **Verificação:** 128 testes unitários (+3 da validação: especificações reais completas, especificação sem `caminhao` apontada pelo nome, número como texto apontado); 20/20 e2e (2x seguidas: 40/40), incluindo um teste novo que **reproduz o relato** (intercepta o `md-300l.json` e entrega a versão sem `caminhao`) e confere que aparece a mensagem com o nome do campo, não a tela branca; typecheck e build limpos; captura de tela da mensagem de erro.
 
-## Épico 16 ⬜ Planejado
-- **16** Relatório PDF por cenário e por orçamento
+## Épico 16 — Relatório PDF (RF26) ✅ Concluído (06/10/2026)
+
+### Task 16.1 — Modelo do relatório (puro, testado) ✅
+- [x] `relatorio/modeloRelatorio.ts`: todo o conteúdo do PDF, já calculado e formatado, sem dependência de desenho:
+  - cabeçalho (cliente, obra, local, responsável, orçamento, data de emissão, versão das tabelas e do critério de giro);
+  - por cenário: guindaste e fonte dos dados, status, resumo, **todos os parâmetros** (com (~) onde o limite vem de valor aproximado), somatório item a item, capacidade da tabela com a origem (**ponto exato** ou **interpolado e entre quais pontos reais**), verificações, motivos de "sem dado", avisos, ambiente (informativo) e notas da ficha;
+  - aviso de validação pelo engenheiro responsável
+- [x] **Decisão**: o relatório **recalcula** cada cenário com as tabelas atuais (o que se entrega tem que refletir os dados vigentes) e **avisa** quando o cenário foi salvo com outra versão das tabelas ou do critério de giro
+- [x] Relatório de **orçamento**: capa + **comparativo** dos cenários (status, guindaste, lança, JIB, raio, área, carga, somatório, capacidade, utilização) + um capítulo por cenário
+- [x] 8 testes com valores reais: ponto exato (7.500 kg), interpolado (9.975 kg entre 10.800 e 7.500 kg, com os pontos listados), sem dado (sapata parcial, com o motivo), parâmetros (~), aviso de versão diferente, comparativo frontal × lateral (7.500 × 10.500 kg)
+
+### Task 16.2 — Capturas da cena ✅
+- [x] `components/cena/CapturadorDeCena.tsx`: renderiza a cena atual **fora da tela** (render target 1200 × 800, com câmera própria) e devolve JPEG; a câmera do usuário não se mexe. Registrado em `relatorio/capturas.ts`, então o relatório não conhece three.js nem React
+- [x] `relatorio/camerasDeCaptura.ts` (puro, 3 testes): a vista **lateral** olha o plano da lança de frente **qualquer que seja o giro** (como o gráfico de alcance da ficha; as vistas da tela supõem giro ≈ 0°); a **superior** enquadra juntos caminhão com sapatas, anel de giro e carga
+- [x] Para capturar, cada cenário é carregado temporariamente na cena com o mapa da área de operação ligado; no fim, o cenário e a preferência de mapa que estavam na tela são **restaurados exatamente** (coberto por e2e)
+- [x] **Limitação**: as cotas e rótulos da cena são HTML sobre o canvas e não saem nas imagens; os valores estão nas tabelas do relatório
+
+### Task 16.3 — PDF e interface ✅
+- [x] `relatorio/gerarPdf.ts` com `jspdf` + `jspdf-autotable`, **carregados sob demanda** (chunk separado de ~400 kB, baixado só ao exportar). Cabeçalho e rodapé em todas as páginas (título, data, versões, "Página x de y"); status colorido; selo de critério de giro provisório; capturas lado a lado com legenda das cores do chão; tabelas; **bloco de validação obrigatória e assinatura** (engenheiro responsável, CREA/ART, data)
+- [x] `paraPdf()`: a fonte padrão do PDF tem os acentos, mas não ≈ ≤ → ●; esses viram ~ <= -> *, e qualquer outro caractere fora da fonte vira "?" em vez de quebrar o texto
+- [x] `components/projetos/DialogoExportarPdf.tsx`: "Exportar PDF" na barra de comandos → cenário atual (salvo ou não) ou orçamento completo. Arquivo `relatorio-<nome>-<aaaa-mm-dd>.pdf`
+- [x] `jspdf` e `jspdf-autotable` acrescentados ao `optimizeDeps.include` do `vite.config.ts` (regra da avaliação de 06/10/2026)
+
+**Verificação (06/10/2026):** 139 testes unitários (+11); 22/22 e2e (2x seguidas: 44/44), com 2 novos que geram o PDF de verdade (cenário atual; orçamento com tela restaurada); typecheck e build limpos. Revisão visual das páginas dos dois PDFs gerados, renderizadas e conferidas uma a uma; dois ajustes de diagramação feitos a partir dela (selo provisório duplicado na capa do relatório de um cenário; legenda colada nas imagens).
+
+**Nota:** `npm audit` aponta 1 vulnerabilidade alta em `source-map-js`, dependência interna das ferramentas de build (Vite/PostCSS), que não vai no simulador entregue. Não foi corrigida neste épico.
+
 
 ---
 
@@ -461,7 +486,7 @@ Substitui o tema escuro/HUD do Épico 8 (RF23).
 | 13 — Modelo 3D fiel + arrasto de tudo | ✅ Concluído — origem no centro de giro, caminhão das fichas, giro/sapatas/JIB/carga arrastáveis; 108 unitários + 15 e2e |
 | 14 — Mapa da área de operação no chão | ✅ Concluído — grade polar avaliada pelo próprio motor, OK/NOK/sem dado no chão, legenda; 117 unitários + 16 e2e |
 | 15 — Persistência e projetos/orçamentos/cenários | ✅ Concluído — IndexedDB atrás de `RepositorioProjetos`, CRUD, comparação, export/import JSON; 125 unitários + 19 e2e |
-| 16 — Relatório PDF | ⬜ Planejado |
+| 16 — Relatório PDF | ✅ Concluído — PDF por cenário e por orçamento (comparativo), capturas fora da tela, validação/assinatura; 139 unitários + 22 e2e |
 
 **Verificado em 13/09/2026 (Épico 7):** typecheck limpo, 44 testes unitários (Vitest) e 7 specs e2e (Playwright) passando, `npm run build` ok.
 

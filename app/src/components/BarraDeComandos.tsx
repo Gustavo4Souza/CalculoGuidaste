@@ -9,7 +9,7 @@ import { useAlteracoesNaoSalvas } from './projetos/CenarioAberto'
  * Barra de comandos superior (Épico 12, RF23) — no estilo do CommandManager
  * do SolidWorks. Épico 15: os comandos de arquivo (projetos, orçamentos e
  * cenários salvos no navegador, importar/exportar JSON) passam a funcionar;
- * só o relatório PDF segue para o Épico 16.
+ * Épico 16: Exportar PDF (relatório do cenário ou do orçamento).
  */
 export function BarraDeComandos() {
   const cenario = useSimulacaoStore((s) => s.cenario)
@@ -96,7 +96,7 @@ export function BarraDeComandos() {
         >
           Exportar JSON
         </button>
-        <button type="button" className="comando" disabled title="Relatório PDF — Épico 16">
+        <button type="button" className="comando" onClick={() => abrirDialogo('pdf')} title="Relatório PDF do cenário atual ou do orçamento">
           Exportar PDF
         </button>
       </div>

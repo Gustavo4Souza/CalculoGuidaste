@@ -108,7 +108,7 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Pronto quando**: o motor v3 avalia qualquer cenário dos dois guindastes com dados reais, devolvendo "sem dado do fabricante" fora da cobertura. Hoje: 90 testes unitários + 9 e2e passando; falta só a tabela polar do TM-130.
 
-**Sprints seguintes (planejadas):** Épico 16 (PDF). Ver ROADMAP.md.
+**Sprints seguintes:** Épicos 10–16 concluídos; resta a Task 10.1/10.7 (tabela polar do TM-130, depende do Gustavo) (PDF). Ver ROADMAP.md.
 
 ## Sprint 9 — Fonte única de estado (Épico 11) ✅ Concluída (05/10/2026)
 
@@ -171,6 +171,16 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 |---|---|---|---|
 | FIX-01 | ✅ Limites de erro (cena 3D e aplicação), validação das especificações com mensagem pelo nome do campo, checagem de dados antes de carregar o `App` | Alta | ROADMAP, avaliação pós-Épico 15 |
 | FIX-02 | ✅ IndexedDB indisponível → mensagem clara; "Salvar como cenário" não fecha mais quando a gravação falha | Alta | ROADMAP, avaliação pós-Épico 15 |
+
+## Sprint 14 — Relatório PDF (Épico 16) ✅ Concluída (06/10/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| S14-01 | ✅ Modelo do relatório (puro, testado com valores reais), recalculado com as tabelas atuais e aviso de versão | Alta | Task 16.1 / RF26 |
+| S14-02 | ✅ Capturas lateral (plano da lança, qualquer giro) e superior (com a área de operação) fora da tela | Alta | Task 16.2 / RF26 |
+| S14-03 | ✅ PDF por cenário e por orçamento (comparativo), selo provisório, versões, validação e assinatura | Alta | Task 16.3 / RF26 |
+
+**Pronto quando**: o engenheiro exporta um PDF do cenário ou do orçamento inteiro com tudo o que o RF26 pede. ✅ Atingido: 139 unitários + 22 e2e (44/44 em execução repetida).
 
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 

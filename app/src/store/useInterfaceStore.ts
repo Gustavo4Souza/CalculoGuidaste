@@ -7,8 +7,8 @@ import { create } from 'zustand'
 
 export type UnidadeMassa = 'kg' | 't'
 export type VistaPadrao = 'isometrica' | 'frontal' | 'lateral' | 'superior'
-/** Diálogos modais da barra de comandos (Épicos 12 e 15). */
-export type Dialogo = 'busca' | 'projetos' | 'salvar' | 'comparar'
+/** Diálogos modais da barra de comandos (Épicos 12, 15 e 16). */
+export type Dialogo = 'busca' | 'projetos' | 'salvar' | 'comparar' | 'pdf'
 
 interface InterfaceState {
   unidadeMassa: UnidadeMassa

@@ -522,8 +522,8 @@ test('Épico 12 — layout CAD: barra de status, cotas na cena, vistas padrão e
   await page.getByRole('button', { name: 'kg', exact: true }).click()
   await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
 
-  // O relatório PDF fica desabilitado até o Épico 16 (os comandos de arquivo funcionam desde o Épico 15).
-  await expect(page.getByRole('button', { name: 'Exportar PDF' })).toBeDisabled()
+  // Desde o Épico 16 todos os comandos de arquivo funcionam, inclusive o relatório PDF.
+  await expect(page.getByRole('button', { name: 'Exportar PDF' })).toBeEnabled()
 })
 
 test('Épico 13 — arrastar o anel de giro no chão gira a superestrutura e troca a área derivada', async ({ page }) => {
@@ -734,4 +734,62 @@ test('bug da tela branca (05/10/2026) — especificação desatualizada mostra o
   await expect(erro).toContainText('Os dados do simulador estão incompletos ou desatualizados')
   await expect(erro).toContainText('Especificação do MD-300L: "caminhao.dianteiraM" ausente ou inválido')
   await expect(erro).toContainText('Ctrl+Shift+R')
+})
+
+// ------------------------------------------------------------------ Épico 16
+
+const PASTA_PDFS = process.env.PASTA_PDFS_E2E
+
+/** Gera o PDF pelo diálogo e devolve o conteúdo bruto do arquivo baixado. */
+async function gerarPdf(page: import('@playwright/test').Page, tipo: 'Cenário atual' | 'Orçamento completo', salvarComo?: string) {
+  await page.getByRole('button', { name: 'Exportar PDF' }).click()
+  const dialogo = page.getByRole('dialog', { name: 'Exportar relatório PDF' })
+  await dialogo.getByLabel(new RegExp(`^${tipo}`)).check()
+  const [download] = await Promise.all([page.waitForEvent('download'), dialogo.getByRole('button', { name: 'Gerar PDF' }).click()])
+  await expect(dialogo).toBeHidden()
+  if (PASTA_PDFS && salvarComo) await download.saveAs(`${PASTA_PDFS}/${salvarComo}`)
+  const fs = await import('node:fs')
+  return { nome: download.suggestedFilename(), conteudo: fs.readFileSync((await download.path())!) }
+}
+
+test('Épico 16 — relatório PDF do cenário atual (não salvo)', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
+  await page.getByLabel('Peso da carga (kg)').fill('6000')
+  await expect(page.getByText('Dentro do limite seguro')).toBeVisible()
+
+  const { nome, conteudo } = await gerarPdf(page, 'Cenário atual', 'relatorio-cenario.pdf')
+  expect(nome).toMatch(/^relatorio-md-300l-cenario-nao-salvo-\d{4}-\d{2}-\d{2}\.pdf$/)
+  expect(conteudo.subarray(0, 5).toString()).toBe('%PDF-')
+  expect(conteudo.length).toBeGreaterThan(60_000) // com as duas capturas da cena (JPEG)
+
+  // A tela continua exatamente como estava (o relatório não altera a simulação).
+  await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
+  await expect(page.getByLabel('Peso da carga (kg)')).toHaveValue('6000')
+})
+
+test('Épico 16 — relatório PDF do orçamento (comparativo + um capítulo por cenário) restaura a tela', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
+  await page.getByLabel('Peso da carga (kg)').fill('6000')
+  await salvarComoCenarioNovoProjeto(page, 'Frontal 17,70 m')
+  await page.getByLabel('Giro da superestrutura (°)').fill('90')
+  await page.getByRole('button', { name: 'Salvar como cenário' }).click()
+  const dialogoSalvar = page.getByRole('dialog', { name: 'Salvar como cenário' })
+  await dialogoSalvar.getByLabel('Nome do cenário').fill('Lateral 17,70 m')
+  await dialogoSalvar.getByRole('button', { name: 'Salvar cenário' }).click()
+  await expect(dialogoSalvar).toBeHidden()
+  // Desligar o mapa: o relatório liga para capturar e depois volta como estava.
+  await page.getByRole('button', { name: 'Área de operação' }).click()
+
+  const { nome, conteudo } = await gerarPdf(page, 'Orçamento completo', 'relatorio-orcamento.pdf')
+  expect(nome).toMatch(/^relatorio-industria-alfa-orcamento-a-\d{4}-\d{2}-\d{2}\.pdf$/)
+  expect(conteudo.subarray(0, 5).toString()).toBe('%PDF-')
+
+  // Para capturar, cada cenário passou pela cena; no fim, a tela volta ao cenário aberto, sem "alterações".
+  const aberto = page.getByTestId('cenario-aberto')
+  await expect(aberto).toContainText('Lateral 17,70 m')
+  await expect(aberto).not.toContainText('alterações não salvas')
+  await expect(page.locator('.resultado .capacidade')).toHaveText('10.500 kg')
+  await expect(page.getByRole('button', { name: 'Área de operação' })).toHaveAttribute('aria-pressed', 'false')
 })

@@ -17,6 +17,8 @@
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
     "idb": "^8.0.3",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "three": "^0.180.0",

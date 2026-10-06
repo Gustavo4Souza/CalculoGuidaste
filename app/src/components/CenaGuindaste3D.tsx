@@ -11,12 +11,13 @@ import { comprimentosReaisDaTabela, useSimulacaoStore } from '../store/useSimula
 import type { PosicaoSapata } from '../types/cenario'
 import { ehAproximado, type EspecificacaoGuindaste, type ValorComFonte } from '../types/especificacao'
 import { AnelDeGiro } from './cena/AnelDeGiro'
+import { CapturadorDeCena } from './cena/CapturadorDeCena'
 import { Caminhao } from './cena/Caminhao'
 import { CargaSuspensa } from './cena/CargaSuspensa'
 import { CAMERA_FOV, ControladorDeVista, VISTA_ISOMETRICA } from './cena/ControladorDeVista'
 import { Cotas } from './cena/Cotas'
 import { MapaNoChao } from './cena/MapaNoChao'
-import { extremosDoCaminhao, giroDoPonto, rotacaoDoGiro } from './cena/geometriaCena'
+import { direcaoDoGiro, extremosDoCaminhao, giroDoPonto, rotacaoDoGiro } from './cena/geometriaCena'
 import {
   capturarPonteiro,
   COR_JIB,
@@ -208,6 +209,27 @@ export function CenaGuindaste3D({
     yMax: Math.max(ponta.alturaM, esp.caminhao.cabineAlturaM.valor) + 2,
   }
   const fontes = contarFontes(esp)
+
+  // Épico 16 — o que a planta do relatório precisa enquadrar: caminhão com as
+  // sapatas abertas, o anel de giro e a carga onde a lança estiver apontando.
+  const [dirX, , dirZ] = direcaoDoGiro(avaliacao.giro.normalizadoGraus)
+  const meiaAberturaSapatas = Math.max(...Object.values(cenario.sapatas), esp.caminhao.larguraM.valor / 2)
+  const folgaCarga = Math.max(cenario.carga.comprimentoM, cenario.carga.larguraM) / 2 + 1
+  const raioCarga = avaliacao.geometria.raioM
+  const dadosDeCaptura = {
+    giroGraus: avaliacao.giro.normalizadoGraus,
+    raioM: raioCarga,
+    alturaPontaM: avaliacao.geometria.alturaPontaM,
+    raioTraseiroM: esp.superestrutura.raioTraseiroM.valor,
+    pontosXZ: [
+      [extremos.xMin, -meiaAberturaSapatas],
+      [extremos.xMax, meiaAberturaSapatas],
+      [-(esp.superestrutura.raioTraseiroM.valor + 1.4), 0],
+      [esp.superestrutura.raioTraseiroM.valor + 1.4, 0],
+      [raioCarga * dirX - folgaCarga, raioCarga * dirZ - folgaCarga],
+      [raioCarga * dirX + folgaCarga, raioCarga * dirZ + folgaCarga],
+    ] as [number, number][],
+  }
   const raioAnel = raioTraseiro + 1.4
   const larguraSuper = esp.superestrutura.larguraM.valor
   const baseSuper = esp.superestrutura.alturaBaseM.valor
@@ -418,6 +440,7 @@ export function CenaGuindaste3D({
           enableDamping
         />
         <ControladorDeVista vista={vista} enquadramento={enquadramento} />
+        <CapturadorDeCena dados={dadosDeCaptura} />
 
         {/* Épico 12 — cubo de orientação (clicar numa face leva a câmera àquela vista). */}
         <GizmoHelper alignment="bottom-right" margin={[72, 72]}>

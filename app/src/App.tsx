@@ -3,6 +3,7 @@ import { BarraDeComandos } from './components/BarraDeComandos'
 import { BarraDeStatus } from './components/BarraDeStatus'
 import { DialogoBuscaReversa } from './components/DialogoBuscaReversa'
 import { DialogoComparar } from './components/projetos/DialogoComparar'
+import { DialogoExportarPdf } from './components/projetos/DialogoExportarPdf'
 import { DialogoProjetos } from './components/projetos/DialogoProjetos'
 import { DialogoSalvarCenario } from './components/projetos/DialogoSalvarCenario'
 import { Simulador } from './components/Simulador'
@@ -25,6 +26,7 @@ function App() {
       <DialogoProjetos />
       <DialogoSalvarCenario />
       <DialogoComparar />
+      <DialogoExportarPdf />
     </div>
   )
 }
