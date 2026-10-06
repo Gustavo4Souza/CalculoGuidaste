@@ -85,10 +85,19 @@ export function interpolarComDetalhe(
 }
 
 /**
+ * Tolerância de RUÍDO NUMÉRICO do arredondamento, em kg (06/10/2026): o raio
+ * vem de trigonometria/bisseção e pode sair 4,500000000001 m em vez de 4,5 m —
+ * aí a interpolação dá 18.349,9999999 kg e o floor puro cortaria para 18.349,
+ * quando a conta exata é 18.350. Um milionésimo de kg está muito abaixo de
+ * qualquer diferença real, então o resultado continua sempre conservador.
+ */
+export const TOLERANCIA_RUIDO_KG = 1e-6
+
+/**
  * Arredondamento de segurança (RT-MC05 / RNF Confiabilidade): a capacidade
  * calculada NUNCA é otimista. Só arredonda para baixo valores realmente
  * interpolados — pontos exatos da tabela do fabricante já são inteiros.
  */
 export function arredondarParaBaixo(valorKg: number): number {
-  return Math.floor(valorKg)
+  return Math.floor(valorKg + TOLERANCIA_RUIDO_KG)
 }

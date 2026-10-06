@@ -4,12 +4,20 @@ Este é o destino final da digitalização das tabelas dos fabricantes — **Ép
 
 - `tabela-carga.schema.json` — schema JSON formal (Task 1.3) que documenta as duas variantes (`comprimento_raio_quadrante` e `zona_angulo`) e a tabela de JIB. Espelha os tipos TypeScript em `../../types/guindaste.ts`, que já implementam a camada de abstração comum consumida pelo motor de cálculo (`../../engine/calcularCapacidadeMaxima.ts`).
 
+## `tm-130-principal.json` — lança principal do TM-130 (zona + raio) ✅ Completo (06/10/2026)
+
+Diagrama polar **"Com sapata para lança principal"** de `../../../docs/TM_130.pdf` (p.2): um valor por raio, sobre cada arco do diagrama. **Zona I** (central, |giro| ≤ 16°): 5 a 12 m; **Zona II** (lateral, 16°–60°): 4 a 12 m.
+
+- **Origem:** extraído mecanicamente da aba `Centro de Giro` de `../../../docs/dados_guindaste_TM-130.xlsx`, a transcrição feita pelo Gustavo ("Central" = Zona I, "Lateral" = Zona II). O "A = 26.000" é a Zona I a 5 m, que bate com a "capacidade máxima de elevação a 5 metros = 26.000 kgf" da ficha.
+- **Conferência contra a fonte (06/10/2026):** o PDF do TM-130 tem os números do diagrama como **texto digital**. Extraídos com a posição de cada um, eles confirmaram a ordem dos raios e encontraram **3 divergências** na planilha: Zona II 5 m (16.000 → **16.300**), Zona II 8 m (7.100 → **7.700**) e Zona I 6 m (21.000 → **21.600**). Por decisão do Gustavo valem os valores do PDF, e as 3 células da planilha foram corrigidas com nota na coluna D. O script de extração **recusa** qualquer valor que não esteja no texto do diagrama, ou capacidade que aumente com o raio.
+- **Entre raios:** interpolação linear arredondada para baixo (decisão de 06/10/2026, igual ao MD-300L). Fora dos raios da zona → "sem dado do fabricante". Não se interpola entre zonas; na fronteira de 16°, vale a menor das duas.
+
 ## ⚠️ Correção de 05/10/2026 (Épico 10): a tabela zona × ângulo do TM-130 é a do JIB
 
 Lendo a p.2 de `../../../docs/TM_130.pdf` renderizada em alta resolução, a tabela "Zona de giro × Ângulo da lança × Carga" (3.000–3.800 kg) tem a legenda **"Com sapata para lança JIB"**. A tabela da **lança principal** é outra: o diagrama polar ao lado, **"Com sapata para lança principal"**, por **raio** (arcos de 4 a 12 m) e zona (Zona I 0°~16°, Zona II 16°~60°), com capacidade máxima de 26.000 kg (`A=26000`).
 
 - `tm-130.json` foi renomeado para **`tm-130-jib.json`** (conteúdo idêntico, dados continuam conferidos). O TM-130 fica com `possuiJIB = false` (desligado) até a Ribas confirmar se a unidade dela tem JIB.
-- **Pendente (Task 10.1):** transcrever o diagrama polar numa nova aba `Principal_Polar` de `docs/Tabelas_Zonas_Giro.xlsx` (`zona | raio_inicial_m | raio_final_m | capacidade_kg`) e extrair mecanicamente para `tm-130-principal.json`. Interpretação decidida: **degrau conservador**, ou seja, cada valor vale para toda a faixa até o arco externo, sem interpolar entre faixas (a confirmar com a Ribas). Até lá, o motor novo (`engine/avaliarCenario.ts`) responde "sem dado do fabricante" para a lança principal do TM-130.
+- ~~**Pendente (Task 10.1):**~~ ✅ feito em 06/10/2026 (ver `tm-130-principal.json` acima). Texto original: transcrever o diagrama polar numa nova aba `Principal_Polar` de `docs/Tabelas_Zonas_Giro.xlsx` (`zona | raio_inicial_m | raio_final_m | capacidade_kg`) e extrair mecanicamente para `tm-130-principal.json`. Interpretação decidida: **degrau conservador**, ou seja, cada valor vale para toda a faixa até o arco externo, sem interpolar entre faixas (a confirmar com a Ribas). Até lá, o motor novo (`engine/avaliarCenario.ts`) responde "sem dado do fabricante" para a lança principal do TM-130.
 
 ## `tm-130-jib.json` (antigo `tm-130.json`) — variante B (`zona_angulo`) ✅ Completo (13/09/2026)
 

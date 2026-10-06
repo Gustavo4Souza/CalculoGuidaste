@@ -28,6 +28,7 @@ import type {
   Quadrante,
   TabelaCargaVarianteA,
   TabelaCargaVarianteB,
+  TabelaCargaZonaRaio,
   TabelaJIB,
   ZonaDeGiro,
 } from '../types/guindaste'
@@ -35,6 +36,7 @@ import {
   capacidadeJIBDetalhada,
   capacidadeVarianteADetalhada,
   capacidadeVarianteBDetalhada,
+  capacidadeZonaRaioDetalhada,
   type CapacidadeDetalhada,
 } from './capacidadeDetalhada'
 import { classificarGiro } from './classificarGiro'
@@ -46,6 +48,8 @@ const TOLERANCIA_DIMENSAO_M = 1e-3
 
 export interface TabelasDoGuindaste {
   principalVarianteA?: ReadonlyArray<TabelaCargaVarianteA>
+  /** Lança principal do TM-130 (zona + raio, diagrama polar da ficha). */
+  principalZonaRaio?: ReadonlyArray<TabelaCargaZonaRaio>
   jibVarianteA?: ReadonlyArray<TabelaJIB>
   jibVarianteB?: ReadonlyArray<TabelaCargaVarianteB>
 }
@@ -332,12 +336,8 @@ function capacidadeNaRegiao(
   if (especificacao.tipoTabelaPrincipal === 'comprimento_raio_quadrante' && tabelas.principalVarianteA) {
     return capacidadeVarianteADetalhada(tabelas.principalVarianteA, p.lanca.comprimentoM, raioM, regiao as Quadrante)
   }
-  if (especificacao.tipoTabelaPrincipal === 'zona_raio_faixas') {
-    // Épico 10, Task 10.1 — aguardando a transcrição do diagrama polar
-    // "Com sapata para lança principal" (docs/TM_130.pdf, p.2) para a planilha.
-    return semTabela(
-      `Tabela da lança principal do ${guindaste.nome} (diagrama polar por raio) ainda não transcrita da ficha — pendente.`,
-    )
+  if (especificacao.tipoTabelaPrincipal === 'zona_raio' && tabelas.principalZonaRaio) {
+    return capacidadeZonaRaioDetalhada(tabelas.principalZonaRaio, raioM, regiao as ZonaDeGiro)
   }
   return semTabela(`Não há tabela da lança principal para o ${guindaste.nome}.`)
 }

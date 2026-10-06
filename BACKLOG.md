@@ -93,22 +93,22 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Nota de processo:** esta sprint foi levantada e esclarecida no Claude Desktop (14/09/2026) e implementada numa sessão do Claude Code no mesmo dia. Três bugs reais de integração R3F/drei/OrbitControls foram encontrados e corrigidos durante a implementação (digitação corrompida num `<input type="number">` dentro de `<Html>`, a câmera do `<Canvas>` brigando com o `OrbitControls` por um objeto de config recriado a cada render, e o `OrbitControls` podendo orbitar durante um arrasto customizado da lança/gancho) — ver ROADMAP.md, Épico 9, para o detalhe de cada um.
 
-## Sprint 8 — Dados corrigidos e motor v3 (Épico 10) 🟡 Em andamento (05/10/2026)
+## Sprint 8 — Dados corrigidos e motor v3 (Épico 10) ✅ Concluída (06/10/2026)
 
 | ID | Tarefa | Prioridade | Rastreio |
 |---|---|---|---|
 | S8-00 | ✅ `channel: 'chromium'` no `playwright.config.ts` | Média | Task 10.0 |
-| S8-01 | ⏳ Tabela polar da lança principal do TM-130 (transcrição do Gustavo → extração mecânica) | Alta | Task 10.1 / RF08, RF12 |
+| S8-01 | ✅ Tabela polar da lança principal do TM-130 (transcrição do Gustavo → conferência contra o PDF, 3 células corrigidas → extração mecânica) | Alta | Task 10.1 / RF08, RF12 |
 | S8-02 | ✅ Capacidade detalhada (exato/interpolado, pontos usados, motivo de "sem dado") | Alta | Task 10.2 / RF17 |
 | S8-03 | ✅ `ParametrosDoCenario` + especificações com fonte | Alta | Task 10.3 / RF16 |
 | S8-04 | ✅ Giro → quadrante/zona em arquivo único, critério provisório do MD-300L | Alta | Task 10.4 / RF18 |
 | S8-05 | ✅ `avaliarCenario`: sapatas, JIB, pernas, cabo, moitão, altura, limite do engenheiro | Alta | Task 10.5 / RF17, RF19–RF21 |
 | S8-06 | ✅ `VERSAO_TABELAS` / `VERSAO_CRITERIO_GIRO` | Média | Task 10.6 / RF24 |
-| S8-07 | ⏳ Busca reversa com a tabela polar | Média | Task 10.7 / RF15 |
+| S8-07 | ✅ Busca reversa com a tabela polar (TM-130 de volta, antes do MD-300L) | Média | Task 10.7 / RF15 |
 
 **Pronto quando**: o motor v3 avalia qualquer cenário dos dois guindastes com dados reais, devolvendo "sem dado do fabricante" fora da cobertura. Hoje: 90 testes unitários + 9 e2e passando; falta só a tabela polar do TM-130.
 
-**Sprints seguintes:** Épicos 10–16 concluídos; resta a Task 10.1/10.7 (tabela polar do TM-130, depende do Gustavo) (PDF). Ver ROADMAP.md.
+**Sprints seguintes:** Épicos 10–16 concluídos (a tabela polar do TM-130 entrou em 06/10/2026) (PDF). Ver ROADMAP.md.
 
 ## Sprint 9 — Fonte única de estado (Épico 11) ✅ Concluída (05/10/2026)
 

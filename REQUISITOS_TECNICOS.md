@@ -35,6 +35,8 @@ RF01–RF07 vêm do escopo original do projeto; RF08 em diante são novos, ident
 | **RF25** Implementado no Épico 15: importar sempre como cópia (IDs novos), arquivo validado e versionado (`schemaVersion`). | Persistência no navegador (IndexedDB) atrás de uma interface substituível, com exportar/importar JSON. Implementado no Épico 15: importar sempre como cópia (IDs novos), arquivo validado e versionado (`schemaVersion`). |
 | **RF26** Implementado no Épico 16: recalcula com as tabelas atuais e avisa quando o cenário foi salvo com outra versão; vistas lateral e superior (com a área de operação) capturadas da cena. | Relatório PDF por cenário e por orçamento (comparativo), com somatório detalhado, origem da capacidade (exato/interpolado e pontos usados), selo provisório, versões e campo de assinatura do engenheiro. Implementado no Épico 16: recalcula com as tabelas atuais e avisa quando o cenário foi salvo com outra versão; vistas lateral e superior (com a área de operação) capturadas da cena. |
 
+> **Revisão de 06/10/2026:** a lança principal do TM-130 usa o diagrama polar (zona × raio, `tm-130-principal.json`, conferido contra o PDF), com interpolação entre raios; o TM-130 voltou à busca reversa (RF15). RT-MC05: o arredondamento para baixo tem tolerância de ruído numérico de 1e-6 kg.
+>
 > **Revisões de 05/10/2026 (Épico 10):** RF08 — o seletor manual de quadrante/zona sai (RF18). RF12 — a tabela zona × ângulo do TM-130 é, pela legenda da ficha, a **"Com sapata para lança JIB"**; o TM-130 tem uma tabela de JIB, mantida nos dados mas desligada até a Ribas confirmar se a unidade dela tem JIB. A lança principal do TM-130 usa o diagrama polar por raio ("Com sapata para lança principal").
 
 ### Requisitos não-funcionais (FURPS+)

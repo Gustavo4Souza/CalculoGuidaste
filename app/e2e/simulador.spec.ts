@@ -404,7 +404,7 @@ test('Task 9.2 — clicar numa marca de encaixe pula exatamente para aquele comp
   expect(comprimentoObtido).toBe(comprimentoAlvoM)
 })
 
-test('UC02 (TM-130) — arrastar o gancho muda o ângulo; a lança principal fica "sem dado" até a tabela polar', async ({
+test('UC02 (TM-130) — arrastar o gancho muda o ângulo e a capacidade vem do diagrama polar da lança principal', async ({
   page,
 }) => {
   await page.goto('/')
@@ -438,10 +438,16 @@ test('UC02 (TM-130) — arrastar o gancho muda o ângulo; a lança principal fic
   const anguloFinal = await page.getByLabel('Ângulo da lança (°)').inputValue()
   expect(Number(anguloFinal)).toBeCloseTo(65, 0)
 
-  // A tabela zona×ângulo é a do JIB ("Com sapata para lança JIB"): a lança
-  // principal não tem valor até o diagrama polar ser transcrito — nada inventado.
-  await expect(page.locator('.resultado .capacidade')).toHaveText('Sem dado do fabricante')
-  await expect(page.locator('.status-chip--semdado')).toContainText('ainda não transcrita')
+  // Task 10.1 — lança principal pelo diagrama polar (Zona I, giro 0°): 12 m a ~65° → raio ~5,07 m, entre
+  // 5 m (26.000 kg) e 6 m (21.600 kg) da tabela real → interpolado, arredondado para baixo.
+  const capacidadeTexto = await page.locator('.resultado .capacidade').innerText()
+  const capacidadeKg = Number(capacidadeTexto.replace(/[^\d]/g, ''))
+  expect(capacidadeKg).toBeGreaterThan(21600)
+  expect(capacidadeKg).toBeLessThanOrEqual(26000)
+  await expect(page.locator('.resultado__origem')).toContainText('interpolado')
+  await expect(page.locator('.resultado__origem')).toContainText('Zona I')
+  // O status segue "sem dado" só pelo que falta informar (massa linear do cabo e do moitão não constam na ficha).
+  await expect(page.locator('.status-chip--semdado')).toContainText('Massa linear do cabo')
 })
 
 test('RF18 — a área de operação é derivada do giro (MD-300L, critério provisório)', async ({ page }) => {
@@ -474,7 +480,7 @@ test('RF17 — sapata em extensão parcial: sem dado do fabricante, com o motivo
   await expect(page.locator('.status-chip--semdado')).toContainText('Sapata dianteira esquerda')
 })
 
-test('busca reversa por peso (RF05/RF15) só sugere guindastes com tabela da lança principal', async ({ page }) => {
+test('busca reversa por peso (RF05/RF15) lista o TM-130 antes do MD-300L (menor guindaste primeiro)', async ({ page }) => {
   await page.goto('/')
 
   // Épico 12 — a busca reversa abre num diálogo pela barra de comandos.
@@ -483,12 +489,14 @@ test('busca reversa por peso (RF05/RF15) só sugere guindastes com tabela da lan
 
   await page.getByLabel('Peso a içar (kg)').fill('2000')
 
-  // Épico 11 — o TM-130 sai da busca até a tabela da lança principal ser transcrita
-  // (a tabela zona×ângulo é a do JIB); a tela avisa isso explicitamente.
+  // Task 10.7 — com a tabela da lança principal do TM-130 (diagrama polar), ele volta à busca e vem
+  // primeiro: 26.000 kg nominais contra 30.000 kg do MD-300L (regra do RF15).
   const lista = page.locator('.busca-reversa__lista li')
-  await expect(lista).toHaveCount(1)
-  await expect(lista.nth(0)).toContainText('MD-300L')
-  await expect(page.getByText(/Fora da busca: TM-130/)).toBeVisible()
+  await expect(lista).toHaveCount(2)
+  await expect(lista.nth(0)).toContainText('TM-130')
+  await expect(lista.nth(0)).toContainText('Zona I')
+  await expect(lista.nth(1)).toContainText('MD-300L')
+  await expect(page.getByText(/Fora da busca/)).toHaveCount(0)
 })
 
 test('Épico 12 — layout CAD: barra de status, cotas na cena, vistas padrão e unidade kg/t (RF14)', async ({ page }) => {

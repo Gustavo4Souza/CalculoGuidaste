@@ -12,6 +12,7 @@ import type {
   Quadrante,
   TabelaCargaVarianteA,
   TabelaCargaVarianteB,
+  TabelaCargaZonaRaio,
   TabelaJIB,
   ZonaDeGiro,
 } from '../types/guindaste'
@@ -181,6 +182,32 @@ export function capacidadeJIBDetalhada(
     ],
     tabela,
   )
+}
+
+/**
+ * Zona de giro + raio — lança principal do TM-130 (diagrama polar da ficha).
+ * Um valor por raio; entre dois raios, interpolação arredondada para baixo;
+ * fora dos raios da zona → sem dado. Não se interpola entre zonas.
+ */
+export function capacidadeZonaRaioDetalhada(
+  linhas: ReadonlyArray<TabelaCargaZonaRaio>,
+  raioM: number,
+  zona: ZonaDeGiro,
+): CapacidadeDetalhada {
+  const linha = linhas.find((l) => l.zona === zona)
+  if (!linha) return semDado(`Não há tabela para a ${rotuloRegiao(zona)}.`)
+  const r = interpolarComDetalhe(
+    linha.pontos.map((p) => ({ chave: p.raioM, valor: p.capacidadeKg })),
+    raioM,
+  )
+  if (r.foraDaFaixa) {
+    const raios = linha.pontos.map((p) => p.raioM)
+    return semDado(
+      `Raio ${formatarNumero(raioM)} m fora da tabela da ${rotuloRegiao(zona)} ` +
+        `(${formatarNumero(Math.min(...raios))}–${formatarNumero(Math.max(...raios))} m).`,
+    )
+  }
+  return combinar([{ interp: r, peso: 1, chavesFixas: { zona }, chaveRaio: 'raioM' }], `Lança principal — ${rotuloRegiao(zona)}`)
 }
 
 /** Variante B (zona + ângulo da lança) — hoje só a tabela de JIB do TM-130. */

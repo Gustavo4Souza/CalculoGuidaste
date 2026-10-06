@@ -268,15 +268,19 @@ Confirmado com o Gustavo (3 perguntas de esclarecimento, nesta sessão do Claude
 
 **Ordem de dependência:** 10 (dados + motor v3) → 11 (fonte única de estado) → 12 (UI CAD tema claro) → 13 (modelo 3D fiel + arrasto de tudo) → 14 (mapa de área no chão) → 15 (persistência + CRUD) → 16 (relatório PDF). Testes unitários + e2e ao fim de cada épico, mostrados ao Gustavo antes de seguir.
 
-## Épico 10 — Dados corrigidos e motor v3 🟡 Em andamento (05/10/2026)
+## Épico 10 — Dados corrigidos e motor v3 ✅ Concluído (06/10/2026)
 
 ### Task 10.0 — `channel: 'chromium'` no Playwright ✅
 - [x] Adicionado ao bloco `use` de `app/playwright.config.ts` (pendência registrada nos Épicos 8 e 9).
 
-### Task 10.1 — Tabela polar da lança principal do TM-130 ⏳ Bloqueada (depende do Gustavo)
+### Task 10.1 — Tabela polar da lança principal do TM-130 ✅ Concluída (06/10/2026)
 - [x] `tm-130.json` renomeado para `tm-130-jib.json` (conteúdo idêntico): é a tabela "Com sapata para lança JIB" (ver `app/src/data/tabelas/README.md`)
-- [ ] Gustavo transcreve o diagrama polar na aba `Principal_Polar` de `docs/Tabelas_Zonas_Giro.xlsx` (`zona | raio_inicial_m | raio_final_m | capacidade_kg`)
-- [ ] Extração mecânica para `tm-130-principal.json` + `TipoTabela` `zona_raio_faixas` + schema + testes com valores reais
+- [x] Gustavo transcreveu o diagrama em `docs/dados_guindaste_TM-130.xlsx` (aba `Centro de Giro`). A leitura confirmou que os valores ficam **sobre os arcos** (um por raio), e não em faixas entre eles
+- [x] **Conferência contra a camada de texto do PDF**: 3 divergências na planilha (Zona II 5 m: 16.000 → 16.300; Zona II 8 m: 7.100 → 7.700; Zona I 6 m: 21.000 → 21.600). **Decisão do Gustavo:** valem os valores do PDF; as células foram corrigidas com nota
+- [x] **Decisão do Gustavo:** entre raios, **interpolação** arredondada para baixo (substitui o "degrau conservador", que pressupunha faixas)
+- [x] Extração mecânica (com travas: valor tem que estar no texto do PDF; capacidade não pode aumentar com o raio) para `tm-130-principal.json`; novo tipo `TabelaCargaZonaRaio` e `tipoTabelaPrincipal: "zona_raio"`; schema atualizado; `capacidadeZonaRaioDetalhada` no motor
+- [x] Testes com valores reais: pontos exatos nas duas zonas (26.000 / 21.600 / 8.100 / 20.400 / 7.700 / 4.000 kg), interpolação (Zona II 7,5 m → 9.450 kg), cobertura por zona (4,5 m tem dado na Zona II e não na Zona I), fronteira de 16° com a menor capacidade (8 m → 7.700 kg) e raio além de 12 m → sem dado
+- [x] **Bug real encontrado nos testes**: com o raio vindo da trigonometria (4,500000000001 m), a interpolação dava 18.349,9999999 kg e o arredondamento para baixo cortava para 18.349, embora a conta exata seja 18.350. `arredondarParaBaixo` ganhou uma tolerância de ruído numérico de 1e-6 kg (`TOLERANCIA_RUIDO_KG`), com teste; continua conservador para qualquer diferença real
 
 ### Task 10.2 — Resultado rico (RF17) ✅
 - [x] `engine/capacidadeDetalhada.ts`: capacidade + origem (exato/interpolado) + pontos reais usados + motivo quando não há dado. As funções antigas de `calcularCapacidadeMaxima.ts` passaram a delegar para elas (sem lógica duplicada)
@@ -298,7 +302,8 @@ Confirmado com o Gustavo (3 perguntas de esclarecimento, nesta sessão do Claude
 ### Task 10.6 — Versionamento ✅
 - [x] `data/catalogo.ts`: `CATALOGO` (contexto por guindaste) e `VERSAO_TABELAS` (hash FNV-1a do conteúdo de todos os JSON de dados)
 
-### Task 10.7 — Busca reversa com a tabela polar ⏳ Depende da 10.1
+### Task 10.7 — Busca reversa com a tabela polar ✅ Concluída (06/10/2026)
+- [x] `buscaReversa.ts` aceita tabelas "zona + raio": em cada zona, o maior raio que atende o peso (fica a zona de maior alcance). O TM-130 voltou à busca e aparece **antes** do MD-300L (26.000 × 30.000 kg nominais, RF15); o aviso "Fora da busca" sumiu
 
 **Verificação parcial (05/10/2026):** 90 testes unitários (54 anteriores + 36 novos, todos com células reais), 9/9 e2e (agora com `channel: 'chromium'` de fato), typecheck e `npm run build` limpos. `oxlint` não roda nesta máquina: uma política de Controle de Aplicativo do Windows bloqueia o binário nativo (`oxlint.win32-x64-msvc.node`). É problema de ambiente, não do código. A UI ainda usa o motor antigo; ela passa para `avaliarCenario` no Épico 11.
 
@@ -480,7 +485,7 @@ Substitui o tema escuro/HUD do Épico 8 (RF23).
 | 7 — Redesenho de layout: 3D (WebGL) e tela cheia | ✅ Concluído — cena WebGL (react-three-fiber), layout em tela cheia com abas, JIB exposto visualmente |
 | 8 — UI/UX industrial (painel escuro) + lança ajustável por arrasto | ✅ Concluído — tema industrial escuro, medidor de capacidade e arrasto de comprimento, 49 testes unitários + 8 e2e |
 | 9 — Guindaste 3D mais realista + campos embutidos na cena | ✅ Concluído — modelo 3D detalhado (estilo técnico/linha) para os dois guindastes; campos de comprimento/raio/ângulo embutidos na cena com marcas de encaixe magnéticas nos 7 comprimentos reais do MD-300L |
-| 10 — Dados corrigidos e motor v3 | 🟡 Em andamento — motor `avaliarCenario` pronto (90 testes); falta a tabela polar do TM-130 (depende do Gustavo) |
+| 10 — Dados corrigidos e motor v3 | ✅ Concluído — motor `avaliarCenario` + tabela da lança principal do TM-130 (diagrama polar, conferido contra o PDF) e busca reversa com os dois guindastes; 150 unitários + 22 e2e |
 | 11 — Fonte única de estado | ✅ Concluído — store com `cenario` único + avaliação derivada, todos os parâmetros editáveis, 102 unitários + 11 e2e |
 | 12 — Interface estilo SolidWorks, tema claro | ✅ Concluído — barra de comandos, árvore de parâmetros, viewport com cubo/vistas/cotas, barra de status, kg/t; 12 e2e |
 | 13 — Modelo 3D fiel + arrasto de tudo | ✅ Concluído — origem no centro de giro, caminhão das fichas, giro/sapatas/JIB/carga arrastáveis; 108 unitários + 15 e2e |

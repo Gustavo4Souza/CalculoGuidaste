@@ -76,8 +76,8 @@ export function validarEspecificacao(esp: unknown, nome: string): string[] {
   const giroZero = ler(esp, 'giroZeroApontaPara')
   if (giroZero !== 'frente' && giroZero !== 'traseira') falta('giroZeroApontaPara', '"frente" ou "traseira"')
   const tabela = ler(esp, 'tipoTabelaPrincipal')
-  if (tabela !== 'comprimento_raio_quadrante' && tabela !== 'zona_raio_faixas') {
-    falta('tipoTabelaPrincipal', '"comprimento_raio_quadrante" ou "zona_raio_faixas"')
+  if (tabela !== 'comprimento_raio_quadrante' && tabela !== 'zona_raio') {
+    falta('tipoTabelaPrincipal', '"comprimento_raio_quadrante" ou "zona_raio"')
   }
   const limiteGiro = ler(esp, 'giro.limiteMecanicoGraus')
   if (limiteGiro !== null && typeof limiteGiro !== 'number') falta('giro.limiteMecanicoGraus', 'número ou null')

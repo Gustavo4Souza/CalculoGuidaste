@@ -64,6 +64,25 @@ export interface TabelaCargaVarianteB {
   pontos: PontoTabelaVarianteB[]
 }
 
+/** Um ponto da tabela "zona + raio" (TM-130, lança principal). */
+export interface PontoTabelaZonaRaio {
+  raioM: number
+  capacidadeKg: number
+}
+
+/**
+ * Tabela de carga · zona de giro + raio — lança principal do TM-130, o
+ * diagrama polar "Com sapata para lança principal" (docs/TM_130.pdf, p.2).
+ * Um valor por raio (sobre cada arco do diagrama); entre dois raios,
+ * interpolação arredondada para baixo (decisão de 06/10/2026). Zonas são
+ * regiões discretas: não se interpola entre zonas.
+ */
+export interface TabelaCargaZonaRaio {
+  guindasteId: string
+  zona: ZonaDeGiro
+  pontos: PontoTabelaZonaRaio[]
+}
+
 /** Tabela de carga do JIB — opcional, só para guindastes com possuiJIB = true. */
 export interface TabelaJIB {
   guindasteId: string

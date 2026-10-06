@@ -252,12 +252,55 @@ describe('avaliarCenario — TM-130', () => {
     })
   }
 
-  it('lança principal → sem dado enquanto o diagrama polar não é transcrito (nada inventado)', () => {
-    const r = avaliarCenario(parametrosTM(), TM)
-    expect(r.status).toBe('sem_dado')
-    expect(r.capacidade.capacidadeKg).toBeNull()
-    expect(r.motivosSemDado.join(' ')).toContain('ainda não transcrita')
+  /** TM-130: pé a 2,8 m, recuo 0 — o ângulo que põe o gancho no raio pedido, com a lança de `comprimentoM`. */
+  function noRaio(raioM: number, giroGraus = 0, comprimentoM = 12): ParametrosDoCenario {
+    const anguloGraus = resolverAnguloParaRaio({ alturaPeDaLancaM: 2.8, recuoPeDaLancaM: 0 }, { comprimentoLancaM: comprimentoM }, raioM, 0, 70)!
+    return parametrosTM({ lanca: { comprimentoM, anguloGraus }, giroGraus })
+  }
+
+  // Valores reais: docs/dados_guindaste_TM-130.xlsx (aba "Centro de Giro"), conferidos contra o texto de
+  // docs/TM_130.pdf p.2 — Zona I: 5 m = 26.000 … 8 m = 16.000; Zona II: 4 m = 20.400, 7 m = 11.200, 8 m = 7.700.
+  it.each([
+    { giro: 0, raio: 5, esperadoKg: 26000, zona: 'I' },
+    { giro: 0, raio: 6, esperadoKg: 21600, zona: 'I' },
+    { giro: 0, raio: 12, esperadoKg: 8100, zona: 'I' },
+    { giro: 30, raio: 4, esperadoKg: 20400, zona: 'II', comprimento: 9 }, // com 12 m o raio mínimo é 12·cos70° = 4,10 m
+    { giro: 30, raio: 8, esperadoKg: 7700, zona: 'II' },
+    { giro: -45, raio: 12, esperadoKg: 4000, zona: 'II' },
+  ])('lança principal, ponto exato: giro $giro°, raio $raio m → $esperadoKg kg (Zona $zona)', ({ giro, raio, esperadoKg, zona, comprimento }: { giro: number; raio: number; esperadoKg: number; zona: string; comprimento?: number }) => {
+    const r = avaliarCenario(noRaio(raio, giro, comprimento), TM)
+    expect(r.capacidade.capacidadeKg).toBe(esperadoKg)
+    expect(r.capacidade.origem).toBe('exato')
+    expect(r.capacidade.regiao).toBe(zona)
     expect(r.giro.criterioProvisorio).toBe(false)
+  })
+
+  it('entre dois raios interpola e arredonda para baixo: Zona II, 7,5 m → 9.450 kg (entre 11.200 e 7.700)', () => {
+    const r = avaliarCenario(noRaio(7.5, 30), TM)
+    expect(r.capacidade.capacidadeKg).toBe(9450)
+    expect(r.capacidade.origem).toBe('interpolado')
+    expect(r.capacidade.pontosUsados.map((p) => p.capacidadeKg)).toEqual([11200, 7700])
+  })
+
+  it('cada zona só cobre os raios dela: 4,5 m tem dado na Zona II (18.350 kg), mas não na Zona I (começa em 5 m)', () => {
+    expect(avaliarCenario(noRaio(4.5, 30), TM).capacidade.capacidadeKg).toBe(18350)
+    const zonaI = avaliarCenario(noRaio(4.5, 0), TM)
+    expect(zonaI.capacidade.capacidadeKg).toBeNull()
+    expect(zonaI.motivosSemDado.join(' ')).toContain('Raio 4,50 m fora da tabela da Zona I (5,00–12,00 m)')
+  })
+
+  it('na fronteira das zonas (16°) vale a menor capacidade: 8 m → 7.700 kg (Zona II), não 16.000 kg (Zona I)', () => {
+    const r = avaliarCenario(noRaio(8, 16), TM)
+    expect(r.giro.regioes).toEqual(['I', 'II'])
+    expect(r.capacidade.capacidadeKg).toBe(7700)
+    expect(r.capacidade.regiao).toBe('II')
+  })
+
+  it('além do último raio da tabela (12 m) → sem dado: lança de 12,4 m deitada alcança 12,4 m', () => {
+    const r = avaliarCenario(parametrosTM({ lanca: { comprimentoM: 12.4, anguloGraus: 0 } }), TM)
+    expect(r.geometria.raioM).toBeCloseTo(12.4, 9)
+    expect(r.capacidade.capacidadeKg).toBeNull()
+    expect(r.status).toBe('sem_dado')
   })
 
   it('zonas derivadas do giro: 10° → I, 16° → I e II (fronteira), -30° → II', () => {

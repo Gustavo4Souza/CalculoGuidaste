@@ -1,0 +1,82 @@
+[
+  {
+    "guindasteId": "TM-130",
+    "zona": "I",
+    "pontos": [
+      {
+        "raioM": 5.0,
+        "capacidadeKg": 26000
+      },
+      {
+        "raioM": 6.0,
+        "capacidadeKg": 21600
+      },
+      {
+        "raioM": 7.0,
+        "capacidadeKg": 18500
+      },
+      {
+        "raioM": 8.0,
+        "capacidadeKg": 16000
+      },
+      {
+        "raioM": 9.0,
+        "capacidadeKg": 11000
+      },
+      {
+        "raioM": 10.0,
+        "capacidadeKg": 10000
+      },
+      {
+        "raioM": 11.0,
+        "capacidadeKg": 8800
+      },
+      {
+        "raioM": 12.0,
+        "capacidadeKg": 8100
+      }
+    ]
+  },
+  {
+    "guindasteId": "TM-130",
+    "zona": "II",
+    "pontos": [
+      {
+        "raioM": 4.0,
+        "capacidadeKg": 20400
+      },
+      {
+        "raioM": 5.0,
+        "capacidadeKg": 16300
+      },
+      {
+        "raioM": 6.0,
+        "capacidadeKg": 13300
+      },
+      {
+        "raioM": 7.0,
+        "capacidadeKg": 11200
+      },
+      {
+        "raioM": 8.0,
+        "capacidadeKg": 7700
+      },
+      {
+        "raioM": 9.0,
+        "capacidadeKg": 6100
+      },
+      {
+        "raioM": 10.0,
+        "capacidadeKg": 5100
+      },
+      {
+        "raioM": 11.0,
+        "capacidadeKg": 4500
+      },
+      {
+        "raioM": 12.0,
+        "capacidadeKg": 4000
+      }
+    ]
+  }
+]

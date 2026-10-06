@@ -1,7 +1,7 @@
 {
   "guindasteId": "TM-130",
   "documentoFonte": "docs/TM_130.pdf (p.2) + docs/Informações gerais - içamento.xlsx",
-  "tipoTabelaPrincipal": "zona_raio_faixas",
+  "tipoTabelaPrincipal": "zona_raio",
   "lanca": {
     "comprimentoMinM": { "valor": 5.9, "fonte": "ficha p.2 (comprimento da lança recolhida)" },
     "comprimentoMaxM": { "valor": 12.4, "fonte": "aproximado" },
@@ -79,7 +79,7 @@
     "larguraM": { "valor": 2.5, "fonte": "aproximado" }
   },
   "notas": [
-    "Tabela da lança principal: diagrama polar \"Com sapata para lança principal\" (Zona I 0°~16°, Zona II 16°~60°, raios de 4 a 12 m).",
+    "Tabela da lança principal: diagrama polar \"Com sapata para lança principal\" (Zona I 0°~16°: 5 a 12 m; Zona II 16°~60°: 4 a 12 m), um valor por raio; entre raios, interpolação arredondada para baixo.",
     "Tabela zona × ângulo da lança: \"Com sapata para lança JIB\".",
     "Ângulo de giro total: 120°. Ângulo máximo de elevação: 70°.",
     "Capacidade máxima de elevação: 26.000 kgf a 5 metros."

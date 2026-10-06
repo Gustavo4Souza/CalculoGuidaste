@@ -31,7 +31,7 @@ export interface ExtensaoSapata {
   recolhidaM: ValorComFonte
 }
 
-export type TipoTabelaPrincipal = 'comprimento_raio_quadrante' | 'zona_raio_faixas'
+export type TipoTabelaPrincipal = 'comprimento_raio_quadrante' | 'zona_raio'
 
 export interface EspecificacaoGuindaste {
   guindasteId: string

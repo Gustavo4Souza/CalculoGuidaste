@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react'
+import { rotuloRegiao } from '../engine/capacidadeDetalhada'
 import { formatarMassa, useInterfaceStore } from '../store/useInterfaceStore'
 import { GUINDASTES_FORA_DA_BUSCA, useSimulacaoStore } from '../store/useSimulacaoStore'
 
@@ -44,7 +45,7 @@ export function BuscaReversa() {
                   {config.anguloLancaGraus !== undefined && (
                     <span> · ângulo {config.anguloLancaGraus.toFixed(0)}°</span>
                   )}
-                  <span> · {config.quadranteOuZona}</span>
+                  <span> · {rotuloRegiao(config.quadranteOuZona)}</span>
                   {config.raioMaximoM !== undefined && <span> · raio até {config.raioMaximoM.toFixed(1)} m</span>}
                   <span className="busca-reversa__capacidade">
                     {' '}

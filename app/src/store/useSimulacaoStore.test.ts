@@ -94,9 +94,13 @@ describe('useSimulacaoStore — fonte única de estado (Épico 11)', () => {
     expect(estado().cenario).toEqual(salvo)
   })
 
-  it('busca reversa (RF15) não sugere o TM-130 enquanto a tabela da lança principal não existe', () => {
-    estado().buscarPorPeso(2000)
+  it('busca reversa (RF15) com a tabela da lança principal do TM-130: menor guindaste primeiro', () => {
+    estado().buscarPorPeso(20000)
     const lista = estado().configuracoesViaveis
-    expect(lista.map((c) => c.guindasteId)).toEqual(['MD-300L'])
+    // TM-130 (26.000 kg nominais) antes do MD-300L (30.000 kg) — regra do RF15.
+    expect(lista.map((c) => c.guindasteId)).toEqual(['TM-130', 'MD-300L'])
+    // TM-130, Zona I: 20.000 kg cabem até entre 6 m (21.600) e 7 m (18.500) → 6 + 1.600/3.100 m
+    expect(lista[0].quadranteOuZona).toBe('I')
+    expect(lista[0].raioMaximoM).toBeCloseTo(6 + 1600 / 3100, 9)
   })
 })

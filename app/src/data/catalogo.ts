@@ -10,13 +10,14 @@
 import { CRITERIOS_DE_GIRO } from '../config/criteriosDeGiro'
 import type { ContextoDoGuindaste } from '../engine/avaliarCenario'
 import type { EspecificacaoGuindaste } from '../types/especificacao'
-import type { Guindaste, TabelaCargaVarianteA, TabelaCargaVarianteB, TabelaJIB } from '../types/guindaste'
+import type { Guindaste, TabelaCargaVarianteA, TabelaCargaVarianteB, TabelaCargaZonaRaio, TabelaJIB } from '../types/guindaste'
 import especMD300L from './especificacoes/md-300l.json'
 import especTM130 from './especificacoes/tm-130.json'
 import guindastesData from './guindastes.json'
 import tabelaJibMD300L from './tabelas/md-300l-jib.json'
 import tabelaMD300L from './tabelas/md-300l.json'
 import tabelaJibTM130 from './tabelas/tm-130-jib.json'
+import tabelaTM130 from './tabelas/tm-130-principal.json'
 import { validarEspecificacao } from './validarEspecificacao'
 
 const guindastes = guindastesData as Guindaste[]
@@ -42,7 +43,9 @@ export const CATALOGO: Record<string, ContextoDoGuindaste> = {
     especificacao: especTM130 as EspecificacaoGuindaste,
     criterioDeGiro: CRITERIOS_DE_GIRO['TM-130'],
     tabelas: {
-      // A lança principal usa o diagrama polar — aguardando transcrição (Task 10.1).
+      // Lança principal: diagrama polar "Com sapata para lança principal" (Task 10.1,
+      // extraído de docs/dados_guindaste_TM-130.xlsx e conferido contra docs/TM_130.pdf).
+      principalZonaRaio: tabelaTM130 as TabelaCargaZonaRaio[],
       jibVarianteB: tabelaJibTM130 as TabelaCargaVarianteB[],
     },
   },
@@ -59,7 +62,7 @@ function fnv1a(texto: string): string {
 }
 
 export const VERSAO_TABELAS = `tabelas-${fnv1a(
-  JSON.stringify([guindastesData, tabelaMD300L, tabelaJibMD300L, tabelaJibTM130, especMD300L, especTM130]),
+  JSON.stringify([guindastesData, tabelaMD300L, tabelaJibMD300L, tabelaTM130, tabelaJibTM130, especMD300L, especTM130]),
 )}`
 
 /**

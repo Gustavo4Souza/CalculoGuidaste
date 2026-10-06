@@ -40,18 +40,21 @@ export function comprimentosReaisDaTabela(ctx: ContextoDoGuindaste): number[] {
 
 /**
  * Guindastes que entram na busca reversa (RF15): só os que têm a tabela da
- * lança principal disponível. O TM-130 fica de fora até o diagrama polar ser
- * transcrito (Task 10.1) — a tabela zona×ângulo é a do JIB, não da lança
- * principal, e usá-la aqui seria rotular errado a configuração sugerida.
+ * lança principal disponível (a zona×ângulo do TM-130 é a do JIB, não da
+ * lança principal — nunca a usar aqui). Desde a Task 10.1 os dois têm.
  */
+function temTabelaPrincipal(c: ContextoDoGuindaste): boolean {
+  return c.tabelas.principalVarianteA !== undefined || c.tabelas.principalZonaRaio !== undefined
+}
+
 function frotaComTabelaPrincipal(): Guindaste[] {
   return Object.values(CATALOGO)
-    .filter((c) => c.tabelas.principalVarianteA !== undefined)
+    .filter(temTabelaPrincipal)
     .map((c) => c.guindaste)
 }
 
 export const GUINDASTES_FORA_DA_BUSCA = Object.values(CATALOGO)
-  .filter((c) => c.tabelas.principalVarianteA === undefined)
+  .filter((c) => !temTabelaPrincipal(c))
   .map((c) => c.guindaste.nome)
 
 interface SimulacaoState {
@@ -186,7 +189,12 @@ export const useSimulacaoStore = create<SimulacaoState>((set, get) => {
       const varianteA = Object.values(CATALOGO).flatMap(
         (c) => (c.tabelas.principalVarianteA ?? []) as TabelaCargaVarianteA[],
       )
-      const configuracoesViaveis = buscarConfiguracoesViaveis(frotaComTabelaPrincipal(), { varianteA, varianteB: [] }, pesoKg)
+      const zonaRaio = Object.values(CATALOGO).flatMap((c) => c.tabelas.principalZonaRaio ?? [])
+      const configuracoesViaveis = buscarConfiguracoesViaveis(
+        frotaComTabelaPrincipal(),
+        { varianteA, varianteB: [], zonaRaio },
+        pesoKg,
+      )
       set({ buscaPesoKg: pesoKg, configuracoesViaveis })
     },
   }

@@ -14,6 +14,7 @@ import type {
   Quadrante,
   TabelaCargaVarianteA,
   TabelaCargaVarianteB,
+  TabelaCargaZonaRaio,
   ZonaDeGiro,
 } from '../types/guindaste'
 
@@ -150,6 +151,34 @@ function melhorConfiguracaoVarianteB(
 }
 
 /**
+ * Zona + raio (lança principal do TM-130, Task 10.7): em cada zona, o maior
+ * raio em que a capacidade ainda atende o peso; fica a zona de maior alcance.
+ */
+function melhorConfiguracaoZonaRaio(
+  guindaste: Guindaste,
+  linhas: ReadonlyArray<TabelaCargaZonaRaio>,
+  pesoKg: number,
+): ConfiguracaoViavel | null {
+  let melhor: (ConfiguracaoViavel & { raioMaximoM: number }) | null = null
+  for (const linha of linhas.filter((l) => l.guindasteId === guindaste.id)) {
+    const resultado = raioMaximoParaPeso(
+      linha.pontos.map((p) => ({ raioM: p.raioM, capacidadeKgf: p.capacidadeKg })),
+      pesoKg,
+    )
+    if (!resultado) continue
+    if (!melhor || resultado.raioM > melhor.raioMaximoM) {
+      melhor = {
+        guindasteId: guindaste.id,
+        quadranteOuZona: linha.zona,
+        raioMaximoM: resultado.raioM,
+        capacidadeNaConfiguracaoKg: resultado.capacidadeKg,
+      }
+    }
+  }
+  return melhor
+}
+
+/**
  * RT-MC07 — varre a frota e devolve a configuração mais econômica de cada
  * guindaste capaz de içar `pesoTotalKg`, ordenada por menor guindaste
  * primeiro (RF15). Guindastes que não conseguem içar o peso em nenhuma
@@ -157,15 +186,22 @@ function melhorConfiguracaoVarianteB(
  */
 export function buscarConfiguracoesViaveis(
   guindastes: ReadonlyArray<Guindaste>,
-  tabelas: { varianteA: ReadonlyArray<TabelaCargaVarianteA>; varianteB: ReadonlyArray<TabelaCargaVarianteB> },
+  tabelas: {
+    varianteA: ReadonlyArray<TabelaCargaVarianteA>
+    varianteB: ReadonlyArray<TabelaCargaVarianteB>
+    /** Lança principal "zona + raio" (TM-130). Quando há linhas para o guindaste, têm prioridade sobre a variante B. */
+    zonaRaio?: ReadonlyArray<TabelaCargaZonaRaio>
+  },
   pesoTotalKg: number,
 ): ConfiguracaoViavel[] {
   if (pesoTotalKg <= 0) return []
 
   const candidatos: { guindaste: Guindaste; config: ConfiguracaoViavel }[] = []
   for (const guindaste of guindastes) {
-    const config =
-      guindaste.tipoTabela === 'comprimento_raio_quadrante'
+    const temZonaRaio = (tabelas.zonaRaio ?? []).some((l) => l.guindasteId === guindaste.id)
+    const config = temZonaRaio
+      ? melhorConfiguracaoZonaRaio(guindaste, tabelas.zonaRaio!, pesoTotalKg)
+      : guindaste.tipoTabela === 'comprimento_raio_quadrante'
         ? melhorConfiguracaoVarianteA(guindaste, tabelas.varianteA, pesoTotalKg)
         : melhorConfiguracaoVarianteB(guindaste, tabelas.varianteB, pesoTotalKg)
     if (config) candidatos.push({ guindaste, config })
