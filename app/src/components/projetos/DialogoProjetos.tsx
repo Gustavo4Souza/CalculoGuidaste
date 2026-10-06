@@ -178,6 +178,7 @@ function GerenciadorDeProjetos() {
                   e.preventDefault()
                   if (!novoOrcamento.trim() || !s.projetoId) return
                   const o = await s.criarOrcamento(s.projetoId, novoOrcamento.trim())
+                  if (!o) return // a mensagem de erro aparece no topo do gerenciador
                   setNovoOrcamento('')
                   await s.selecionarOrcamento(o.id)
                 }}

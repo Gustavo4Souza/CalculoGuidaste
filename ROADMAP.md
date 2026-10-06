@@ -417,6 +417,25 @@ Substitui o tema escuro/HUD do Épico 8 (RF23).
 
 **Nota de verificação:** numa rodada intermediária a suíte falhou de forma espalhada (testes diferentes a cada vez, com "Target crashed", ou seja, o processo do navegador caindo). Repetida com o ambiente limpo (sem servidores sobrando, ~5 GB livres), passou 38/38 em duas rodadas seguidas. Foi instabilidade da máquina, não do código.
 
+## Avaliação pós-Épico 15 — bug da tela branca ✅ Corrigido (05/10/2026)
+
+**Relato do Gustavo:** ao rodar o projeto, a tela ficava toda branca. No console: `Cannot read properties of undefined (reading 'dianteiraM')` em `extremosDoCaminhao` (cena 3D) e o WebSocket do Vite falhando.
+
+**Diagnóstico:**
+- Os arquivos em disco estavam corretos: as duas especificações têm o bloco `caminhao` (commitado no Épico 13). Com um servidor recém-iniciado, a aplicação carrega sem nenhum erro, tanto em desenvolvimento quanto no build de produção (`vite preview`).
+- O navegador estava rodando o código novo da cena com o JSON de especificação **antigo**, e o WebSocket do Vite sem conexão indica uma aba ligada a um servidor que já não existia. Causa provável: o Playwright sobe o `npm run dev` na porta 5173 durante os testes e o derruba no fim; uma aba aberta nesse servidor temporário fica com módulos de momentos diferentes.
+- O erro de `hostname` no console **não é do projeto**: o termo não aparece em `src/`. Vem do cliente do Vite sem conexão ou de extensão do navegador.
+- **O defeito real era de robustez**: a aplicação não tinha nenhum limite de erro, então qualquer erro na cena desmontava a tela inteira. Além disso, um dado incompleto só aparecia como `undefined` lá dentro da cena.
+
+**Correções:**
+- [x] `components/LimiteDeErro.tsx` (error boundary): em volta da cena 3D, um erro nela deixa a árvore de parâmetros e o resultado funcionando, com "Tentar de novo" e "Recarregar a página". Também em volta da aplicação inteira, como última defesa
+- [x] `data/validarEspecificacao.ts` + `PROBLEMAS_DE_DADOS` em `data/catalogo.ts`: confere todos os campos obrigatórios das especificações e diz **pelo nome** o que falta (ex.: `"caminhao.dianteiraM" ausente ou inválido`). Não lança erro na importação do módulo, porque isso voltaria a deixar a tela em branco
+- [x] `main.tsx`: confere os dados **antes** de carregar a aplicação (importação dinâmica do `App`). A store da simulação monta o cenário inicial na importação do módulo, então um dado quebrado derrubaria tudo antes de qualquer limite de erro existir. Com problema, mostra uma tela com a lista e a orientação (Ctrl+Shift+R / reiniciar o servidor). Os estilos dessa tela ficam em `index.css`, porque `App.css` só carrega junto com o `App`
+- [x] `RepositorioIndexedDB`: falha ao abrir o IndexedDB (ex.: janela anônima com armazenamento bloqueado) vira mensagem clara, sem "Uncaught (in promise)"
+- [x] `useProjetosStore`: `criarProjeto`, `criarOrcamento`, `selecionarProjeto` e `selecionarOrcamento` passaram a tratar erro. **Defeito encontrado na revisão**: o diálogo "Salvar como cenário" fechava mesmo quando a gravação falhava, e o engenheiro acharia que tinha salvado. Agora `salvarComoNovo` devolve se salvou, e o diálogo só fecha em caso de sucesso, mostrando o erro caso contrário
+
+**Verificação:** 128 testes unitários (+3 da validação: especificações reais completas, especificação sem `caminhao` apontada pelo nome, número como texto apontado); 20/20 e2e (2x seguidas: 40/40), incluindo um teste novo que **reproduz o relato** (intercepta o `md-300l.json` e entrega a versão sem `caminhao`) e confere que aparece a mensagem com o nome do campo, não a tela branca; typecheck e build limpos; captura de tela da mensagem de erro.
+
 ## Épico 16 ⬜ Planejado
 - **16** Relatório PDF por cenário e por orçamento
 

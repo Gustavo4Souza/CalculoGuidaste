@@ -17,6 +17,7 @@ import guindastesData from './guindastes.json'
 import tabelaJibMD300L from './tabelas/md-300l-jib.json'
 import tabelaMD300L from './tabelas/md-300l.json'
 import tabelaJibTM130 from './tabelas/tm-130-jib.json'
+import { validarEspecificacao } from './validarEspecificacao'
 
 const guindastes = guindastesData as Guindaste[]
 
@@ -60,3 +61,13 @@ function fnv1a(texto: string): string {
 export const VERSAO_TABELAS = `tabelas-${fnv1a(
   JSON.stringify([guindastesData, tabelaMD300L, tabelaJibMD300L, tabelaJibTM130, especMD300L, especTM130]),
 )}`
+
+/**
+ * Problemas encontrados nos dados (especificações incompletas ou
+ * desatualizadas). Vazio = tudo certo. A aplicação mostra esta lista na tela
+ * em vez de quebrar lá dentro da cena 3D (ver validarEspecificacao.ts).
+ */
+export const PROBLEMAS_DE_DADOS: string[] = [
+  ...validarEspecificacao(especMD300L, 'MD-300L'),
+  ...validarEspecificacao(especTM130, 'TM-130'),
+]

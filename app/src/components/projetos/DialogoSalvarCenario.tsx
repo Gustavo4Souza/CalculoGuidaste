@@ -52,13 +52,14 @@ function FormularioSalvar() {
         e.preventDefault()
         if (!valido || salvando) return
         setSalvando(true)
-        let pid = projetoId
-        if (pid === NOVO) pid = (await s.criarProjeto(novoProjeto)).id
-        let oid = orcamentoId
-        if (oid === NOVO || projetoId === NOVO) oid = (await s.criarOrcamento(pid, novoOrcamento.trim())).id
-        await s.salvarComoNovo(oid, nome.trim())
+        // Em qualquer falha o diálogo fica aberto, com a mensagem de erro — nunca "fecha como se tivesse salvo".
+        let pid: string | undefined = projetoId
+        if (pid === NOVO) pid = (await s.criarProjeto(novoProjeto))?.id
+        let oid: string | undefined = orcamentoId
+        if (pid && (oid === NOVO || projetoId === NOVO)) oid = (await s.criarOrcamento(pid, novoOrcamento.trim()))?.id
+        const salvou = pid !== undefined && oid !== undefined && (await s.salvarComoNovo(oid, nome.trim()))
         setSalvando(false)
-        abrirDialogo(null)
+        if (salvou) abrirDialogo(null)
       }}
     >
       <label className="campo-simples">
@@ -110,6 +111,11 @@ function FormularioSalvar() {
         <input value={nome} onChange={(e) => setNome(e.target.value)} />
       </label>
 
+      {s.mensagem?.tipo === 'erro' && (
+        <div className="projetos__mensagem projetos__mensagem--erro" role="alert">
+          {s.mensagem.texto}
+        </div>
+      )}
       <p className="rf-note">
         O cenário guarda todos os parâmetros, o resultado de agora e as versões das tabelas e do critério de giro.
       </p>

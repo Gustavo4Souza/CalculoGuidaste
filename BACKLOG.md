@@ -165,6 +165,13 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Pronto quando**: o engenheiro cria projetos, orçamentos e cenários, reabre um cenário exatamente como salvou, compara cenários e leva o projeto para outra máquina por JSON. ✅ Atingido: 125 unitários + 19 e2e (38/38 em execução repetida).
 
+## Correção pós-Épico 15 — tela branca ✅ (05/10/2026)
+
+| ID | Tarefa | Prioridade | Rastreio |
+|---|---|---|---|
+| FIX-01 | ✅ Limites de erro (cena 3D e aplicação), validação das especificações com mensagem pelo nome do campo, checagem de dados antes de carregar o `App` | Alta | ROADMAP, avaliação pós-Épico 15 |
+| FIX-02 | ✅ IndexedDB indisponível → mensagem clara; "Salvar como cenário" não fecha mais quando a gravação falha | Alta | ROADMAP, avaliação pós-Épico 15 |
+
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 
 - Tela simples de Administrador para cadastro/edição de guindastes e tabelas (RF13).

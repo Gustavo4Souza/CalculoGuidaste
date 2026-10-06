@@ -33,16 +33,19 @@ interface ProjetosState {
   selecionarProjeto: (id: string | null) => Promise<void>
   selecionarOrcamento: (id: string | null) => Promise<void>
 
-  criarProjeto: (dados: DadosProjeto) => Promise<Projeto>
+  /** null = falhou (a mensagem de erro fica em `mensagem`). */
+  criarProjeto: (dados: DadosProjeto) => Promise<Projeto | null>
   atualizarProjeto: (id: string, dados: DadosProjeto) => Promise<void>
   excluirProjeto: (id: string) => Promise<void>
 
-  criarOrcamento: (projetoId: string, nome: string) => Promise<Orcamento>
+  /** null = falhou (a mensagem de erro fica em `mensagem`). */
+  criarOrcamento: (projetoId: string, nome: string) => Promise<Orcamento | null>
   renomearOrcamento: (id: string, nome: string) => Promise<void>
   excluirOrcamento: (id: string) => Promise<void>
 
   /** "Salvar como cenário": grava a simulação atual como um cenário NOVO no orçamento. */
-  salvarComoNovo: (orcamentoId: string, nome: string) => Promise<void>
+  /** true = salvo; false = falhou (mensagem de erro em `mensagem`). */
+  salvarComoNovo: (orcamentoId: string, nome: string) => Promise<boolean>
   /** "Salvar": sobrescreve o cenário aberto com a simulação atual. */
   salvar: () => Promise<void>
   abrirCenario: (id: string) => Promise<void>
@@ -90,19 +93,32 @@ export const useProjetosStore = create<ProjetosState>((set, get) => {
 
     selecionarProjeto: async (id) => {
       set({ projetoId: id, orcamentoId: null, cenarios: [] })
-      await recarregarOrcamentos()
+      try {
+        await recarregarOrcamentos()
+      } catch (e) {
+        erro(e)
+      }
     },
 
     selecionarOrcamento: async (id) => {
       set({ orcamentoId: id })
-      await recarregarCenarios()
+      try {
+        await recarregarCenarios()
+      } catch (e) {
+        erro(e)
+      }
     },
 
     criarProjeto: async (dados) => {
-      const projeto = await repositorio.criarProjeto(dados)
-      await get().carregarProjetos()
-      await get().selecionarProjeto(projeto.id)
-      return projeto
+      try {
+        const projeto = await repositorio.criarProjeto(dados)
+        await get().carregarProjetos()
+        await get().selecionarProjeto(projeto.id)
+        return projeto
+      } catch (e) {
+        erro(e)
+        return null
+      }
     },
 
     atualizarProjeto: async (id, dados) => {
@@ -128,10 +144,15 @@ export const useProjetosStore = create<ProjetosState>((set, get) => {
     },
 
     criarOrcamento: async (projetoId, nome) => {
-      const orcamento = await repositorio.criarOrcamento({ projetoId, nome, descricao: '' })
-      if (get().projetoId === projetoId) await recarregarOrcamentos()
-      await get().carregarProjetos()
-      return orcamento
+      try {
+        const orcamento = await repositorio.criarOrcamento({ projetoId, nome, descricao: '' })
+        if (get().projetoId === projetoId) await recarregarOrcamentos()
+        await get().carregarProjetos()
+        return orcamento
+      } catch (e) {
+        erro(e)
+        return null
+      }
     },
 
     renomearOrcamento: async (id, nome) => {
@@ -168,8 +189,10 @@ export const useProjetosStore = create<ProjetosState>((set, get) => {
         await get().selecionarProjeto(projeto.id)
         await get().selecionarOrcamento(orcamentoId)
         await get().carregarProjetos()
+        return true
       } catch (e) {
         erro(e)
+        return false
       }
     },
 

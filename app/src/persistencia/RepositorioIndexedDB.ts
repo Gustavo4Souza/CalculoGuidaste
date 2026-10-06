@@ -57,7 +57,16 @@ export class RepositorioIndexedDB implements RepositorioProjetos {
         db.createObjectStore('orcamentos', { keyPath: 'id' }).createIndex('porProjeto', 'projetoId')
         db.createObjectStore('cenarios', { keyPath: 'id' }).createIndex('porOrcamento', 'orcamentoId')
       },
+    }).catch((e: unknown) => {
+      // Ex.: janela anônima com armazenamento bloqueado, ou cota esgotada.
+      throw new Error(
+        'Não foi possível abrir o armazenamento do navegador (IndexedDB) — os projetos não podem ser salvos ' +
+          `nesta janela. Detalhe: ${e instanceof Error ? e.message : String(e)}`,
+      )
     })
+    // Sem isto, uma falha ao abrir vira "Uncaught (in promise)" no console mesmo antes de alguém usar o
+    // repositório; cada método continua recebendo o erro ao aguardar `this.banco`.
+    this.banco.catch(() => undefined)
   }
 
   // ------------------------------------------------------------- projetos

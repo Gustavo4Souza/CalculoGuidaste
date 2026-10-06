@@ -714,3 +714,24 @@ test('Épico 15 — excluir projeto (com confirmação) leva orçamentos e cená
   // O cenário que estava aberto deixou de existir: a simulação fica desvinculada.
   await expect(page.getByTestId('cenario-aberto')).toHaveCount(0)
 })
+
+test('bug da tela branca (05/10/2026) — especificação desatualizada mostra o erro pelo nome, sem tela em branco', async ({
+  page,
+}) => {
+  // Reproduz o relato: o navegador recebe o código novo com o JSON da especificação ANTIGO (sem o bloco
+  // "caminhao" do Épico 13). Antes, isso virava "Cannot read properties of undefined (reading 'dianteiraM')"
+  // dentro da cena 3D e a tela ficava em branco.
+  await page.route('**/src/data/especificacoes/md-300l.json*', async (rota) => {
+    const resposta = await rota.fetch()
+    const modulo = await resposta.text()
+    // O Vite entrega o JSON como módulo JS; no `export default` a chave aparece abreviada ("  caminhao,").
+    const semCaminhao = modulo.replace(/^(\s*)caminhao,$/m, '$1caminhaoAntigo: caminhao,')
+    expect(semCaminhao).not.toBe(modulo)
+    await rota.fulfill({ response: resposta, body: semCaminhao })
+  })
+  await page.goto('/')
+  const erro = page.getByRole('alert')
+  await expect(erro).toContainText('Os dados do simulador estão incompletos ou desatualizados')
+  await expect(erro).toContainText('Especificação do MD-300L: "caminhao.dianteiraM" ausente ou inválido')
+  await expect(erro).toContainText('Ctrl+Shift+R')
+})

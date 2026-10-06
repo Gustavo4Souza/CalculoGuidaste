@@ -2,6 +2,7 @@ import { useInterfaceStore, type VistaPadrao } from '../store/useInterfaceStore'
 import { useSimulacaoStore } from '../store/useSimulacaoStore'
 import { ArvoreParametros } from './ArvoreParametros'
 import { CenaGuindaste3D } from './CenaGuindaste3D'
+import { LimiteDeErro } from './LimiteDeErro'
 import { LegendaMapa } from './cena/LegendaMapa'
 import { useMapaAreaOperacao } from './cena/useMapaAreaOperacao'
 import { PainelResultado } from './PainelResultado'
@@ -64,7 +65,10 @@ export function Simulador() {
             Área de operação
           </button>
         </div>
-        <CenaGuindaste3D corDestaque={CORES_STATUS[avaliacao.status]} vista={vista} mapa={mostrarMapa ? mapa : null} />
+        {/* Um erro na cena 3D não derruba a árvore de parâmetros nem o resultado. */}
+        <LimiteDeErro onde="a cena 3D" compacto>
+          <CenaGuindaste3D corDestaque={CORES_STATUS[avaliacao.status]} vista={vista} mapa={mostrarMapa ? mapa : null} />
+        </LimiteDeErro>
       </section>
 
       <aside className="painel-direito">

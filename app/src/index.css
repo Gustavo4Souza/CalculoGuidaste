@@ -82,3 +82,34 @@ select {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+
+/* Limite de erro (bug da tela branca, 05/10/2026) — aqui, e não em App.css,
+   porque a tela de erro aparece justamente quando o App não carregou. */
+.limite-de-erro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px;
+  padding: 14px 16px;
+  background: #fde8e8;
+  border: 1px solid #e6a3a3;
+  border-left: 4px solid var(--nok);
+  color: #5c1414;
+  font-size: 13px;
+}
+.limite-de-erro code {
+  font-family: var(--mono);
+  font-size: 12px;
+  word-break: break-word;
+}
+.limite-de-erro--compacto {
+  margin: 48px 16px 16px;
+}
+.limite-de-erro--tela {
+  max-width: 820px;
+  margin: 48px auto;
+}
+.limite-de-erro__acoes {
+  display: flex;
+  gap: 6px;
+}
