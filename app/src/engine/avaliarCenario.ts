@@ -161,11 +161,9 @@ export function avaliarCenario(p: ParametrosDoCenario, ctx: ContextoDoGuindaste)
       ? []
       : [esp.jib.pernas]
     : pernasPrevistasPelaTabela(esp, p.lanca.comprimentoM)
-  if (pernasPrevistas.length > 0 && !pernasPrevistas.includes(p.cabo.numeroDePernas)) {
-    motivos.push(
-      `Cabo com ${p.cabo.numeroDePernas} perna(s) — a tabela prevê ${pernasPrevistas.join(' ou ')} ` +
-        `para esta configuração.`,
-    )
+  const pernas = p.cabo.numeroDePernas
+  if (pernas !== null && pernasPrevistas.length > 0 && !pernasPrevistas.includes(pernas)) {
+    motivos.push(`Cabo com ${pernas} perna(s) — a tabela prevê ${pernasPrevistas.join(' ou ')} para esta configuração.`)
   }
 
   // --- Geometria ------------------------------------------------------------
@@ -193,20 +191,29 @@ export function avaliarCenario(p: ParametrosDoCenario, ctx: ContextoDoGuindaste)
   }
   const capacidadeKg = escolhida?.cap.capacidadeKg ?? null
 
+  // Nº de pernas não informado (TM-130: a ficha não traz a passagem de cabo — o nº de roldanas
+  // NÃO vale como nº de pernas). A tabela pode cobrir o ponto; o que falta é o somatório e a
+  // verificação de carga por perna — por isso este motivo entra depois da escolha da capacidade.
+  if (pernas === null) {
+    motivos.push('Nº de pernas do cabo não informado (a ficha não informa a passagem de cabo) — informe a configuração usada.')
+  }
+
   // --- Somatório de cargas (RF09/RF10/RF20) ---------------------------------
   const itens: ItemDoSomatorio[] = [{ descricao: 'Carga içada', massaKg: p.carga.pesoKg, origem: 'informado' }]
   itens.push({ descricao: 'Lingada', massaKg: p.acessorios.massaLingadaKg, origem: 'informado' })
 
   if (p.cabo.massaSobrescritaKg !== null) {
     itens.push({ descricao: 'Cabo de içamento (valor manual)', massaKg: p.cabo.massaSobrescritaKg, origem: 'sobrescrito' })
-  } else if (p.cabo.massaLinearKgM !== null) {
+  } else if (p.cabo.massaLinearKgM !== null && pernas !== null) {
     itens.push({
       descricao:
-        `Cabo de içamento (${formatarNumero(comprimentoCaboPendenteM)} m × ${p.cabo.numeroDePernas} perna(s) × ` +
+        `Cabo de içamento (${formatarNumero(comprimentoCaboPendenteM)} m × ${pernas} perna(s) × ` +
         `${formatarNumero(p.cabo.massaLinearKgM, 3)} kg/m)`,
-      massaKg: calcularMassaCaboIcamento(comprimentoCaboPendenteM, p.cabo.numeroDePernas, p.cabo.massaLinearKgM),
+      massaKg: calcularMassaCaboIcamento(comprimentoCaboPendenteM, pernas, p.cabo.massaLinearKgM),
       origem: 'calculado',
     })
+  } else if (p.cabo.massaLinearKgM !== null) {
+    // Sem o nº de pernas não há como calcular a massa do cabo (o motivo já foi registrado acima).
   } else {
     motivos.push('Massa linear do cabo de içamento não informada (não consta nas fichas) — informe ou sobrescreva a massa do cabo.')
   }
@@ -252,14 +259,16 @@ export function avaliarCenario(p: ParametrosDoCenario, ctx: ContextoDoGuindaste)
     })
   }
 
-  const cargaPorPernaKg = esp.cabo.cargaMaximaPorPernaKg.valor
-  const limitePernasKg = cargaPorPernaKg * p.cabo.numeroDePernas
-  verificacoes.push({
-    id: 'carga_por_perna',
-    descricao: `Somatório ≤ nº de pernas × ${formatarNumero(cargaPorPernaKg, 0)} kg por perna (ficha)`,
-    aprovada: totalKg <= limitePernasKg,
-    detalhe: `${formatarNumero(totalKg, 0)} kg de ${formatarNumero(limitePernasKg, 0)} kg (${p.cabo.numeroDePernas} perna(s))`,
-  })
+  if (pernas !== null) {
+    const cargaPorPernaKg = esp.cabo.cargaMaximaPorPernaKg.valor
+    const limitePernasKg = cargaPorPernaKg * pernas
+    verificacoes.push({
+      id: 'carga_por_perna',
+      descricao: `Somatório ≤ nº de pernas × ${formatarNumero(cargaPorPernaKg, 0)} kg por perna (ficha)`,
+      aprovada: totalKg <= limitePernasKg,
+      detalhe: `${formatarNumero(totalKg, 0)} kg de ${formatarNumero(limitePernasKg, 0)} kg (${pernas} perna(s))`,
+    })
+  }
 
   if (p.alturaIcamentoNecessariaM !== null) {
     const necessariaM = p.alturaIcamentoNecessariaM + p.carga.alturaM + p.acessorios.alturaLingadaM

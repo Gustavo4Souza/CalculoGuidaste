@@ -7,7 +7,7 @@
     "comprimentoMaxM": { "valor": 32.1, "fonte": "ficha p.2 (lança estendida)" },
     "numeroDeSecoes": { "valor": 4, "fonte": "ficha p.2" },
     "anguloMinGraus": { "valor": 0, "fonte": "ficha p.4 (gráfico de alcance)" },
-    "anguloMaxGraus": { "valor": 85, "fonte": "aproximado" },
+    "anguloMaxGraus": { "valor": 85, "fonte": "ficha p.4 (diagrama de alcance, 85°)" },
     "alturaPeM": { "valor": 3.0, "fonte": "planilha (Altura do pé da lança)" },
     "recuoPeM": { "valor": 1.4, "fonte": "planilha (Recuo do pé da lança)" },
     "pernasPorComprimento": [

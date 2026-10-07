@@ -450,13 +450,13 @@ test('UC02 (TM-130) — arrastar o gancho muda o ângulo e a capacidade vem do d
   await expect(page.locator('.status-chip--semdado')).toContainText('Massa linear do cabo')
 })
 
-test('RF18 — a área de operação é derivada do giro (MD-300L, critério provisório)', async ({ page }) => {
+test('RF18 — a área de operação é derivada do giro (MD-300L, critério ±55° confirmado)', async ({ page }) => {
   await page.goto('/')
 
   // Estado inicial: 17,70 m, raio 8 m, giro 0° → frontal, 7.500 kg (ponto exato).
   await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
   await expect(page.getByTestId('regiao-derivada')).toContainText('área frontal')
-  await expect(page.locator('.barra-status .selo-provisorio')).toHaveText('Critério de giro provisório')
+  await expect(page.locator('.barra-status .selo-provisorio')).toHaveCount(0)
 
   await page.getByLabel('Giro da superestrutura (°)').fill('90')
   await expect(page.getByTestId('regiao-derivada')).toContainText('áreas lateral e traseira')

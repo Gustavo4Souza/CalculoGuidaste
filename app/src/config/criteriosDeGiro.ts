@@ -25,19 +25,21 @@ export interface CriterioDeGiro {
   referencia: string
   setores: SetorDeGiro[]
   justificativa: string
+  /** Ressalva que vai para o relatório (ex.: convenção do simulador que a ficha não declara). */
+  aviso?: string
 }
 
-export const VERSAO_CRITERIO_GIRO = '2026-10-05-provisorio-1'
+export const VERSAO_CRITERIO_GIRO = '2026-10-06-1'
 
 export const CRITERIOS_DE_GIRO: Record<string, CriterioDeGiro> = {
-  // PROVISÓRIO — aguardando confirmação (Gustavo/Ribas).
+  // CONFIRMADO em 06/10/2026 (docs/documento_tecnico_MD300L_TM130.docx, item 1).
   // Base: Figuras A/B de docs/Informações gerais - içamento.xlsx (as células
   // "#VALUE!" são imagens embutidas na célula) e os mesmos desenhos na p.3
   // de docs/Tabela Guindaste MD-300L.pdf: setor FRONTAL de 110° (vértice no
   // centro de giro, simétrico ao eixo do caminhão, voltado para a cabine) e
   // setor LATERAL + TRASEIRO de 250°. 110° / 2 = ±55°.
   'MD-300L': {
-    provisorio: true,
+    provisorio: false,
     referencia: '0° = frente do caminhão (lado da cabine)',
     setores: [
       { regiao: 'frontal', ateGraus: 55 },
@@ -48,15 +50,20 @@ export const CRITERIOS_DE_GIRO: Record<string, CriterioDeGiro> = {
   },
   // Da ficha (não provisório): diagrama polar da p.2 de docs/TM_130.pdf —
   // Zona I 0°~16° e Zona II 16°~60°, simétricas; giro total de 120° (±60°,
-  // limite mecânico em data/especificacoes/tm-130.json). Ressalva: "0° = eixo
-  // traseiro" é leitura do gráfico de alcance e da vista superior da ficha.
+  // limite mecânico em data/especificacoes/tm-130.json). As zonas são medidas
+  // a partir do 0° do PRÓPRIO diagrama, então a capacidade não depende da
+  // direção do caminhão. "0° = traseira" é CONVENÇÃO DO SIMULADOR para o
+  // desenho 3D: a ficha não declara (documento técnico de 06/10/2026, item 2).
   'TM-130': {
     provisorio: false,
-    referencia: '0° = traseira do caminhão (eixo longitudinal)',
+    referencia: '0° = eixo do diagrama polar (desenhado para a traseira do caminhão — convenção do simulador)',
     setores: [
       { regiao: 'I', ateGraus: 16 },
       { regiao: 'II', ateGraus: 60 },
     ],
     justificativa: 'Zonas I (0°~16°) e II (16°~60°) do diagrama polar da ficha do TM-130 (p.2).',
+    aviso:
+      'TM-130: as zonas I/II são medidas a partir do 0° do diagrama polar da ficha; a ficha não indica para que lado do caminhão ' +
+      'esse 0° aponta — o desenho 3D usa a traseira por convenção. Confira a orientação no equipamento antes da operação.',
   },
 }

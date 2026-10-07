@@ -141,7 +141,7 @@ function linhasDeParametros(p: ParametrosDoCenario, a: AvaliacaoDoCenario): Linh
     const naMaxima = Math.abs(p.sapatas[pos] - par.estendidaM.valor) < 1e-3
     add('Sapatas', ROTULO_SAPATA[pos], `${m(p.sapatas[pos])}${naMaxima ? ' (extensão máxima)' : ' (extensão parcial)'}`)
   }
-  add('Cabo e moitão', 'Nº de pernas do cabo', String(p.cabo.numeroDePernas))
+  add('Cabo e moitão', 'Nº de pernas do cabo', opcional(p.cabo.numeroDePernas, String))
   add('Cabo e moitão', 'Massa linear do cabo', opcional(p.cabo.massaLinearKgM, (v) => `${numero(v, 3)} kg/m`))
   add('Cabo e moitão', 'Massa do cabo (valor manual)', opcional(p.cabo.massaSobrescritaKg, kg, 'cálculo automático'))
   add('Cabo e moitão', 'Comprimento de cabo pendente por perna', m(a.geometria.comprimentoCaboPendenteM))
@@ -188,6 +188,7 @@ export function montarModeloCenario(parametros: ParametrosDoCenario, nome: strin
       `Critério de giro provisório (${ctx.criterioDeGiro.justificativa}) — aguardando confirmação; a área de operação pode mudar.`,
     )
   }
+  if (ctx.criterioDeGiro.aviso) avisos.push(ctx.criterioDeGiro.aviso)
   if (!salvo) avisos.push('Cenário não salvo em um orçamento no momento da emissão.')
 
   return {

@@ -122,9 +122,10 @@ export const useSimulacaoStore = create<SimulacaoState>((set, get) => {
         c.lanca.comprimentoM = limitar(comprimentoM, esp.lanca.comprimentoMinM.valor, esp.lanca.comprimentoMaxM.valor)
         // A passagem de cabo acompanha a tabela enquanto o engenheiro não a
         // tiver mudado à mão (pernas = o que a tabela previa antes).
-        if (!c.jib.ativo && pernasPrevistasPelaTabela(esp, anterior).includes(c.cabo.numeroDePernas)) {
+        const pernasAtuais = c.cabo.numeroDePernas
+        if (!c.jib.ativo && pernasAtuais !== null && pernasPrevistasPelaTabela(esp, anterior).includes(pernasAtuais)) {
           const novas = pernasPrevistasPelaTabela(esp, c.lanca.comprimentoM)
-          if (novas.length > 0 && !novas.includes(c.cabo.numeroDePernas)) c.cabo.numeroDePernas = novas[0]
+          if (novas.length > 0 && !novas.includes(pernasAtuais)) c.cabo.numeroDePernas = novas[0]
         }
       }),
 

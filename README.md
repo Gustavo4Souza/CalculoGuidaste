@@ -14,7 +14,7 @@ Ferramenta gráfica e interativa que substitui o cruzamento manual de tabelas de
 Código versionado em: **https://github.com/Gustavo4Souza/CalculoGuidaste**. O código de produção fica na pasta `app/` (React + TypeScript + Vite) — ver `app/README.md`. Desenvolvendo com Claude Code? Leia o `CLAUDE.md` na raiz primeiro.
 
 ## Documentos
-
+cd 
 1. [ARQUITETURA.md](./ARQUITETURA.md) — decisão de arquitetura (Web App), stack tecnológica e decisões de UI/UX.
 2. [REQUISITOS_TECNICOS.md](./REQUISITOS_TECNICOS.md) — requisitos funcionais RF01–RF15, requisitos técnicos por módulo e modelo de dados (duas variantes de tabela de carga).
 3. [BACKLOG.md](./BACKLOG.md) — backlog priorizado em sprints, critérios de aceite e próximos passos imediatos.

@@ -471,6 +471,23 @@ Substitui o tema escuro/HUD do Épico 8 (RF23).
 
 ---
 
+## Respostas da Ribas — documento técnico ✅ Aplicadas (06/10/2026)
+
+O Gustavo trouxe `docs/documento_tecnico_MD300L_TM130.docx` com respostas para as 8 dúvidas. Cada item foi conferido contra as fichas antes de entrar no código.
+
+| # | Dúvida | Resposta do documento | O que mudou |
+|---|---|---|---|
+| 1 | Giro frontal do MD-300L | Confirmado: setor de 110° = ±55° | `criteriosDeGiro.ts`: `provisorio: false`, `VERSAO_CRITERIO_GIRO = '2026-10-06-1'`. Selo provisório some da UI/PDF (o mecanismo fica para critérios futuros). |
+| 2 | 0° do TM-130 = traseira? | Pendente: a ficha não declara | Não bloqueia: as zonas são medidas a partir do 0° do próprio diagrama polar, então a capacidade não depende da direção do caminhão. Texto de referência agora diz "convenção do simulador" e o relatório leva um aviso (campo `aviso` do critério). |
+| 3 | TM-130 tem JIB? | Pendente | Segue desligado (`possuiJIB = false`). |
+| 4 | Ângulo máximo do MD-300L | 85°, do desenho (p.4) | `md-300l.json`: fonte "ficha p.4" — sai o selo ≈. |
+| 5 | Massa linear do cabo 5/8" | Não consta → sem dado | Já era o comportamento (campo vazio → sem dado). |
+| 6 | Nº de pernas do TM-130 | Não consta; não deduzir pelas 3 roldanas | **Defeito corrigido**: o cenário inicial do TM-130 usava 1 perna. `cabo.numeroDePernas` passou a `number \| null`; vazio → motivo "Nº de pernas do cabo não informado", sem massa do cabo calculada e sem verificação por perna. Campo da árvore aceita limpar; importação aceita `null`. |
+| 7 | Medidas dos desenhos | Há cotas, mas não todas | Já separado: cada valor de `especificacoes/*.json` tem `fonte`; o que não está cotado segue "aproximado" (≈). |
+| 8 | JIB 20 m/25° — erro de impressão? | "350 kg a 26 m e 200 kg a 28 m" | **Não aplicado.** Conferido de novo no PDF escaneado: na tabela **lateral/traseira** (a que temos), 20 m/25° = 100 kg a 26 m e 350 kg a 28 m (como impresso); 350 kg a 26 m é da tabela **frontal**, e nenhuma das duas tem 200 kg a 28 m. Os dados ficam como estão. |
+
+Testes novos: TM-130 com nº de pernas vazio → sem dado sem verificação por perna; massa linear informada sem nº de pernas não gera item de cabo; relatório marca ≈ no comprimento do TM-130, "não informado" nas pernas e o aviso do 0°. **152 unitários + 22 e2e** (e2e 2x seguidas), `tsc -b`, `npm run build` e `oxlint` (só os avisos antigos).
+
 ## Status resumido
 
 | Épico | Status |

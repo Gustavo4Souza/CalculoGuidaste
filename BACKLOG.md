@@ -182,6 +182,17 @@ O Épico 0 (fundamentos, decisão de arquitetura, documentação inicial e POC) 
 
 **Pronto quando**: o engenheiro exporta um PDF do cenário ou do orçamento inteiro com tudo o que o RF26 pede. ✅ Atingido: 139 unitários + 22 e2e (44/44 em execução repetida).
 
+## Respostas da Ribas (documento técnico) ✅ (06/10/2026)
+
+| ID | Item | Prioridade | Referência |
+|----|------|-----------|-----------|
+| R-01 | ✅ Critério ±55° do MD-300L confirmado (sem selo provisório) | Alta | RF18 |
+| R-02 | ✅ Ângulo máximo do MD-300L = 85° da ficha (sem ≈) | Média | RF16 |
+| R-03 | ✅ Nº de pernas do cabo pode ficar vazio; TM-130 começa vazio → sem dado | Alta | RF17/RF20 |
+| R-04 | ✅ Aviso no relatório: direção do 0° do TM-130 é convenção do simulador | Média | RF18/RF26 |
+| R-05 | ✅ JIB 20 m/25° conferido no PDF — documento errado, dados mantidos | Média | RF12 |
+| R-06 | ⬜ Ainda com a Ribas: direção do 0° do TM-130, JIB do TM-130, massa linear do cabo, nº de pernas do TM-130 | — | — |
+
 ## Backlog futuro (Épico 6, opcional — se sobrar tempo)
 
 - Tela simples de Administrador para cadastro/edição de guindastes e tabelas (RF13).

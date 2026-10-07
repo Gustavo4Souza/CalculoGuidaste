@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { parametrosIniciais } from '../store/parametrosIniciais'
 import { CATALOGO, VERSAO_TABELAS } from '../data/catalogo'
 import type { ParametrosDoCenario } from '../types/cenario'
 import { avaliarCenario, calcularMassaCaboIcamento, pernasPrevistasPelaTabela } from './avaliarCenario'
@@ -64,7 +65,7 @@ describe('avaliarCenario — MD-300L, lança principal (valores reais de md-300l
       { tabela: 'Lança principal — área frontal', chaves: { comprimentoLancaM: 17.7, raioM: 8 }, capacidadeKg: 7500 },
     ])
     expect(r.status).toBe('ok')
-    expect(r.giro.criterioProvisorio).toBe(true)
+    expect(r.giro.criterioProvisorio).toBe(false) // ±55° confirmado em 06/10/2026
   })
 
   it('giro de 90° deriva a área lateral/traseira → 10.500 kg (mesma lança, mesmo raio)', () => {
@@ -325,6 +326,24 @@ describe('avaliarCenario — TM-130', () => {
     const r = avaliarCenario(p, TM)
     expect(r.status).toBe('nok')
     expect(r.verificacoes.find((v) => v.id === 'carga_por_perna')?.aprovada).toBe(false)
+  })
+
+  it('nº de pernas vazio (a ficha não informa a passagem de cabo) → sem dado, sem verificação por perna', () => {
+    const p = parametrosIniciais(TM) // a tabela cobre o ponto inicial; o que falta é o nº de pernas
+    expect(p.cabo.numeroDePernas).toBeNull()
+    p.cabo.massaSobrescritaKg = 0
+    p.moitao.massaKg = 150
+    const r = avaliarCenario(p, TM)
+    expect(r.status).toBe('sem_dado')
+    expect(r.motivosSemDado.join(' ')).toContain('Nº de pernas do cabo não informado')
+    expect(r.verificacoes.some((v) => v.id === 'carga_por_perna')).toBe(false)
+  })
+
+  it('nº de pernas vazio com massa linear informada: o cabo não é calculado (não se inventa a passagem)', () => {
+    const p = parametrosTM({ cabo: { numeroDePernas: null, massaLinearKgM: 1, massaSobrescritaKg: null } })
+    const r = avaliarCenario(p, TM)
+    expect(r.somatorio.itens.some((i) => i.descricao.startsWith('Cabo de içamento'))).toBe(false)
+    expect(r.status).toBe('sem_dado')
   })
 })
 

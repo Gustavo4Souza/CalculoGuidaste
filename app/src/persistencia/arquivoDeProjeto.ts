@@ -51,7 +51,6 @@ const CAMPOS_NUMERICOS_DO_CENARIO = [
   'sapatas.dianteira_direita',
   'sapatas.traseira_esquerda',
   'sapatas.traseira_direita',
-  'cabo.numeroDePernas',
   'carga.pesoKg',
   'carga.comprimentoM',
   'carga.larguraM',
@@ -110,6 +109,9 @@ export function validarArquivoDeProjeto(bruto: unknown, guindastesConhecidos: re
       `Cenário "${c.nome}": guindaste "${String(guindasteId)}" não faz parte da frota (${guindastesConhecidos.join(', ')}).`,
     )
     for (const caminho of CAMPOS_NUMERICOS_DO_CENARIO) numero(ler(c.parametros, caminho), `${c.nome} → ${caminho}`)
+    // Nº de pernas: número ou null ("não informado") — desde 06/10/2026.
+    const pernas = ler(c.parametros, 'cabo.numeroDePernas')
+    if (pernas !== null) numero(pernas, `${c.nome} → cabo.numeroDePernas`)
   }
 
   return arquivo as unknown as ArquivoDeProjeto

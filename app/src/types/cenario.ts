@@ -46,7 +46,8 @@ export interface ParametrosDoCenario {
   sapatas: Record<PosicaoSapata, number>
 
   cabo: {
-    numeroDePernas: number
+    /** null = não informado (a ficha do TM-130 não traz a passagem de cabo) → "sem dado". */
+    numeroDePernas: number | null
     /** Massa linear do cabo de içamento, kg/m — não consta nas fichas; null = não informada. */
     massaLinearKgM: number | null
     /** Sobrescrita manual da massa do cabo de içamento (null = usar o cálculo automático). */

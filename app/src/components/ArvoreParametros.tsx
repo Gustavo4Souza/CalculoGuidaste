@@ -205,7 +205,7 @@ export function ArvoreParametros() {
       <No
         titulo="Cabo e moitão"
         icone="⚓"
-        resumo={`${cenario.cabo.numeroDePernas} perna(s)${itemCabo ? ` · cabo ${Math.round(itemCabo.massaKg)} kg` : ' · cabo sem massa'}`}
+        resumo={`${cenario.cabo.numeroDePernas ?? '?'} perna(s)${itemCabo ? ` · cabo ${Math.round(itemCabo.massaKg)} kg` : ' · cabo sem massa'}`}
       >
         <CampoParametro
           rotulo="Nº de pernas do cabo"
@@ -213,6 +213,7 @@ export function ArvoreParametros() {
           casas={0}
           valor={cenario.cabo.numeroDePernas}
           aoMudar={(v) => atualizar((c) => void (c.cabo.numeroDePernas = Math.max(1, Math.round(v))))}
+          aoLimpar={() => atualizar((c) => void (c.cabo.numeroDePernas = null))}
           min={1}
           dica={pernasTabela.length > 0 ? `a tabela prevê ${pernasTabela.join(' ou ')}` : 'não consta na ficha'}
         />

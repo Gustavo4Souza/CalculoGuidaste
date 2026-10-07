@@ -47,8 +47,9 @@ export function parametrosIniciais(ctx: ContextoDoGuindaste): ParametrosDoCenari
       traseira_direita: esp.sapatas.traseiras.estendidaM.valor,
     },
     cabo: {
-      // TM-130: a ficha não informa a passagem de cabo — 1 perna até o engenheiro informar.
-      numeroDePernas: pernas[0] ?? 1,
+      // MD-300L: a passagem que a tabela prevê para o comprimento. TM-130: a ficha não informa
+      // (e o nº de roldanas NÃO vale como nº de pernas) → vazio, "sem dado" até o engenheiro informar.
+      numeroDePernas: pernas[0] ?? null,
       massaLinearKgM: null,
       massaSobrescritaKg: null,
     },

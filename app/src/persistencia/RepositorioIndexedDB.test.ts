@@ -50,7 +50,7 @@ describe('RepositorioIndexedDB — projetos, orçamentos e cenários (Épico 15)
     expect(lido?.resultado.status).toBe('ok')
     expect(lido?.versaoTabelas).toBe(VERSAO_TABELAS)
     expect(lido?.versaoCriterioGiro).toBe(VERSAO_CRITERIO_GIRO)
-    expect(lido?.criterioGiroProvisorio).toBe(true)
+    expect(lido?.criterioGiroProvisorio).toBe(false)
     expect(versoesDiferentes(lido!)).toEqual({ tabelas: false, criterioGiro: false })
   })
 

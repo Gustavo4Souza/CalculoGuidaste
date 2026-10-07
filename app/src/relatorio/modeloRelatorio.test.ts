@@ -47,7 +47,7 @@ describe('montarRelatorioCenario (Épico 16, RF26) — valores reais', () => {
       versaoCriterioGiro: expect.any(String),
     })
     expect(r.avisoValidacao).toBe(AVISO_VALIDACAO)
-    expect(r.criterioGiroProvisorio).toBe(true) // MD-300L: ±55° provisório → selo
+    expect(r.criterioGiroProvisorio).toBe(false) // MD-300L: ±55° confirmado em 06/10/2026 → sem selo
   })
 
   it('ponto exato: 7.500 kg, origem "ponto exato", status OK, somatório item a item', () => {
@@ -94,9 +94,14 @@ describe('montarRelatorioCenario (Épico 16, RF26) — valores reais', () => {
     expect(c.parametros).toContainEqual({ grupo: 'Sapatas', rotulo: 'Sapata traseira esquerda', valor: '2,00 m (extensão parcial)', aproximado: false })
   })
 
-  it('marca com ≈ os parâmetros cujo limite vem de valor aproximado (ângulo máximo do MD-300L)', () => {
-    const [c] = montarRelatorioCenario({ parametros: parametros(), nome: 'x', agora: AGORA }).cenarios
-    expect(c.parametros.find((p) => p.rotulo.startsWith('Ângulo da lança'))?.aproximado).toBe(true)
+  it('marca com ≈ os parâmetros cujo limite vem de valor aproximado (comprimento máximo do TM-130)', () => {
+    const [md] = montarRelatorioCenario({ parametros: parametros(), nome: 'x', agora: AGORA }).cenarios
+    // 85° do MD-300L passou a vir da ficha (p.4) em 06/10/2026 → sem ≈
+    expect(md.parametros.find((p) => p.rotulo.startsWith('Ângulo da lança'))?.aproximado).toBe(false)
+    const [c] = montarRelatorioCenario({ parametros: parametrosIniciais(CATALOGO['TM-130']), nome: 'x', agora: AGORA }).cenarios
+    expect(c.parametros.find((p) => p.rotulo === 'Comprimento da lança')?.aproximado).toBe(true)
+    expect(c.parametros.find((p) => p.rotulo === 'Nº de pernas do cabo')?.valor).toBe('não informado')
+    expect(c.avisos.join(' ')).toContain('a ficha não indica para que lado do caminhão')
     expect(c.parametros.find((p) => p.rotulo === 'Peso da carga')?.aproximado).toBe(false)
   })
 
