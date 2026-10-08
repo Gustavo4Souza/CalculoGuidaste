@@ -99,7 +99,7 @@ describe('calcularCapacidadeMaxima — MD-300L (variante A)', () => {
 
   // Mais pontos exatos da tabela completa (Task 1.1, digitalizada a partir de
   // docs/Tabelas_Extraidas_Guindaste.xlsx) — cobre o critério de aceite do
-  // BACKLOG.md ("validadas manualmente contra pelo menos 3 pontos de cada
+  // Épico 1, critério de pronto ("validadas manualmente contra pelo menos 3 pontos de cada
   // tabela impressa"), além dos 2 já testados acima (14,10m/6,00m).
   it.each([
     { comprimentoLancaM: 10.5, raioM: 3, quadrante: 'frontal' as const, esperadoKgf: 30000 },

@@ -3,7 +3,7 @@
  * varre a frota inteira e devolve, para cada guindaste capaz de içar esse
  * peso, a configuração mais econômica (lança mais curta / menor ângulo de
  * giro necessário) — inspirado no Liebherr Crane Finder citado em
- * ARQUITETURA.md. A lista final é ordenada por **menor guindaste primeiro**
+ * nota 🗳️ Decisões e Configuração. A lista final é ordenada por **menor guindaste primeiro**
  * (`capacidadeNominalKg`), nunca pelo maior — regra de negócio RF15.
  */
 import type {

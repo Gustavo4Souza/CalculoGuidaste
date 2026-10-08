@@ -69,10 +69,10 @@ export const AVISO_VALIDACAO =
   'tabela do fabricante cobre a configuração; valores interpolados são sempre arredondados para baixo.'
 
 export const ROTULO_STATUS: Record<StatusDoCenario, string> = {
-  ok: 'OK — dentro do limite',
-  atencao: 'ATENÇÃO — acima do limite definido pelo engenheiro',
-  nok: 'NOK — operação reprovada',
-  sem_dado: 'SEM DADO DO FABRICANTE — operação não validada',
+  ok: 'OPERAÇÃO APROVADA — dentro do limite',
+  atencao: 'APROVADA COM ATENÇÃO — acima do limite definido pelo engenheiro',
+  nok: 'OPERAÇÃO REPROVADA',
+  sem_dado: 'OPERAÇÃO NÃO VALIDADA — sem dado do fabricante',
 }
 
 // ------------------------------------------------------------- formatação

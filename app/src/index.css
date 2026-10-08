@@ -1,48 +1,73 @@
 :root {
   /*
-   * Épico 12 (RF23) — tema claro inspirado na interface do SolidWorks
-   * (substitui o painel industrial escuro do Épico 8, a pedido do Gustavo):
-   * fundo cinza claro, painéis brancos, acento azul de seleção e cores de
-   * status reservadas só para o resultado. Paleta fixa da ferramenta (não
-   * depende de `prefers-color-scheme`).
+   * Épico 17 (RF23) — paleta no padrão do SolidWorks: janela cinza neutra,
+   * painéis quase brancos, azul de seleção, texto escuro e denso. A cor
+   * forte fica reservada ao STATUS do resultado (aprovada / atenção /
+   * reprovada / não validada), para o engenheiro não confundir decoração
+   * com informação. Paleta fixa (não depende de `prefers-color-scheme`).
    */
-  --bg: #e6e9ed;
-  --bg-barra: #f4f6f8;
-  --bg-painel: #fbfcfd;
+  --janela: #e4e6e9;
+  --barra-titulo: #f6f7f8;
+  --cm-fundo: #fbfbfc;
+  --painel: #fbfbfc;
+  --painel-cabecalho: #eef0f2;
   --bg-campo: #ffffff;
-  --bg-cabecalho: #dde2e8;
-  --border: #c9d0d8;
-  --border-forte: #a9b3bf;
-  --text: #2b3540;
-  --text-h: #111a24;
-  --text-fraco: #5d6976;
+  --border: #d3d7dc;
+  --border-forte: #aab2bc;
+  --text: #1f2933;
+  --text-h: #10171f;
+  --text-fraco: #5b6672;
 
-  /* Acento de seleção/foco (azul CAD). */
-  --accent: #1f5fbf;
-  --accent-claro: #dce8f8;
+  /* Azul de seleção/foco (como a seleção do SolidWorks). */
+  --accent: #0a64c8;
+  --accent-claro: #e1effc;
+  --accent-borda: #8cc0ef;
   --accent-texto: #ffffff;
 
-  /* Status do resultado — só para OK / Atenção / NOK / Sem dado. */
+  /* Caixa "Mensagem" do PropertyManager. */
+  --mensagem: #fffbe0;
+  --mensagem-borda: #e6d77a;
+
+  /* Status do resultado — só para Aprovada / Atenção / Reprovada / Não validada. */
   --ok: #1e8e3e;
+  --ok-claro: #e7f4ea;
   --atencao: #c77700;
+  --atencao-claro: #fff4e0;
   --nok: #c62828;
-  --semdado: #6b7680;
-  /* Nomes antigos, usados por componentes existentes (MedidorCapacidade). */
+  --nok-claro: #fdeaea;
+  --semdado: #5f6b77;
+  --semdado-claro: #eef0f2;
+
+  /* Nomes antigos, ainda usados por diálogos e componentes existentes. */
+  --bg: var(--janela);
+  --bg-barra: var(--barra-titulo);
+  --bg-painel: var(--painel);
+  --bg-cabecalho: var(--painel-cabecalho);
   --sucesso: var(--ok);
   --aviso: var(--atencao);
   --perigo: var(--nok);
 
-  --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
-  --mono: 'Cascadia Code', ui-monospace, Consolas, monospace;
+  --sans: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --mono: 'Cascadia Mono', 'Cascadia Code', ui-monospace, Consolas, monospace;
 
-  font: 14px/1.4 var(--sans);
+  font: 13px/1.4 var(--sans);
   color-scheme: light;
   color: var(--text);
-  background: var(--bg);
+  background: var(--janela);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Texto só para leitores de tela (o ícone de estado tem o significado escrito). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* Tela inteira sem scroll de página (Épico 7); painéis internos rolam sozinhos. */

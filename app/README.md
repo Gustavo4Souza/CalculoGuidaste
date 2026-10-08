@@ -1,6 +1,6 @@
 # App — Guindastes Ribas (Simulador de Tabela de Carga)
 
-Código do simulador (React + TypeScript + Vite). A documentação do projeto — contexto, requisitos RF01–RF15, modelo de dados, arquitetura e roadmap — está na raiz do repositório (`../README.md`, `../ARQUITETURA.md`, `../REQUISITOS_TECNICOS.md`, `../BACKLOG.md`, `../ROADMAP.md`) e na [página do Notion](https://app.notion.com/p/3da034f53a1280df8666fc97c0590e38) (fonte de verdade).
+Código do simulador (React + TypeScript + Vite). A documentação do projeto — contexto, requisitos RF01–RF26, modelo de dados, arquitetura e roadmap — é um cofre do Obsidian na raiz do repositório: comece por `../🗂️ Simulador Guindastes Ribas.md` (o detalhe de cada épico fica em `../Épicos/`).
 
 ## Rodando localmente
 
@@ -35,7 +35,7 @@ src/
 e2e/simulador.spec.ts             smoke test end-to-end (Playwright)
 ```
 
-## Estado atual (ver `../ROADMAP.md` para o roadmap completo)
+## Estado atual (ver `../🗺️ Roadmap.md` e `../Épicos/` para o roadmap completo)
 
 - **Épico 0** (fundamentos, POC): ✅ concluído.
 - **Épico 1** (dados reais em JSON): em andamento — só 2 pontos reais do MD-300L estão digitalizados (`src/data/tabelas/README.md` explica o que falta).

@@ -3,7 +3,7 @@
  * documentação no Notion (fonte de verdade):
  * https://app.notion.com/p/3da034f53a1280df8666fc97c0590e38
  *
- * Ver também: ../../REQUISITOS_TECNICOS.md (raiz do repo) para o detalhamento
+ * Ver também: a nota 📐 Requisitos / 🗄️ Modelo de Dados (raiz do repo) para o detalhamento
  * de cada campo e os exemplos em JSON.
  */
 

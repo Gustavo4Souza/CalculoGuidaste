@@ -4,7 +4,9 @@ import { useCampoNumericoSincronizado } from './useCampoNumericoSincronizado'
 /**
  * Campo de parâmetro padrão (Épico 11, RF16): todo parâmetro aparece com
  * rótulo, unidade e faixa válida visíveis, e com o selo "≈" quando o valor
- * de referência NÃO vem das fichas técnicas (fonte "aproximado").
+ * de referência NÃO vem das fichas técnicas (fonte "aproximado"). Épico 17:
+ * a unidade fica colada ao valor (caixa de valor do PropertyManager) e um
+ * campo obrigatório vazio fica destacado.
  *
  * Usa `type="text" inputMode="decimal"` (não `type="number"`) pelo mesmo
  * motivo dos campos embutidos na cena (Task 9.2): o navegador sanitiza
@@ -55,17 +57,22 @@ export function CampoParametro({
           </span>
         )}
       </label>
-      <input
-        id={id}
-        type="text"
-        inputMode="decimal"
-        value={campo.texto}
-        placeholder={aoLimpar ? 'não informado' : undefined}
-        disabled={desabilitado}
-        onFocus={campo.onFocus}
-        onBlur={campo.onBlur}
-        onChange={campo.onChange}
-      />
+      <div className={`campo-parametro__caixa ${campo.texto === '' && aoLimpar ? 'campo-parametro__caixa--vazia' : ''}`}>
+        <input
+          id={id}
+          type="text"
+          inputMode="decimal"
+          value={campo.texto}
+          placeholder={aoLimpar ? 'não informado' : undefined}
+          disabled={desabilitado}
+          onFocus={campo.onFocus}
+          onBlur={campo.onBlur}
+          onChange={campo.onChange}
+        />
+        <span className="campo-parametro__unidade" aria-hidden="true">
+          {unidade}
+        </span>
+      </div>
       {(faixa || dica) && (
         <span className="campo-parametro__faixa">
           {faixa && <>faixa {faixa}</>}

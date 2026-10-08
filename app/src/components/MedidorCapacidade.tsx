@@ -1,14 +1,13 @@
+import { formatarPercentual } from '../store/useInterfaceStore'
+
 /**
- * Task 8.1 — indicador de resultado redesenhado como "instrumento" (barra
- * de limite), no lugar de só um número solto. Mostra o somatório de cargas
- * como % da capacidade máxima, com uma marca no ponto de 100% — a mesma
- * lógica de status do IndicadorStatus.tsx (verde/âmbar/vermelho), só que
- * em forma de mostrador, mais perto da leitura de um painel real de
- * guindaste do que de um card de dashboard corporativo.
+ * Medidor de utilização (Task 8.1 → Épico 17): o somatório de cargas como %
+ * da capacidade da tabela, com as marcas de 100% (limite do fabricante) e
+ * do limite do engenheiro (RF21), cada uma com rótulo — o engenheiro lê o
+ * que cada marca significa, sem precisar adivinhar.
  *
- * A barra satura visualmente em 150% da capacidade — acima disso, o
- * excedente real (mostrado em texto) importa mais do que a posição exata
- * do preenchimento.
+ * A barra satura em 150%: acima disso, o excedente (no texto) importa mais
+ * do que a posição exata do preenchimento.
  */
 const LIMITE_VISUAL_PERCENTUAL = 150
 
@@ -19,43 +18,40 @@ export function MedidorCapacidade({
 }: {
   capacidadeMaximaKg: number
   somatorioDeCargasKg: number
-  /** Épico 11 (RF21) — limite definido pelo engenheiro, marcado no trilho quando < 100%. */
   limiteUtilizacaoPercentual?: number
 }) {
   if (capacidadeMaximaKg <= 0) return null
 
   const percentualUsado = (somatorioDeCargasKg / capacidadeMaximaKg) * 100
-  const larguraPreenchimento = Math.min(percentualUsado, LIMITE_VISUAL_PERCENTUAL)
-  const marca100Posicao = (100 / LIMITE_VISUAL_PERCENTUAL) * 100
-
+  const posicao = (pct: number) => `${(Math.min(pct, LIMITE_VISUAL_PERCENTUAL) / LIMITE_VISUAL_PERCENTUAL) * 100}%`
   const cor =
-    percentualUsado > 100
-      ? 'var(--perigo)'
-      : percentualUsado > limiteUtilizacaoPercentual
-        ? 'var(--aviso)'
-        : 'var(--sucesso)'
+    percentualUsado > 100 ? 'var(--nok)' : percentualUsado > limiteUtilizacaoPercentual ? 'var(--atencao)' : 'var(--ok)'
 
   return (
-    <div className="medidor">
+    <figure className="medidor" aria-label={`Utilização de ${formatarPercentual(percentualUsado)} da capacidade da tabela`}>
+      <figcaption className="medidor__titulo">
+        <span>Utilização da capacidade</span>
+        <strong>{formatarPercentual(percentualUsado)}</strong>
+      </figcaption>
       <div className="medidor__trilho">
-        <div
-          className="medidor__preenchimento"
-          style={{ width: `${(larguraPreenchimento / LIMITE_VISUAL_PERCENTUAL) * 100}%`, background: cor }}
-        />
-        <div className="medidor__marca-100" style={{ left: `${marca100Posicao}%` }} />
+        <div className="medidor__preenchimento" style={{ width: posicao(percentualUsado), background: cor }} />
+        <div className="medidor__marca medidor__marca--fabricante" style={{ left: posicao(100) }} />
         {limiteUtilizacaoPercentual < 100 && (
-          <div
-            className="medidor__marca-limite"
-            title={`Limite do engenheiro: ${limiteUtilizacaoPercentual}%`}
-            style={{ left: `${(limiteUtilizacaoPercentual / LIMITE_VISUAL_PERCENTUAL) * 100}%` }}
-          />
+          <div className="medidor__marca medidor__marca--engenheiro" style={{ left: posicao(limiteUtilizacaoPercentual) }} />
         )}
       </div>
-      <div className="medidor__legenda">
+      <div className="medidor__escala">
         <span>0%</span>
-        <span>{percentualUsado.toFixed(0)}% da capacidade</span>
+        {limiteUtilizacaoPercentual < 100 && (
+          <span className="medidor__rotulo-marca medidor__rotulo-marca--engenheiro" style={{ left: posicao(limiteUtilizacaoPercentual) }}>
+            engenheiro {limiteUtilizacaoPercentual}%
+          </span>
+        )}
+        <span className="medidor__rotulo-marca" style={{ left: posicao(100) }}>
+          tabela 100%
+        </span>
         <span>{LIMITE_VISUAL_PERCENTUAL}%</span>
       </div>
-    </div>
+    </figure>
   )
 }

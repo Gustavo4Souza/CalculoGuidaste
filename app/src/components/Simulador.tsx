@@ -1,10 +1,11 @@
-import { useInterfaceStore, type VistaPadrao } from '../store/useInterfaceStore'
+import { useInterfaceStore } from '../store/useInterfaceStore'
 import { useSimulacaoStore } from '../store/useSimulacaoStore'
-import { ArvoreParametros } from './ArvoreParametros'
 import { CenaGuindaste3D } from './CenaGuindaste3D'
 import { LimiteDeErro } from './LimiteDeErro'
+import { BarraDeVista } from './cena/BarraDeVista'
 import { LegendaMapa } from './cena/LegendaMapa'
 import { useMapaAreaOperacao } from './cena/useMapaAreaOperacao'
+import { PainelGerenciador } from './gerenciador/PainelGerenciador'
 import { PainelResultado } from './PainelResultado'
 import { CenarioAberto } from './projetos/CenarioAberto'
 
@@ -17,61 +18,32 @@ const CORES_STATUS: Record<string, string> = {
   sem_dado: '#6b7680',
 }
 
-const VISTAS: { nome: VistaPadrao; rotulo: string }[] = [
-  { nome: 'frontal', rotulo: 'Frontal' },
-  { nome: 'lateral', rotulo: 'Lateral' },
-  { nome: 'superior', rotulo: 'Superior' },
-  { nome: 'isometrica', rotulo: 'Isométrica' },
-]
-
 /**
- * Área de trabalho (Épico 12, RF23) no estilo SolidWorks: árvore de
- * parâmetros à esquerda, viewport 3D no centro (barra de vistas padrão,
- * cubo de orientação e cotas) e o painel de resultado à direita. Tudo lê e
- * escreve no estado único da store (Épico 11).
+ * Área de trabalho (Épico 17, RF23) no padrão do SolidWorks: gerenciador à
+ * esquerda (FeatureManager / PropertyManager), viewport 3D no centro com a
+ * barra de vista e o cubo de orientação, e o painel de tarefas à direita
+ * com o resultado. Tudo lê e escreve no estado único da store (Épico 11).
  */
 export function Simulador() {
   const avaliacao = useSimulacaoStore((s) => s.avaliacao)
   const cenario = useSimulacaoStore((s) => s.cenario)
   const vista = useInterfaceStore((s) => s.vista)
-  const pedirVista = useInterfaceStore((s) => s.pedirVista)
   const mostrarMapa = useInterfaceStore((s) => s.mostrarMapa)
-  const alternarMapa = useInterfaceStore((s) => s.alternarMapa)
   const mapa = useMapaAreaOperacao(cenario)
 
   return (
     <div className="area-trabalho">
-      <ArvoreParametros />
+      <PainelGerenciador />
 
       <section className="viewport" aria-label="Visualização 3D do guindaste">
-        <div className="viewport__vistas" role="toolbar" aria-label="Vistas padrão">
-          {VISTAS.map((v) => (
-            <button
-              key={v.nome}
-              type="button"
-              className={`segmento ${vista.nome === v.nome && vista.pedido > 0 ? 'segmento--ativo' : ''}`}
-              onClick={() => pedirVista(v.nome)}
-            >
-              {v.rotulo}
-            </button>
-          ))}
-          <button
-            type="button"
-            className={`segmento segmento--separado ${mostrarMapa ? 'segmento--ativo' : ''}`}
-            aria-pressed={mostrarMapa}
-            onClick={alternarMapa}
-            title="Mapa da área de operação no chão (RF22)"
-          >
-            Área de operação
-          </button>
-        </div>
-        {/* Um erro na cena 3D não derruba a árvore de parâmetros nem o resultado. */}
+        <BarraDeVista />
+        {/* Um erro na cena 3D não derruba o gerenciador nem o resultado. */}
         <LimiteDeErro onde="a cena 3D" compacto>
           <CenaGuindaste3D corDestaque={CORES_STATUS[avaliacao.status]} vista={vista} mapa={mostrarMapa ? mapa : null} />
         </LimiteDeErro>
       </section>
 
-      <aside className="painel-direito">
+      <aside className="painel-tarefas">
         <CenarioAberto />
         <PainelResultado />
         {/* Legenda do mapa fora da viewport: sobre a cena ela cobria peças arrastáveis (gancho, anel de giro). */}

@@ -93,7 +93,7 @@ export function calcularSomatorioDeCargas(configuracao: ConfiguracaoDeIcamento):
  *
  * `tabelaVarianteA`/`tabelaVarianteB`: passe a tabela já carregada
  * correspondente ao guindaste (ver src/data/tabelas/). Ainda incompletas —
- * ver Épico 1 no ROADMAP.md da raiz do repo.
+ * ver Épicos/Épico 01 na raiz do repo.
  */
 export function calcularCapacidadeMaxima(
   guindaste: Guindaste,

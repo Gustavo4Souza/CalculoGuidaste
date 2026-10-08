@@ -6,7 +6,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { CATALOGO } from '../data/catalogo'
 import { calcularPonta } from '../engine/geometriaLanca'
 import type { MapaAreaOperacao } from '../engine/mapaAreaOperacao'
-import type { VistaPadrao } from '../store/useInterfaceStore'
+import { useInterfaceStore, type VistaPadrao } from '../store/useInterfaceStore'
 import { comprimentosReaisDaTabela, useSimulacaoStore } from '../store/useSimulacaoStore'
 import type { PosicaoSapata } from '../types/cenario'
 import { ehAproximado, type EspecificacaoGuindaste, type ValorComFonte } from '../types/especificacao'
@@ -31,7 +31,6 @@ import {
 import { Sapatas } from './cena/Sapatas'
 import { SegmentoLanca } from './cena/SegmentoLanca'
 import { anguloDoPonto, aplicarSnapComprimento, projetarComprimento } from './geometriaCanvas'
-import { useCampoNumericoSincronizado } from './useCampoNumericoSincronizado'
 
 /**
  * Cena 3D do guindaste (Épico 13 — modelo fiel às fichas e arrasto de todos
@@ -64,10 +63,6 @@ type Arrasto =
   | { tipo: 'raio' }
   | { tipo: 'giro' }
   | { tipo: 'sapata'; posicao: PosicaoSapata }
-
-function semAcao() {
-  /* no-op — hooks precisam de um setter mesmo quando o campo não aparece */
-}
 
 function Chao() {
   return (
@@ -177,14 +172,11 @@ export function CenaGuindaste3D({
     }
   }
 
-  // Campos embutidos na cena (Task 9.2) — hooks rodam sempre (regra dos hooks).
-  const campoComprimento = useCampoNumericoSincronizado(L, usaJIB ? semAcao : definirComprimentoLancaM)
-  const campoRaio = useCampoNumericoSincronizado(avaliacao.geometria.raioM, definirRaioM)
-
-  // Posições de <Html> com input memoizadas por VALOR (Task 9.2: array novo a
-  // cada render remonta o input e perde o foco).
-  const posicaoCampoComprimento = useMemo<[number, number, number]>(() => [L / 2, -1.6, 0], [L])
-  const posicaoCampoPe = useMemo<[number, number, number]>(() => [xPe, alturaPe * 0.35, 0.9], [xPe, alturaPe])
+  // Épico 17 — os campos de digitação soltos na cena (Task 9.2) saíram: duplicavam o
+  // PropertyManager e se sobrepunham às cotas. A digitação fica só no painel; aqui,
+  // só a cota do comprimento (posição memoizada por VALOR, Task 9.2).
+  const mostrarCotas = useInterfaceStore((s) => s.mostrarCotas)
+  const posicaoCotaComprimento = useMemo<[number, number, number]>(() => [L / 2, -1.2, 0], [L])
   const posicaoRotuloJIB = useMemo<[number, number, number]>(
     () => [cenario.jib.comprimentoM / 2, 0.9, 0],
     [cenario.jib.comprimentoM],
@@ -364,50 +356,24 @@ export function CenaGuindaste3D({
               </group>
             )}
 
-            {!usaJIB ? (
-              <Html position={posicaoCampoComprimento} center distanceFactor={22}>
-                <label className="cena-3d__campo">
-                  Comprimento (m)
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={campoComprimento.texto}
-                    onFocus={campoComprimento.onFocus}
-                    onBlur={campoComprimento.onBlur}
-                    onChange={campoComprimento.onChange}
-                  />
-                </label>
-              </Html>
-            ) : (
-              <Html style={SEM_PONTEIRO} position={posicaoCampoComprimento} center distanceFactor={22}>
-                <div className="cena-3d__rotulo">lança principal {L.toFixed(2)} m (exigida pela tabela de JIB)</div>
+            {mostrarCotas && (
+              <Html style={SEM_PONTEIRO} position={posicaoCotaComprimento} center distanceFactor={22} zIndexRange={[20, 0]}>
+                <div className="cena-3d__cota cena-3d__cota--comprimento">
+                  L = {L.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m
+                  {usaJIB ? ' (exigida pelo JIB)' : ''}
+                </div>
               </Html>
             )}
           </group>
 
-          {/* campo do raio de trabalho, no pé da lança (não gira com o ângulo) */}
-          <Html position={posicaoCampoPe} center distanceFactor={22}>
-            <label className="cena-3d__campo">
-              Raio de trabalho (m)
-              <input
-                type="text"
-                inputMode="decimal"
-                value={campoRaio.texto}
-                onFocus={campoRaio.onFocus}
-                onBlur={campoRaio.onBlur}
-                onChange={campoRaio.onChange}
-              />
-            </label>
-          </Html>
-
-          <Cotas
+          {mostrarCotas && <Cotas
             recuoPeM={recuo}
             alturaPeM={alturaPe}
             raioM={avaliacao.geometria.raioM}
             alturaPontaM={avaliacao.geometria.alturaPontaM}
             anguloGraus={theta}
             alturaIcamentoM={cenario.alturaIcamentoNecessariaM}
-          />
+          />}
           <CargaSuspensa
             raioM={avaliacao.geometria.raioM}
             alturaPontaM={avaliacao.geometria.alturaPontaM}

@@ -126,7 +126,7 @@ describe('montarRelatorioOrcamento — comparativo dos cenários', () => {
     expect(r.cenarios).toHaveLength(2)
     expect(r.comparativo?.colunas).toEqual(['Frontal', 'Lateral'])
     expect(r.comparativo?.linhas.find((l) => l.rotulo === 'Capacidade da tabela')?.valores).toEqual(['7.500 kg', '10.500 kg'])
-    expect(r.comparativo?.linhas.find((l) => l.rotulo === 'Status')?.valores).toEqual(['OK', 'OK'])
+    expect(r.comparativo?.linhas.find((l) => l.rotulo === 'Status')?.valores).toEqual(['OPERAÇÃO APROVADA', 'OPERAÇÃO APROVADA'])
   })
 
   it('com um único cenário não há comparativo', () => {

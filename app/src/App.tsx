@@ -1,23 +1,25 @@
 import './App.css'
-import { BarraDeComandos } from './components/BarraDeComandos'
 import { BarraDeStatus } from './components/BarraDeStatus'
 import { DialogoBuscaReversa } from './components/DialogoBuscaReversa'
 import { DialogoComparar } from './components/projetos/DialogoComparar'
 import { DialogoExportarPdf } from './components/projetos/DialogoExportarPdf'
 import { DialogoProjetos } from './components/projetos/DialogoProjetos'
 import { DialogoSalvarCenario } from './components/projetos/DialogoSalvarCenario'
+import { BarraDeTitulo } from './components/shell/BarraDeTitulo'
+import { CommandManager } from './components/shell/CommandManager'
 import { Simulador } from './components/Simulador'
 
 /**
- * Shell da aplicação (Épico 12, RF23) — tela inteira sem scroll, no estilo
- * SolidWorks: barra de comandos no topo, área de trabalho (árvore de
- * parâmetros | viewport 3D | resultado) e barra de status embaixo. A busca
- * reversa por peso (RF05/RF15) abre num diálogo pela barra de comandos.
+ * Shell da aplicação (Épico 17, RF23) — tela inteira sem rolagem, no padrão
+ * do SolidWorks: barra de título (menu Arquivo, acesso rápido, documento
+ * aberto), CommandManager com abas, área de trabalho (gerenciador | viewport
+ * 3D | painel de tarefas) e barra de status embaixo.
  */
 function App() {
   return (
     <div className="app">
-      <BarraDeComandos />
+      <BarraDeTitulo />
+      <CommandManager />
       <main className="app-main">
         <Simulador />
       </main>

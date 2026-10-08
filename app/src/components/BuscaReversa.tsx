@@ -7,7 +7,7 @@ import { GUINDASTES_FORA_DA_BUSCA, useSimulacaoStore } from '../store/useSimulac
  * Busca reversa por peso (Task 3.5 / RF05 / RF15) — a partir de um peso a
  * içar, lista as configurações viáveis de toda a frota, ordenadas por
  * menor guindaste primeiro (RT-MC07), inspirada no Liebherr Crane Finder
- * citado em ARQUITETURA.md.
+ * citado na nota 🗳️ Decisões e Configuração.
  *
  * Épico 12: aberta num diálogo pela barra de comandos (DialogoBuscaReversa).
  */

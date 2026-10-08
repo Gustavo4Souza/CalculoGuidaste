@@ -1,6 +1,6 @@
 # Tabelas de carga (dados reais)
 
-Este é o destino final da digitalização das tabelas dos fabricantes — **Épico 1** do roadmap (`../../../ROADMAP.md`).
+Este é o destino final da digitalização das tabelas dos fabricantes — **Épico 1** do roadmap (`../../../Épicos/Épico 01 — Dados reais dos fabricantes.md`).
 
 - `tabela-carga.schema.json` — schema JSON formal (Task 1.3) que documenta as duas variantes (`comprimento_raio_quadrante` e `zona_angulo`) e a tabela de JIB. Espelha os tipos TypeScript em `../../types/guindaste.ts`, que já implementam a camada de abstração comum consumida pelo motor de cálculo (`../../engine/calcularCapacidadeMaxima.ts`).
 
@@ -23,7 +23,7 @@ Lendo a p.2 de `../../../docs/TM_130.pdf` renderizada em alta resolução, a tab
 
 Digitalização completa das duas zonas de giro (Zona I 0°–16° e Zona II 16°–60°, cada uma com 12 ângulos de lança de 0° a 70°), a partir de `../../../docs/Tabelas_Zonas_Giro.xlsx` — planilha criada por Gustavo diretamente da tabela impressa (`../../../docs/TM_130.pdf`), com uma aba por zona (`Zona_I`, `Zona_II`). Extraído mecanicamente do XML da planilha, mesma técnica usada no MD-300L.
 
-⚠️ **Histórico**: uma tentativa anterior (via extração de texto puro do PDF, que tem células mescladas na ficha técnica original — ver `../../../ROADMAP.md`) tinha inferido os valores de 40°–70° (Zona I) e 60°–70° (Zona II) por dedução, sem confirmação visual das linhas de mesclagem. A planilha confirmou a Zona I certinha, mas corrigiu a Zona II: os ângulos **65° e 70° valem 3.800 kg**, não 3.700 kg como a inferência anterior assumia (o platô de 3.700 kg vai só até 60°).
+⚠️ **Histórico**: uma tentativa anterior (via extração de texto puro do PDF, que tem células mescladas na ficha técnica original — ver `../../../Épicos/Épico 01 — Dados reais dos fabricantes.md`) tinha inferido os valores de 40°–70° (Zona I) e 60°–70° (Zona II) por dedução, sem confirmação visual das linhas de mesclagem. A planilha confirmou a Zona I certinha, mas corrigiu a Zona II: os ângulos **65° e 70° valem 3.800 kg**, não 3.700 kg como a inferência anterior assumia (o platô de 3.700 kg vai só até 60°).
 
 ## `md-300l.json` — variante A (`comprimento_raio_quadrante`) ✅ Completo (13/09/2026)
 

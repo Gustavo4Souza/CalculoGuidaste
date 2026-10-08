@@ -170,12 +170,47 @@ async function moverEArrastarComHover(
   await page.mouse.up()
 }
 
-/** Abre um nó recolhido da árvore de parâmetros (Épico 12), se ainda estiver fechado. */
-async function abrirNo(page: import('@playwright/test').Page, titulo: string) {
-  const no = page.locator('details.arvore__no', { has: page.locator('.arvore__titulo', { hasText: titulo }) })
-  if (!(await no.evaluate((d) => (d as HTMLDetailsElement).open))) {
-    await no.locator('summary').click()
-  }
+
+type Pagina = import('@playwright/test').Page
+
+/**
+ * Épico 17 — os campos ficam no PropertyManager de cada nó da árvore. Volta
+ * para a árvore (o que confirma uma edição aberta, como o ✔ do SolidWorks)
+ * e abre o nó pedido.
+ */
+async function editar(page: Pagina, no: string) {
+  const abaArvore = page.getByRole('tab', { name: 'Árvore' })
+  if ((await abaArvore.getAttribute('aria-selected')) !== 'true') await abaArvore.click()
+  await page.getByRole('navigation', { name: 'Árvore do cenário' }).getByRole('button', { name: no, exact: true }).click()
+  await expect(page.getByRole('region', { name: `Propriedades: ${no}` })).toBeVisible()
+}
+
+/** Campo pelo início do rótulo: o selo "≈" de valor aproximado fica dentro do rótulo. */
+function campo(page: Pagina, rotulo: string) {
+  return page.getByLabel(new RegExp(`^${rotulo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`))
+}
+
+/** Preenche um campo do PropertyManager do nó (abrindo o nó antes). */
+async function preencher(page: Pagina, no: string, rotulo: string, valor: string) {
+  await editar(page, no)
+  const alvo = campo(page, rotulo)
+  await alvo.fill(valor)
+  await alvo.blur()
+}
+
+/** Lê o valor de um campo do PropertyManager do nó. */
+async function ler(page: Pagina, no: string, rotulo: string): Promise<number> {
+  await editar(page, no)
+  return Number(await campo(page, rotulo).inputValue())
+}
+
+const LANCA = 'Comprimento da lança (m)'
+const RAIO = 'Raio de trabalho — do centro de giro (m)'
+
+/** MD-300L com a lança de 14,10 m e o gancho no raio de 4 m (20.000 kg frontal, ponto exato). */
+async function md14m4m(page: Pagina) {
+  await preencher(page, 'Lança', LANCA, '14.1')
+  await preencher(page, 'Lança', RAIO, '4')
 }
 
 // Smoke test — confirma que a tela de simulação carrega e reage a uma
@@ -188,15 +223,38 @@ test('carrega a tela de simulação e calcula a capacidade para uma configuraç�
   await expect(page.getByRole('heading', { name: /Guindastes Ribas/i })).toBeVisible()
   await expect(page.getByText('Simulador de Tabela de Carga')).toBeVisible()
 
-  await page.getByLabel('Comprimento (m)').fill('14.1')
-  await page.getByLabel('Comprimento (m)').blur()
-  await page.getByLabel('Raio de trabalho (m)').fill('4')
-
+  await md14m4m(page)
   await expect(page.locator('.resultado .capacidade')).toHaveText('20.000 kg')
-  // Épico 11 — massa linear do cabo não consta nas fichas: sem ela, "sem dado" (regra de ouro).
+  // Épico 11 — massa linear do cabo não consta nas fichas: sem ela, "não validada" (regra de ouro).
+  await expect(page.locator('.status-chip--semdado')).toContainText('Operação não validada')
   await expect(page.locator('.status-chip--semdado')).toContainText('Massa linear do cabo')
+  await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
+  await expect(page.locator('.status-chip--good')).toContainText('Operação aprovada')
+})
+
+test('Épico 17 — o veredito leva ao nó que corrige a pendência, e ✖ desfaz a edição', async ({ page }) => {
+  await page.goto('/')
+
+  // "Corrigir em Cabo e moitão" abre o PropertyManager certo.
+  await page.locator('.status-chip--semdado').getByRole('button', { name: 'Corrigir em Cabo e moitão' }).click()
+  await expect(page.getByRole('region', { name: 'Propriedades: Cabo e moitão' })).toBeVisible()
   await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
-  await expect(page.getByText('Dentro do limite seguro')).toBeVisible()
+  await expect(page.locator('.status-chip--good')).toBeVisible()
+
+  // ✖ (Cancelar) desfaz tudo o que mudou desde que o nó foi aberto.
+  await page.getByRole('button', { name: 'Cancelar' }).click()
+  await expect(page.locator('.status-chip--semdado')).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Árvore do cenário' })).toBeVisible()
+
+  // ✔ (Confirmar) mantém.
+  await editar(page, 'Cabo e moitão')
+  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
+  await page.getByRole('button', { name: 'Confirmar' }).click()
+  await expect(page.locator('.status-chip--good')).toBeVisible()
+
+  // Sem dado, as verificações aparecem como parciais (um ✔ ali enganaria).
+  await preencher(page, 'Sapatas', 'Sapata dianteira esquerda (m)', '2')
+  await expect(page.locator('.resultado__detalhe summary', { hasText: 'Verificações parciais' })).toBeVisible()
 })
 
 test('indicador visual de status (Task 4.1 / RF03) muda entre dentro do limite e excede a capacidade', async ({
@@ -204,28 +262,24 @@ test('indicador visual de status (Task 4.1 / RF03) muda entre dentro do limite e
 }) => {
   await page.goto('/')
 
-  await page.getByLabel('Comprimento (m)').fill('14.1')
-  await page.getByLabel('Comprimento (m)').blur()
-  await page.getByLabel('Raio de trabalho (m)').fill('4')
-
+  await md14m4m(page)
   // Massa do cabo informada à mão (0 kg) para o somatório ficar exatamente igual à carga.
-  await page.getByLabel('Massa do cabo — valor manual (kg)').fill('0')
+  await preencher(page, 'Cabo e moitão', 'Massa do cabo — valor manual (kg)', '0')
 
-  await page.getByLabel('Peso da carga (kg)').fill('15000')
-  await expect(page.locator('.status-chip--good')).toContainText('Dentro do limite seguro')
-  await expect(page.locator('.status-chip--good')).toContainText('Utilização de 75.0%')
+  await preencher(page, 'Carga', 'Peso da carga (kg)', '15000')
+  await expect(page.locator('.status-chip--good')).toContainText('Operação aprovada')
+  await expect(page.locator('.status-chip--good')).toContainText('Utilização de 75,0%')
 
-  await abrirNo(page, 'Limites e operação')
-  await page.getByLabel('Limite de utilização (%)').fill('70')
-  await expect(page.locator('.status-chip--warning')).toContainText('Acima do limite definido pelo engenheiro')
+  await preencher(page, 'Limites e operação', 'Limite de utilização (%)', '70')
+  await expect(page.locator('.status-chip--warning')).toContainText('Aprovada com atenção')
+  await expect(page.locator('.status-chip--warning')).toContainText('acima do limite de 70%')
 
-  await page.getByLabel('Peso da carga (kg)').fill('25000')
-  await expect(page.locator('.status-chip--critical')).toContainText('Carga excede a capacidade máxima')
-  await expect(page.locator('.status-chip--critical')).toContainText('Utilização de 125.0%')
+  await preencher(page, 'Carga', 'Peso da carga (kg)', '25000')
+  await expect(page.locator('.status-chip--critical')).toContainText('Carga excede a capacidade da tabela')
+  await expect(page.locator('.status-chip--critical')).toContainText('utilização de 125,0%')
 
   // Raio inalcançável → lança deitada (raio 12,70 m), além da última célula da coluna 14,10 m (12 m).
-  await page.getByLabel('Raio de trabalho (m)').fill('999')
-  await page.getByLabel('Raio de trabalho (m)').blur()
+  await preencher(page, 'Lança', RAIO, '999')
   await expect(page.locator('.status-chip--semdado')).toContainText('sem célula na coluna 14,10 m')
 })
 
@@ -233,8 +287,9 @@ test('Task 4.2 — digitar no campo "Raio de trabalho" tecla por tecla não refo
   page,
 }) => {
   await page.goto('/')
+  await editar(page, 'Lança')
 
-  const campoRaio = page.getByLabel('Raio de trabalho (m)')
+  const campoRaio = page.getByLabel(RAIO)
   await campoRaio.click()
   await campoRaio.fill('')
   // Digitação tecla por tecla (não .fill()) — é isso que expõe o bug de um
@@ -251,33 +306,32 @@ test('Task 4.2 — digitar no campo "Raio de trabalho" tecla por tecla não refo
 test('toggle de JIB (RF12) aparece só para o MD-300L e calcula contra a tabela de JIB', async ({ page }) => {
   await page.goto('/')
 
-  await expect(page.getByLabel(/Usar lança JIB/i)).toBeVisible()
-  await page.getByLabel(/Usar lança JIB/i).check()
+  const jib = page.getByRole('button', { name: 'Lança JIB' })
+  await expect(jib).toBeEnabled()
+  await jib.click()
+  await expect(jib).toHaveAttribute('aria-pressed', 'true')
 
+  await editar(page, 'JIB')
   await page.getByLabel('Comprimento do JIB (m)').selectOption('9')
   await page.getByLabel('Ângulo do JIB (°)').fill('10')
-  await page.getByLabel('Raio de trabalho — do centro de giro (m)').fill('6')
-
+  await page.getByLabel(RAIO).fill('6')
   await expect(page.locator('.resultado .capacidade')).toHaveText('3.000 kg')
 
   // Offset intermediário (17,5°, raio 8 m) é interpolado entre as tabelas de 10° e 25°: 3.000 e 2.050 → 2.525 kg.
   await page.getByLabel('Ângulo do JIB (°)').fill('17.5')
-  await page.getByLabel('Raio de trabalho — do centro de giro (m)').fill('8')
+  await page.getByLabel(RAIO).fill('8')
   await expect(page.locator('.resultado .capacidade')).toHaveText('2.525 kg')
 
-  // TM-130: o JIB da ficha fica desligado até a Ribas confirmar — sem toggle.
-  await page.getByRole('combobox').first().selectOption('TM-130')
-  await expect(page.getByLabel(/Usar lança JIB/i)).toHaveCount(0)
+  // TM-130: o JIB da ficha fica desligado até a Ribas confirmar — comando desabilitado, com o motivo.
+  await page.getByRole('button', { name: 'TM-130' }).click()
+  await expect(jib).toBeDisabled()
+  await expect(jib).toHaveAttribute('title', /JIB desligado para o TM-130/)
 })
 
 test('UC02 (MD-300L) — arrastar o gancho na cena 3D muda o raio e a capacidade calculada', async ({ page }) => {
   await page.goto('/')
-
-  await page.getByLabel('Comprimento (m)').fill('14.1')
-  await page.getByLabel('Comprimento (m)').blur()
-  // Parte de um raio conhecido (4,00m) para calcular a posição inicial exata do gancho.
-  await page.getByLabel('Raio de trabalho (m)').fill('4')
-  await page.getByLabel('Raio de trabalho (m)').blur()
+  // Parte de um raio conhecido (4,00 m) para calcular a posição inicial exata do gancho.
+  await md14m4m(page)
 
   const canvas = page.locator('.cena-3d canvas')
   const box = await canvasEstavel(canvas)
@@ -303,20 +357,16 @@ test('UC02 (MD-300L) — arrastar o gancho na cena 3D muda o raio e a capacidade
 
   // raio esperado a 60°: 14,1×cos(60°) − 1,4 ≈ 5,65 m
   const raioEsperado = comprimentoLancaM * Math.cos((anguloAlvo * Math.PI) / 180) - recuoMD300L
-  const raioObtido = Number(await page.getByLabel('Raio de trabalho (m)').inputValue())
+  const raioObtido = await ler(page, 'Lança', RAIO)
   expect(Math.abs(raioObtido - raioEsperado)).toBeLessThan(0.05)
 
-  // no raio novo (~5,65m), a capacidade tabelada mudou em relação ao raio inicial (20.000 kg)
-  await expect(page.getByText('20.000 kg')).not.toBeVisible()
+  // no raio novo (~5,65 m), a capacidade tabelada mudou em relação ao raio inicial (20.000 kg)
+  await expect(page.locator('.resultado .capacidade')).not.toHaveText('20.000 kg')
 })
 
 test('Task 8.2 — arrastar a própria lança (não o gancho) na cena 3D muda o comprimento', async ({ page }) => {
   await page.goto('/')
-
-  await page.getByLabel('Comprimento (m)').fill('14.1')
-  await page.getByLabel('Comprimento (m)').blur()
-  await page.getByLabel('Raio de trabalho (m)').fill('4')
-  await page.getByLabel('Raio de trabalho (m)').blur()
+  await md14m4m(page)
 
   const canvas = page.locator('.cena-3d canvas')
   const box = await canvasEstavel(canvas)
@@ -330,47 +380,37 @@ test('Task 8.2 — arrastar a própria lança (não o gancho) na cena 3D muda o 
   // não ser "grudado" pelo ímã — testa o valor livre/contínuo mesmo.
   const comprimentoAlvoM = 20.0
 
-  // Clica na estrutura a 9m do pivot (não o gancho, na ponta) — não pode ser
+  // Clica na estrutura a 9 m do pivot (não o gancho, na ponta) — não pode ser
   // uma fração do comprimento atual, porque desde a Task 9.2 o próprio
-  // pointerdown já confirma um valor (clique direto = pulo exato numa
-  // marca), então o comprimento pode mudar entre tentativas; um ponto fixo
-  // sempre cai dentro da lança (mínimo real da tabela é 10,50m). 9m também
-  // fica FORA da área de tela ocupada pelos campos embutidos "Comprimento"
-  // e "Raio de trabalho" (Task 9.2) — cliques entre ~4m e ~8m nesta mesma
-  // configuração caem em cima desses <Html> (DOM real, sobreposto ao
-  // canvas), que capturam o clique antes de chegar no WebGL. O alvo do
-  // arrasto é um ponto mais adiante, na MESMA direção/ângulo, à distância do
-  // novo comprimento desejado (é assim que `projetarComprimento` em
+  // pointerdown já confirma um valor (clique direto = pulo exato numa marca),
+  // então o comprimento pode mudar entre tentativas; um ponto fixo sempre cai
+  // dentro da lança (mínimo real da tabela é 10,50 m). O alvo do arrasto é um
+  // ponto mais adiante, na MESMA direção/ângulo, à distância do novo
+  // comprimento desejado (é assim que `projetarComprimento` em
   // components/geometriaCanvas.ts interpreta o arrasto).
   const pontoNaBarra = pontoAlvoArrasto3D(alturaPeDaLancaM, 9, anguloAtual, recuoMD300L)
   const pontoAlvo = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoAlvoM, anguloAtual, recuoMD300L)
   const origem = projetarPontoNaTela(pontoNaBarra, box.width, box.height)
   const destino = projetarPontoNaTela(pontoAlvo, box.width, box.height)
-  const campoComprimento = page.getByLabel('Comprimento (m)')
 
   await moverEArrastarComHover(
     page,
     { x: box.x + origem.x, y: box.y + origem.y },
     { x: box.x + destino.x, y: box.y + destino.y },
   )
-  const comprimentoObtido = Number(await campoComprimento.inputValue())
-
+  const comprimentoObtido = await ler(page, 'Lança', LANCA)
   expect(Math.abs(comprimentoObtido - comprimentoAlvoM)).toBeLessThan(0.3)
 
   // arrastar a lança não deve ter mexido no ângulo — o raio muda só porque
   // o comprimento mudou, na mesma direção de antes
   const raioEsperado = comprimentoAlvoM * Math.cos((anguloAtual * Math.PI) / 180) - recuoMD300L
-  const raioObtido = Number(await page.getByLabel('Raio de trabalho (m)').inputValue())
+  const raioObtido = await ler(page, 'Lança', RAIO)
   expect(Math.abs(raioObtido - raioEsperado)).toBeLessThan(0.3)
 })
 
 test('Task 9.2 — clicar numa marca de encaixe pula exatamente para aquele comprimento real', async ({ page }) => {
   await page.goto('/')
-
-  await page.getByLabel('Comprimento (m)').fill('14.1')
-  await page.getByLabel('Comprimento (m)').blur()
-  await page.getByLabel('Raio de trabalho (m)').fill('4')
-  await page.getByLabel('Raio de trabalho (m)').blur()
+  await md14m4m(page)
 
   const canvas = page.locator('.cena-3d canvas')
   const box = await canvasEstavel(canvas)
@@ -381,43 +421,34 @@ test('Task 9.2 — clicar numa marca de encaixe pula exatamente para aquele comp
   const anguloAtual = anguloParaRaio(comprimentoInicialM, recuoMD300L, 4)
   const comprimentoAlvoM = 21.3 // uma das 7 marcas reais da tabela
 
-  // Ponto de agarre fixo a 9m do pivot (ver comentário no teste anterior —
-  // fora da área ocupada pelos campos embutidos "Comprimento"/"Raio de
-  // trabalho", e não uma fração do comprimento atual).
+  // Ponto de agarre fixo a 9 m do pivot (ver comentário no teste anterior).
   const pontoNaBarra = pontoAlvoArrasto3D(alturaPeDaLancaM, 9, anguloAtual, recuoMD300L)
-  // Alvo exatamente sobre a marca — um clique simples (down+up sem mover)
-  // já deve pular para esse valor exato (ver `onPointerDownEstrutura`).
+  // Alvo exatamente sobre a marca — o ímã leva ao valor exato.
   const pontoNaMarca = pontoAlvoArrasto3D(alturaPeDaLancaM, comprimentoAlvoM, anguloAtual, recuoMD300L)
   const origem = projetarPontoNaTela(pontoNaBarra, box.width, box.height)
   const destino = projetarPontoNaTela(pontoNaMarca, box.width, box.height)
-  const campoComprimento = page.getByLabel('Comprimento (m)')
 
   await moverEArrastarComHover(
     page,
     { x: box.x + origem.x, y: box.y + origem.y },
     { x: box.x + destino.x, y: box.y + destino.y },
   )
-  const comprimentoObtido = Number(await campoComprimento.inputValue())
-
   // Diferente do teste anterior (valor livre) — aqui o resultado deve bater
   // EXATO com o ponto real da tabela, não só "perto" (é o ímã em ação).
-  expect(comprimentoObtido).toBe(comprimentoAlvoM)
+  expect(await ler(page, 'Lança', LANCA)).toBe(comprimentoAlvoM)
 })
 
 test('UC02 (TM-130) — arrastar o gancho muda o ângulo e a capacidade vem do diagrama polar da lança principal', async ({
   page,
 }) => {
   await page.goto('/')
+  await page.getByRole('button', { name: 'TM-130' }).click()
 
-  await page.getByRole('combobox').first().selectOption('TM-130')
-
-  // Épico 11 — o TM-130 agora tem comprimento real (5,9–12,4 m) e o ângulo fica no painel de parâmetros.
+  // Épico 11 — o TM-130 tem comprimento real (5,9–12,4 m) e o ângulo fica no painel de parâmetros.
   const comprimentoM = 12
   const anguloInicial = 30
-  await page.getByLabel('Comprimento (m)').fill(String(comprimentoM))
-  await page.getByLabel('Comprimento (m)').blur()
-  await page.getByLabel('Ângulo da lança (°)').fill(String(anguloInicial))
-  await page.getByLabel('Ângulo da lança (°)').blur()
+  await preencher(page, 'Lança', LANCA, String(comprimentoM))
+  await preencher(page, 'Lança', 'Ângulo da lança (°)', String(anguloInicial))
 
   const canvas = page.locator('.cena-3d canvas')
   const box = await canvasEstavel(canvas)
@@ -435,8 +466,7 @@ test('UC02 (TM-130) — arrastar o gancho muda o ângulo e a capacidade vem do d
   await page.mouse.move(box.x + destino.x, box.y + destino.y, { steps: 12 })
   await page.mouse.up()
 
-  const anguloFinal = await page.getByLabel('Ângulo da lança (°)').inputValue()
-  expect(Number(anguloFinal)).toBeCloseTo(65, 0)
+  expect(await ler(page, 'Lança', 'Ângulo da lança (°)')).toBeCloseTo(65, 0)
 
   // Task 10.1 — lança principal pelo diagrama polar (Zona I, giro 0°): 12 m a ~65° → raio ~5,07 m, entre
   // 5 m (26.000 kg) e 6 m (21.600 kg) da tabela real → interpolado, arredondado para baixo.
@@ -446,8 +476,8 @@ test('UC02 (TM-130) — arrastar o gancho muda o ângulo e a capacidade vem do d
   expect(capacidadeKg).toBeLessThanOrEqual(26000)
   await expect(page.locator('.resultado__origem')).toContainText('interpolado')
   await expect(page.locator('.resultado__origem')).toContainText('Zona I')
-  // O status segue "sem dado" só pelo que falta informar (massa linear do cabo e do moitão não constam na ficha).
-  await expect(page.locator('.status-chip--semdado')).toContainText('Massa linear do cabo')
+  // Segue "não validada" só pelo que falta informar (nº de pernas e massas do cabo e do moitão não constam na ficha).
+  await expect(page.locator('.status-chip--semdado')).toContainText('Nº de pernas do cabo não informado')
 })
 
 test('RF18 — a área de operação é derivada do giro (MD-300L, critério ±55° confirmado)', async ({ page }) => {
@@ -458,12 +488,12 @@ test('RF18 — a área de operação é derivada do giro (MD-300L, critério ±5
   await expect(page.getByTestId('regiao-derivada')).toContainText('área frontal')
   await expect(page.locator('.barra-status .selo-provisorio')).toHaveCount(0)
 
-  await page.getByLabel('Giro da superestrutura (°)').fill('90')
+  await preencher(page, 'Giro', 'Giro da superestrutura (°)', '90')
   await expect(page.getByTestId('regiao-derivada')).toContainText('áreas lateral e traseira')
   await expect(page.locator('.resultado .capacidade')).toHaveText('10.500 kg')
 
   // Fronteira exata (55°): avalia as duas áreas e fica com a menor.
-  await page.getByLabel('Giro da superestrutura (°)').fill('55')
+  await preencher(page, 'Giro', 'Giro da superestrutura (°)', '55')
   await expect(page.getByTestId('regiao-derivada')).toContainText('área frontal / áreas lateral e traseira')
   await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
 })
@@ -471,25 +501,28 @@ test('RF18 — a área de operação é derivada do giro (MD-300L, critério ±5
 test('RF17 — sapata em extensão parcial: sem dado do fabricante, com o motivo', async ({ page }) => {
   await page.goto('/')
 
-  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
-  await expect(page.getByText('Dentro do limite seguro')).toBeVisible()
+  await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
+  await expect(page.locator('.status-chip--good')).toBeVisible()
 
-  await abrirNo(page, 'Sapatas')
-  await page.getByLabel('Sapata dianteira esquerda (m)').fill('2')
+  await preencher(page, 'Sapatas', 'Sapata dianteira esquerda (m)', '2')
   await expect(page.locator('.resultado .capacidade')).toHaveText('Sem dado do fabricante')
   await expect(page.locator('.status-chip--semdado')).toContainText('Sapata dianteira esquerda')
+  // O ícone de estado do nó mostra onde está a pendência.
+  await page.getByRole('tab', { name: 'Árvore' }).click()
+  await expect(page.getByRole('button', { name: 'Sapatas', exact: true })).toContainText('falta dado')
 })
 
 test('busca reversa por peso (RF05/RF15) lista o TM-130 antes do MD-300L (menor guindaste primeiro)', async ({ page }) => {
   await page.goto('/')
 
-  // Épico 12 — a busca reversa abre num diálogo pela barra de comandos.
+  // Épico 17 — a busca reversa fica na aba "Avaliar" do CommandManager.
+  await page.getByRole('tab', { name: 'Avaliar' }).click()
   await page.getByRole('button', { name: 'Buscar por peso' }).click()
   await expect(page.getByRole('dialog', { name: 'Buscar por peso' })).toBeVisible()
 
   await page.getByLabel('Peso a içar (kg)').fill('2000')
 
-  // Task 10.7 — com a tabela da lança principal do TM-130 (diagrama polar), ele volta à busca e vem
+  // Task 10.7 — com a tabela da lança principal do TM-130 (diagrama polar), ele vem
   // primeiro: 26.000 kg nominais contra 30.000 kg do MD-300L (regra do RF15).
   const lista = page.locator('.busca-reversa__lista li')
   await expect(lista).toHaveCount(2)
@@ -499,38 +532,41 @@ test('busca reversa por peso (RF05/RF15) lista o TM-130 antes do MD-300L (menor 
   await expect(page.getByText(/Fora da busca/)).toHaveCount(0)
 })
 
-test('Épico 12 — layout CAD: barra de status, cotas na cena, vistas padrão e unidade kg/t (RF14)', async ({ page }) => {
+test('Épico 12/17 — layout CAD: barra de status, cotas na cena, vistas padrão e unidade kg/t (RF14)', async ({ page }) => {
   await page.goto('/')
 
   // Barra de status sempre visível com o resultado resumido e a versão das tabelas.
-  await expect(page.getByTestId('status-barra')).toHaveText('Sem dado do fabricante')
-  await expect(page.locator('.barra-status')).toContainText('Capacidade: 7.500 kg (ponto exato)')
+  await expect(page.getByTestId('status-barra')).toHaveText('Operação não validada')
+  await expect(page.locator('.barra-status')).toContainText('Capacidade da tabela: 7.500 kg (ponto exato)')
   await expect(page.locator('.barra-status__versao')).toHaveText(/^tabelas-[0-9a-f]{8}$/)
 
-  // Cotas desenhadas na cena, com os valores do motor.
+  // Cotas desenhadas na cena, com os valores do motor (agora também o comprimento L).
   await expect(page.locator('.cena-3d__cota--raio')).toHaveText('R = 8,00 m')
   await expect(page.locator('.cena-3d__cota--angulo')).toContainText('α = 57,')
-  await abrirNo(page, 'Limites e operação')
-  await page.getByLabel('Altura de içamento necessária (m)').fill('5')
+  await expect(page.locator('.cena-3d__cota--comprimento')).toHaveText('L = 17,70 m')
+  await preencher(page, 'Limites e operação', 'Altura de içamento necessária (m)', '5')
   await expect(page.locator('.cena-3d__cota--icamento')).toHaveText('içamento 5,00 m')
 
-  // Vistas padrão: o botão fica ativo e a cena continua desenhando (cotas presentes).
+  // Cotas liga/desliga pela barra de vista.
+  await page.getByRole('button', { name: 'Cotas' }).click()
+  await expect(page.locator('.cena-3d__cota--raio')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Cotas' }).click()
+
+  // Vistas padrão: o botão fica marcado e a cena continua desenhando (cotas presentes).
+  const vistas = page.getByRole('toolbar', { name: 'Vistas padrão' })
   for (const vista of ['Lateral', 'Superior', 'Frontal', 'Isométrica']) {
-    await page.getByRole('toolbar', { name: 'Vistas padrão' }).getByRole('button', { name: vista }).click()
-    await expect(
-      page.getByRole('toolbar', { name: 'Vistas padrão' }).getByRole('button', { name: vista }),
-    ).toHaveClass(/segmento--ativo/)
+    await vistas.getByRole('button', { name: vista }).click()
+    await expect(vistas.getByRole('button', { name: vista })).toHaveAttribute('aria-pressed', 'true')
   }
   await expect(page.locator('.cena-3d__cota--raio')).toHaveText('R = 8,00 m')
 
   // RF14 — kg ⇄ t é só de exibição.
   await page.getByRole('button', { name: 't', exact: true }).click()
   await expect(page.locator('.resultado .capacidade')).toHaveText('7,500 t')
-  await expect(page.locator('.barra-status')).toContainText('Capacidade: 7,500 t')
+  await expect(page.locator('.barra-status')).toContainText('Capacidade da tabela: 7,500 t')
   await page.getByRole('button', { name: 'kg', exact: true }).click()
   await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
 
-  // Desde o Épico 16 todos os comandos de arquivo funcionam, inclusive o relatório PDF.
   await expect(page.getByRole('button', { name: 'Exportar PDF' })).toBeEnabled()
 })
 
@@ -551,20 +587,18 @@ test('Épico 13 — arrastar o anel de giro no chão gira a superestrutura e tro
     'grab',
   )
 
-  await abrirNo(page, 'Giro')
-  const giro = Number(await page.getByLabel('Giro da superestrutura (°)').inputValue())
+  const giro = await ler(page, 'Giro', 'Giro da superestrutura (°)')
   expect(Math.abs(giro - 90)).toBeLessThan(3)
   await expect(page.getByTestId('regiao-derivada')).toContainText('áreas lateral e traseira')
 })
 
 test('Épico 13 — arrastar o pé de uma sapata muda só a extensão dela (e cai em "sem dado")', async ({ page }) => {
   await page.goto('/')
-  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
-  await expect(page.getByText('Dentro do limite seguro')).toBeVisible()
+  await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
+  await expect(page.locator('.status-chip--good')).toBeVisible()
 
   const box = await canvasEstavel(page.locator('.cena-3d canvas'))
   // Sapata dianteira esquerda do MD-300L: 4,2 m à frente do centro de giro (≈), 3,25 m para a esquerda (-Z).
-  // (A direita fica, nesta câmera, por baixo do campo "Raio de trabalho" — que é clicável de propósito.)
   const origem = projetarPontoNaTela([4.2, 0.4, -3.25], box.width, box.height)
   const destino = projetarPontoNaTela([4.2, 0.4, -2.0], box.width, box.height)
 
@@ -575,16 +609,15 @@ test('Épico 13 — arrastar o pé de uma sapata muda só a extensão dela (e ca
     'ns-resize',
   )
 
-  await abrirNo(page, 'Sapatas')
-  const extensao = Number(await page.getByLabel('Sapata dianteira esquerda (m)').inputValue())
+  const extensao = await ler(page, 'Sapatas', 'Sapata dianteira esquerda (m)')
   expect(Math.abs(extensao - 2.0)).toBeLessThan(0.2)
-  await expect(page.getByLabel('Sapata dianteira direita (m)')).toHaveValue('3.25')
+  await expect(campo(page, 'Sapata dianteira direita (m)')).toHaveValue('3.25')
   await expect(page.locator('.status-chip--semdado')).toContainText('Sapata dianteira esquerda')
 })
 
 test('Épico 13 — carga desenhada em escala com o centro de gravidade', async ({ page }) => {
   await page.goto('/')
-  await page.getByLabel('Comprimento da carga (m)').fill('4')
+  await preencher(page, 'Carga', 'Comprimento da carga (m)', '4')
   await expect(page.locator('.cena-3d__cota--cg')).toHaveText('CG')
   await expect(page.locator('.cena-3d__fontes')).toContainText('medidas da ficha')
 })
@@ -600,18 +633,17 @@ test('Épico 14 — mapa da área de operação no chão (RF22): legenda, recál
 
   // Com o cabo informado e 9.000 kg na lança de 17,70 m, há regiões OK e NOK
   // (frontal: 7 m = 10.800 kg passa; 8 m = 7.500 kg não passa — tabela real).
-  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
-  await page.getByLabel('Peso da carga (kg)').fill('9000')
+  await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
+  await preencher(page, 'Carga', 'Peso da carga (kg)', '9000')
   await expect(legenda.locator('.legenda-mapa__aviso')).toHaveCount(0)
   await expect(pct('ok')).not.toHaveText('0%')
   await expect(pct('nok')).not.toHaveText('0%')
 
   // Sapata parcial → nenhuma posição validada (regra de ouro).
-  await abrirNo(page, 'Sapatas')
-  await page.getByLabel('Sapata traseira esquerda (m)').fill('2')
+  await preencher(page, 'Sapatas', 'Sapata traseira esquerda (m)', '2')
   await expect(pct('sem_dado')).toHaveText('100%')
 
-  // Liga/desliga pelo botão da barra de vistas.
+  // Liga/desliga pela barra de vista.
   await page.getByRole('button', { name: 'Área de operação' }).click()
   await expect(legenda).toHaveCount(0)
   await page.getByRole('button', { name: 'Área de operação' }).click()
@@ -621,7 +653,7 @@ test('Épico 14 — mapa da área de operação no chão (RF22): legenda, recál
 // ------------------------------------------------------------------ Épico 15
 
 /** Salva a simulação atual como cenário novo, criando projeto e orçamento na hora. */
-async function salvarComoCenarioNovoProjeto(page: import('@playwright/test').Page, nome: string) {
+async function salvarComoCenarioNovoProjeto(page: Pagina, nome: string) {
   await page.getByRole('button', { name: 'Salvar como cenário' }).click()
   const dialogo = page.getByRole('dialog', { name: 'Salvar como cenário' })
   await dialogo.getByLabel('Cliente').fill('Indústria Alfa')
@@ -636,18 +668,21 @@ async function salvarComoCenarioNovoProjeto(page: import('@playwright/test').Pag
 
 test('Épico 15 — salvar, alterar, salvar como novo, recarregar a página, reabrir idêntico e comparar', async ({ page }) => {
   await page.goto('/')
-  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
-  await page.getByLabel('Peso da carga (kg)').fill('6000')
+  await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
+  await preencher(page, 'Carga', 'Peso da carga (kg)', '6000')
 
   await salvarComoCenarioNovoProjeto(page, 'Frontal 17,70 m')
   const aberto = page.getByTestId('cenario-aberto')
   await expect(aberto).toContainText('Indústria Alfa — Troca do transformador › Orçamento A')
   await expect(aberto).toContainText('Frontal 17,70 m')
   await expect(aberto).not.toContainText('alterações não salvas')
+  // Épico 17 — o documento aberto também aparece na barra de título.
+  await expect(page.locator('.barra-titulo__documento')).toContainText('Indústria Alfa › Orçamento A › Frontal 17,70 m')
 
   // Alterar marca o cenário como não salvo; "Salvar como cenário" no mesmo orçamento.
-  await page.getByLabel('Giro da superestrutura (°)').fill('90')
+  await preencher(page, 'Giro', 'Giro da superestrutura (°)', '90')
   await expect(aberto).toContainText('alterações não salvas')
+  await expect(page.locator('.barra-titulo__documento')).toContainText('alterações não salvas')
   await page.getByRole('button', { name: 'Salvar como cenário' }).click()
   const dialogo = page.getByRole('dialog', { name: 'Salvar como cenário' })
   await dialogo.getByLabel('Nome do cenário').fill('Lateral 17,70 m')
@@ -662,14 +697,14 @@ test('Épico 15 — salvar, alterar, salvar como novo, recarregar a página, rea
   await gerenciador.getByRole('button', { name: /Indústria Alfa/ }).click()
   await gerenciador.getByRole('button', { name: 'Orçamento A' }).click()
   const linhaFrontal = gerenciador.getByRole('row', { name: /Frontal 17,70 m/ })
-  await expect(linhaFrontal).toContainText('OK')
+  await expect(linhaFrontal).toContainText('Aprovada')
   await linhaFrontal.getByRole('button', { name: 'Abrir' }).click()
 
   // Reaberto exatamente como foi salvo: giro 0°, 6.000 kg, 7.500 kg de capacidade (frontal, ponto exato).
   await expect(page.getByTestId('cenario-aberto')).toContainText('Frontal 17,70 m')
   await expect(page.getByTestId('cenario-aberto')).not.toContainText('alterações não salvas')
-  await expect(page.getByLabel('Giro da superestrutura (°)')).toHaveValue('0.0')
-  await expect(page.getByLabel('Peso da carga (kg)')).toHaveValue('6000')
+  expect(await ler(page, 'Giro', 'Giro da superestrutura (°)')).toBe(0)
+  expect(await ler(page, 'Carga', 'Peso da carga (kg)')).toBe(6000)
   await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
 
   // Comparar os dois lado a lado.
@@ -688,7 +723,12 @@ test('Épico 15 — exportar o projeto em JSON e importar de volta (como cópia)
   await page.goto('/')
   await salvarComoCenarioNovoProjeto(page, 'Cenário exportado')
 
-  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Exportar JSON' }).click()])
+  // Épico 17 — Exportar JSON fica no menu Arquivo.
+  await page.getByRole('button', { name: 'Arquivo' }).click()
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('menuitem', { name: 'Exportar JSON' }).click(),
+  ])
   expect(download.suggestedFilename()).toBe('projeto-industria-alfa-troca-do-transformador.json')
   const caminho = await download.path()
 
@@ -721,6 +761,7 @@ test('Épico 15 — excluir projeto (com confirmação) leva orçamentos e cená
   await gerenciador.getByRole('button', { name: 'Fechar', exact: true }).click()
   // O cenário que estava aberto deixou de existir: a simulação fica desvinculada.
   await expect(page.getByTestId('cenario-aberto')).toHaveCount(0)
+  await expect(page.locator('.barra-titulo__documento')).toContainText('Cenário não salvo')
 })
 
 test('bug da tela branca (05/10/2026) — especificação desatualizada mostra o erro pelo nome, sem tela em branco', async ({
@@ -749,7 +790,7 @@ test('bug da tela branca (05/10/2026) — especificação desatualizada mostra o
 const PASTA_PDFS = process.env.PASTA_PDFS_E2E
 
 /** Gera o PDF pelo diálogo e devolve o conteúdo bruto do arquivo baixado. */
-async function gerarPdf(page: import('@playwright/test').Page, tipo: 'Cenário atual' | 'Orçamento completo', salvarComo?: string) {
+async function gerarPdf(page: Pagina, tipo: 'Cenário atual' | 'Orçamento completo', salvarComo?: string) {
   await page.getByRole('button', { name: 'Exportar PDF' }).click()
   const dialogo = page.getByRole('dialog', { name: 'Exportar relatório PDF' })
   await dialogo.getByLabel(new RegExp(`^${tipo}`)).check()
@@ -762,9 +803,9 @@ async function gerarPdf(page: import('@playwright/test').Page, tipo: 'Cenário a
 
 test('Épico 16 — relatório PDF do cenário atual (não salvo)', async ({ page }) => {
   await page.goto('/')
-  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
-  await page.getByLabel('Peso da carga (kg)').fill('6000')
-  await expect(page.getByText('Dentro do limite seguro')).toBeVisible()
+  await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
+  await preencher(page, 'Carga', 'Peso da carga (kg)', '6000')
+  await expect(page.locator('.status-chip--good')).toBeVisible()
 
   const { nome, conteudo } = await gerarPdf(page, 'Cenário atual', 'relatorio-cenario.pdf')
   expect(nome).toMatch(/^relatorio-md-300l-cenario-nao-salvo-\d{4}-\d{2}-\d{2}\.pdf$/)
@@ -773,15 +814,15 @@ test('Épico 16 — relatório PDF do cenário atual (não salvo)', async ({ pag
 
   // A tela continua exatamente como estava (o relatório não altera a simulação).
   await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
-  await expect(page.getByLabel('Peso da carga (kg)')).toHaveValue('6000')
+  expect(await ler(page, 'Carga', 'Peso da carga (kg)')).toBe(6000)
 })
 
 test('Épico 16 — relatório PDF do orçamento (comparativo + um capítulo por cenário) restaura a tela', async ({ page }) => {
   await page.goto('/')
-  await page.getByLabel('Massa linear do cabo (kg/m)').fill('1.1')
-  await page.getByLabel('Peso da carga (kg)').fill('6000')
+  await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
+  await preencher(page, 'Carga', 'Peso da carga (kg)', '6000')
   await salvarComoCenarioNovoProjeto(page, 'Frontal 17,70 m')
-  await page.getByLabel('Giro da superestrutura (°)').fill('90')
+  await preencher(page, 'Giro', 'Giro da superestrutura (°)', '90')
   await page.getByRole('button', { name: 'Salvar como cenário' }).click()
   const dialogoSalvar = page.getByRole('dialog', { name: 'Salvar como cenário' })
   await dialogoSalvar.getByLabel('Nome do cenário').fill('Lateral 17,70 m')

@@ -23,6 +23,7 @@ export default defineConfig({
       'idb',
       'jspdf',
       'jspdf-autotable',
+      'lucide-react',
     ],
   },
   test: {
