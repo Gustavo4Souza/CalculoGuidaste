@@ -22,7 +22,19 @@ Interface no padrão do **SolidWorks** em tema claro, em tela cheia (100vh, sem 
 > - Comando indisponível fica **desabilitado com o motivo**, não some.
 > - Sem dado, as verificações aparecem como **parciais (?)**: um ✔ com somatório incompleto enganaria.
 
-## Layout
+## Fluxo de telas (Épico 18)
+
+```
+Início ─▶ ① Projeto ─▶ ② Carga ─▶ ③ Guindaste ─▶ ④ Simulação ─▶ ⑤ Verificação ─▶ ⑥ Relatório
+```
+
+- **Início:** novo projeto, projetos recentes, abrir, importar JSON, consulta rápida por peso e simulação livre.
+- **Barra de etapas** abaixo da barra de título: etapas concluídas com ✔, a atual destacada, as bloqueadas com cadeado e o **motivo** no tooltip; à direita o orçamento ativo e Voltar/Avançar. A URL acompanha a etapa (`#/carga`), então o Voltar do navegador funciona.
+- **① Projeto** → **② Carga** (com o raio necessário) → **③ Guindaste** (cards com o resultado real do motor, menor guindaste primeiro) → **④ Simulação** (a área de trabalho abaixo) → **⑤ Verificação** (resultado completo, salvar, cenários do orçamento, comparar, adicionar outro) → **⑥ Relatório** (prévia e PDF).
+- A área de simulação fica **montada e escondida** fora da etapa ④: a cena é necessária para as capturas do PDF, e a câmera fica onde o engenheiro a deixou.
+- Detalhe em [[Épico 18 — Fluxo de telas]].
+
+## Layout da simulação
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐

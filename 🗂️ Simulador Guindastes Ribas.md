@@ -17,10 +17,10 @@ Simulador gráfico e interativo de **tabelas de carga de guindastes** para a Gui
 > [!info] Fonte de verdade
 > Desde 07/10/2026 esta pasta é um **cofre do Obsidian** e estas notas são a documentação oficial do projeto (antes era o Notion). Toda decisão nova entra aqui: na nota do assunto, em [[🗳️ Decisões e Configuração]] e numa linha do [[🗓️ Log de Atualizações]].
 
-## Situação em 07/10/2026 (após o Épico 17)
+## Situação em 08/10/2026 (após o Épico 18)
 
-- ==Épicos 0–4 e 7–17 concluídos==. Épico 18 (fluxo de telas) é o próximo; Épico 5 (pitch e artigo) quase concluído; Épico 6 (melhorias futuras) não iniciado.
-- **161 testes unitários + 23 e2e** passando; build e typecheck limpos.
+- ==Épicos 0–4 e 7–18 concluídos==: o simulador abre no Início e guia o engenheiro de Projeto a Relatório. Épico 5 (pitch e artigo) quase concluído; Épico 6 (melhorias futuras) não iniciado.
+- **173 testes unitários + 26 e2e** passando; build e typecheck limpos.
 - Frota: **MD-300L** (Madal Palfinger, 30 t) e **TM-130** (Grupo Luna, 26 t), com tabelas reais conferidas contra as fichas.
 - Pendências abertas: ver [[❓ Pendências com a Ribas]] e [[✅ Próximos Passos]].
 
@@ -37,7 +37,7 @@ Simulador gráfico e interativo de **tabelas de carga de guindastes** para a Gui
 | [[🖥️ Interface]] | Layout estilo CAD, cena 3D, arrastos, relatório | ✅ |
 | [[🗳️ Decisões e Configuração]] | Registro de decisões com data e motivo | ✅ |
 | [[🧪 Plano de Testes]] | Estratégia, suítes, como rodar, metas | ✅ |
-| [[🗺️ Roadmap]] | Épicos 0–16, versões e o que entrou em cada uma | ✅ |
+| [[🗺️ Roadmap]] | Épicos 0–18, versões e o que entrou em cada uma | ✅ |
 | `Épicos/` | Uma nota por épico com o detalhe das tasks e a sprint (ex.: [[Épico 10 — Dados corrigidos e motor v3]]) | ✅ |
 | [[🛠️ Operação]] | Como rodar, perfis de uso, história de um dia, problemas comuns | ✅ |
 | [[📈 Indicadores]] | Métricas de qualidade e de entrega | ✅ |

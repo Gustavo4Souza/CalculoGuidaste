@@ -218,7 +218,7 @@ async function md14m4m(page: Pagina) {
 test('carrega a tela de simulação e calcula a capacidade para uma configuração exata do MD-300L', async ({
   page,
 }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
 
   await expect(page.getByRole('heading', { name: /Guindastes Ribas/i })).toBeVisible()
   await expect(page.getByText('Simulador de Tabela de Carga')).toBeVisible()
@@ -233,7 +233,7 @@ test('carrega a tela de simulação e calcula a capacidade para uma configuraç�
 })
 
 test('Épico 17 — o veredito leva ao nó que corrige a pendência, e ✖ desfaz a edição', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
 
   // "Corrigir em Cabo e moitão" abre o PropertyManager certo.
   await page.locator('.status-chip--semdado').getByRole('button', { name: 'Corrigir em Cabo e moitão' }).click()
@@ -260,7 +260,7 @@ test('Épico 17 — o veredito leva ao nó que corrige a pendência, e ✖ desfa
 test('indicador visual de status (Task 4.1 / RF03) muda entre dentro do limite e excede a capacidade', async ({
   page,
 }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
 
   await md14m4m(page)
   // Massa do cabo informada à mão (0 kg) para o somatório ficar exatamente igual à carga.
@@ -286,7 +286,7 @@ test('indicador visual de status (Task 4.1 / RF03) muda entre dentro do limite e
 test('Task 4.2 — digitar no campo "Raio de trabalho" tecla por tecla não reformata/engole o texto', async ({
   page,
 }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await editar(page, 'Lança')
 
   const campoRaio = page.getByLabel(RAIO)
@@ -304,7 +304,7 @@ test('Task 4.2 — digitar no campo "Raio de trabalho" tecla por tecla não refo
 })
 
 test('toggle de JIB (RF12) aparece só para o MD-300L e calcula contra a tabela de JIB', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
 
   const jib = page.getByRole('button', { name: 'Lança JIB' })
   await expect(jib).toBeEnabled()
@@ -329,7 +329,7 @@ test('toggle de JIB (RF12) aparece só para o MD-300L e calcula contra a tabela 
 })
 
 test('UC02 (MD-300L) — arrastar o gancho na cena 3D muda o raio e a capacidade calculada', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   // Parte de um raio conhecido (4,00 m) para calcular a posição inicial exata do gancho.
   await md14m4m(page)
 
@@ -365,7 +365,7 @@ test('UC02 (MD-300L) — arrastar o gancho na cena 3D muda o raio e a capacidade
 })
 
 test('Task 8.2 — arrastar a própria lança (não o gancho) na cena 3D muda o comprimento', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await md14m4m(page)
 
   const canvas = page.locator('.cena-3d canvas')
@@ -409,7 +409,7 @@ test('Task 8.2 — arrastar a própria lança (não o gancho) na cena 3D muda o 
 })
 
 test('Task 9.2 — clicar numa marca de encaixe pula exatamente para aquele comprimento real', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await md14m4m(page)
 
   const canvas = page.locator('.cena-3d canvas')
@@ -441,7 +441,7 @@ test('Task 9.2 — clicar numa marca de encaixe pula exatamente para aquele comp
 test('UC02 (TM-130) — arrastar o gancho muda o ângulo e a capacidade vem do diagrama polar da lança principal', async ({
   page,
 }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await page.getByRole('button', { name: 'TM-130' }).click()
 
   // Épico 11 — o TM-130 tem comprimento real (5,9–12,4 m) e o ângulo fica no painel de parâmetros.
@@ -481,7 +481,7 @@ test('UC02 (TM-130) — arrastar o gancho muda o ângulo e a capacidade vem do d
 })
 
 test('RF18 — a área de operação é derivada do giro (MD-300L, critério ±55° confirmado)', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
 
   // Estado inicial: 17,70 m, raio 8 m, giro 0° → frontal, 7.500 kg (ponto exato).
   await expect(page.locator('.resultado .capacidade')).toHaveText('7.500 kg')
@@ -499,7 +499,7 @@ test('RF18 — a área de operação é derivada do giro (MD-300L, critério ±5
 })
 
 test('RF17 — sapata em extensão parcial: sem dado do fabricante, com o motivo', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
 
   await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
   await expect(page.locator('.status-chip--good')).toBeVisible()
@@ -513,7 +513,7 @@ test('RF17 — sapata em extensão parcial: sem dado do fabricante, com o motivo
 })
 
 test('busca reversa por peso (RF05/RF15) lista o TM-130 antes do MD-300L (menor guindaste primeiro)', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
 
   // Épico 17 — a busca reversa fica na aba "Avaliar" do CommandManager.
   await page.getByRole('tab', { name: 'Avaliar' }).click()
@@ -533,7 +533,7 @@ test('busca reversa por peso (RF05/RF15) lista o TM-130 antes do MD-300L (menor 
 })
 
 test('Épico 12/17 — layout CAD: barra de status, cotas na cena, vistas padrão e unidade kg/t (RF14)', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
 
   // Barra de status sempre visível com o resultado resumido e a versão das tabelas.
   await expect(page.getByTestId('status-barra')).toHaveText('Operação não validada')
@@ -571,7 +571,7 @@ test('Épico 12/17 — layout CAD: barra de status, cotas na cena, vistas padrã
 })
 
 test('Épico 13 — arrastar o anel de giro no chão gira a superestrutura e troca a área derivada', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await expect(page.getByTestId('regiao-derivada')).toContainText('área frontal')
 
   const box = await canvasEstavel(page.locator('.cena-3d canvas'))
@@ -593,7 +593,7 @@ test('Épico 13 — arrastar o anel de giro no chão gira a superestrutura e tro
 })
 
 test('Épico 13 — arrastar o pé de uma sapata muda só a extensão dela (e cai em "sem dado")', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
   await expect(page.locator('.status-chip--good')).toBeVisible()
 
@@ -616,14 +616,14 @@ test('Épico 13 — arrastar o pé de uma sapata muda só a extensão dela (e ca
 })
 
 test('Épico 13 — carga desenhada em escala com o centro de gravidade', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await preencher(page, 'Carga', 'Comprimento da carga (m)', '4')
   await expect(page.locator('.cena-3d__cota--cg')).toHaveText('CG')
   await expect(page.locator('.cena-3d__fontes')).toContainText('medidas da ficha')
 })
 
 test('Épico 14 — mapa da área de operação no chão (RF22): legenda, recálculo e liga/desliga', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   const legenda = page.getByTestId('legenda-mapa')
   const pct = (status: string) => legenda.locator(`[data-status="${status}"] .legenda-mapa__pct`)
 
@@ -667,7 +667,7 @@ async function salvarComoCenarioNovoProjeto(page: Pagina, nome: string) {
 }
 
 test('Épico 15 — salvar, alterar, salvar como novo, recarregar a página, reabrir idêntico e comparar', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
   await preencher(page, 'Carga', 'Peso da carga (kg)', '6000')
 
@@ -720,7 +720,7 @@ test('Épico 15 — salvar, alterar, salvar como novo, recarregar a página, rea
 })
 
 test('Épico 15 — exportar o projeto em JSON e importar de volta (como cópia); arquivo inválido é recusado', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await salvarComoCenarioNovoProjeto(page, 'Cenário exportado')
 
   // Épico 17 — Exportar JSON fica no menu Arquivo.
@@ -749,7 +749,7 @@ test('Épico 15 — exportar o projeto em JSON e importar de volta (como cópia)
 
 test('Épico 15 — excluir projeto (com confirmação) leva orçamentos e cenários junto', async ({ page }) => {
   page.on('dialog', (d) => void d.accept())
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await salvarComoCenarioNovoProjeto(page, 'Para excluir')
   await expect(page.getByTestId('cenario-aberto')).toBeVisible()
 
@@ -778,7 +778,7 @@ test('bug da tela branca (05/10/2026) — especificação desatualizada mostra o
     expect(semCaminhao).not.toBe(modulo)
     await rota.fulfill({ response: resposta, body: semCaminhao })
   })
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   const erro = page.getByRole('alert')
   await expect(erro).toContainText('Os dados do simulador estão incompletos ou desatualizados')
   await expect(erro).toContainText('Especificação do MD-300L: "caminhao.dianteiraM" ausente ou inválido')
@@ -802,7 +802,7 @@ async function gerarPdf(page: Pagina, tipo: 'Cenário atual' | 'Orçamento compl
 }
 
 test('Épico 16 — relatório PDF do cenário atual (não salvo)', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
   await preencher(page, 'Carga', 'Peso da carga (kg)', '6000')
   await expect(page.locator('.status-chip--good')).toBeVisible()
@@ -818,7 +818,7 @@ test('Épico 16 — relatório PDF do cenário atual (não salvo)', async ({ pag
 })
 
 test('Épico 16 — relatório PDF do orçamento (comparativo + um capítulo por cenário) restaura a tela', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/#/simulacao')
   await preencher(page, 'Cabo e moitão', 'Massa linear do cabo (kg/m)', '1.1')
   await preencher(page, 'Carga', 'Peso da carga (kg)', '6000')
   await salvarComoCenarioNovoProjeto(page, 'Frontal 17,70 m')
@@ -841,4 +841,148 @@ test('Épico 16 — relatório PDF do orçamento (comparativo + um capítulo por
   await expect(aberto).not.toContainText('alterações não salvas')
   await expect(page.locator('.resultado .capacidade')).toHaveText('10.500 kg')
   await expect(page.getByRole('button', { name: 'Área de operação' })).toHaveAttribute('aria-pressed', 'false')
+})
+
+// ------------------------------------------------------------------ Épico 18
+
+test('Épico 18 — fluxo completo: Início → Projeto → Carga → Guindaste → Simulação → Verificação → Relatório (PDF)', async ({ page }) => {
+  await page.goto('/')
+  const etapas = page.getByRole('navigation', { name: 'Etapas do trabalho' })
+
+  // Início: a tela de boas-vindas, sem barra de etapas.
+  await expect(page.getByRole('heading', { name: 'Bem-vindo ao simulador de içamento' })).toBeVisible()
+  await expect(etapas).toHaveCount(0)
+  await page.getByRole('button', { name: /Novo projeto/ }).click()
+
+  // ① Projeto. As etapas seguintes estão bloqueadas, com o motivo.
+  await expect(page).toHaveURL(/#\/projeto$/)
+  await expect(etapas.getByRole('button', { name: 'Carga' })).toBeDisabled()
+  await expect(etapas.getByRole('button', { name: 'Carga' })).toHaveAttribute('title', /Defina o projeto e o orçamento/)
+  await page.getByLabel('Cliente').fill('Indústria Alfa')
+  await page.getByLabel('Obra').fill('Troca do transformador')
+  await page.getByLabel('Local').fill('Caxias do Sul/RS')
+  await page.getByLabel('Responsável técnico').fill('Eng. Fulano')
+  await page.getByLabel('Nome do orçamento').fill('Orçamento A')
+  await page.getByRole('button', { name: /Criar projeto e continuar/ }).click()
+
+  // ② Carga: sem peso e raio, o guindaste fica bloqueado.
+  await expect(page).toHaveURL(/#\/carga$/)
+  await expect(etapas).toContainText('Indústria Alfa › Orçamento A')
+  await expect(page.getByRole('button', { name: /Ver guindastes viáveis/ })).toBeDisabled()
+  await page.getByLabel(/^Peso da carga/).fill('9000')
+  await page.getByLabel(/^Massa linear do cabo/).fill('1.1')
+  await page.getByLabel(/^Raio necessário/).fill('7')
+  await page.getByLabel(/^Raio necessário/).blur()
+  await page.getByRole('button', { name: /Ver guindastes viáveis/ }).click()
+
+  // ③ Guindaste: menor guindaste primeiro (RF15), cada cartão com o resultado do motor (valores reais da tabela).
+  await expect(page).toHaveURL(/#\/guindaste$/)
+  const secoes = page.locator('section.tela__cartao h3.sugestoes__guindaste')
+  await expect(secoes.nth(0)).toContainText('TM-130')
+  await expect(secoes.nth(1)).toContainText('MD-300L')
+  const md1770 = page.getByRole('article', { name: 'MD-300L · lança 17,70 m · área frontal' })
+  await expect(md1770).toContainText('10.800 kg')
+  await expect(md1770).toContainText('Aprovada')
+  // TM-130: a ficha não traz o nº de pernas → "não validada", com o motivo (regra de ouro).
+  await expect(page.getByRole('article', { name: 'TM-130 · lança 12,40 m · Zona I', exact: true })).toContainText('Nº de pernas do cabo não informado')
+  await md1770.getByRole('button', { name: /^Usar / }).click()
+
+  // ④ Simulação: a configuração escolhida, com a carga da etapa ②.
+  await expect(page).toHaveURL(/#\/simulacao$/)
+  await expect(page.locator('.resultado .capacidade')).toHaveText('10.800 kg')
+  await expect(page.locator('.status-chip--good')).toContainText('Operação aprovada')
+  expect(await ler(page, 'Lança', RAIO)).toBeCloseTo(7, 2)
+
+  // ⑤ Verificação: salvar no orçamento libera o relatório.
+  await etapas.getByRole('button', { name: 'Avançar' }).click()
+  await expect(page).toHaveURL(/#\/verificacao$/)
+  await expect(etapas.getByRole('button', { name: 'Relatório' })).toBeDisabled()
+  await page.getByLabel('Nome do cenário').fill('Frontal 17,70 m')
+  await page.getByRole('button', { name: /Salvar no orçamento/ }).click()
+  await expect(page.getByTestId('cenario-salvo')).toContainText('Frontal 17,70 m')
+  await expect(page.getByRole('region', { name: 'Cenários do orçamento' })).toContainText('Aprovada')
+
+  // O Voltar do navegador percorre as etapas (a URL acompanha a etapa).
+  await page.goBack()
+  await expect(page).toHaveURL(/#\/simulacao$/)
+  await page.goForward()
+  await expect(page).toHaveURL(/#\/verificacao$/)
+
+  // ⑥ Relatório: prévia com o status e o PDF do cenário (gerado com a cena escondida, que continua montada).
+  await page.getByRole('button', { name: /Ir para o relatório/ }).click()
+  await expect(page).toHaveURL(/#\/relatorio$/)
+  const previa = page.getByRole('region', { name: 'Prévia do relatório' })
+  await expect(previa).toContainText('OPERAÇÃO APROVADA')
+  await expect(previa).toContainText('Indústria Alfa')
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: /Gerar PDF/ }).click()])
+  expect(download.suggestedFilename()).toMatch(/^relatorio-frontal-17-70-m-\d{4}-\d{2}-\d{2}\.pdf$/)
+  const fs = await import('node:fs')
+  const conteudo = fs.readFileSync((await download.path())!)
+  expect(conteudo.subarray(0, 5).toString()).toBe('%PDF-')
+  expect(conteudo.length).toBeGreaterThan(60_000) // com as capturas da cena
+})
+
+test('Épico 18 — da Verificação, "Corrigir em…" volta à simulação no campo certo; cenário não validado leva a tarja', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /Novo projeto/ }).click()
+  await page.getByLabel('Cliente').fill('Indústria Beta')
+  await page.getByLabel('Obra').fill('Montagem')
+  await page.getByRole('button', { name: /Criar projeto e continuar/ }).click()
+  // Sem a massa linear do cabo: tudo fica "não validada".
+  await page.getByLabel(/^Peso da carga/).fill('6000')
+  await page.getByLabel(/^Raio necessário/).fill('8')
+  await page.getByLabel(/^Raio necessário/).blur()
+  await page.getByRole('button', { name: /Ver guindastes viáveis/ }).click()
+  await page.getByRole('article', { name: 'MD-300L · lança 17,70 m · área frontal' }).getByRole('button', { name: /^Usar / }).click()
+  await page.getByRole('navigation', { name: 'Etapas do trabalho' }).getByRole('button', { name: 'Avançar' }).click()
+
+  await expect(page).toHaveURL(/#\/verificacao$/)
+  // A área de simulação continua montada (escondida): olha só o painel da tela de Verificação.
+  await expect(page.locator('.area-tela .status-chip--semdado')).toContainText('Operação não validada')
+  await expect(page.getByText(/sai no relatório com a tarja/)).toBeVisible()
+  await page.getByRole('button', { name: /Salvar no orçamento/ }).click()
+  await page.getByRole('button', { name: /Ir para o relatório/ }).click()
+  await expect(page.locator('.previa__tarja')).toContainText('OPERAÇÃO NÃO VALIDADA')
+
+  // "Corrigir em Cabo e moitão" leva de volta à simulação, com o PropertyManager do nó aberto.
+  await page.getByRole('navigation', { name: 'Etapas do trabalho' }).getByRole('button', { name: 'Verificação' }).click()
+  await page.locator('.area-tela').getByRole('button', { name: 'Corrigir em Cabo e moitão' }).click()
+  await expect(page).toHaveURL(/#\/simulacao$/)
+  await expect(page.getByRole('region', { name: 'Propriedades: Cabo e moitão' })).toBeVisible()
+})
+
+test('Épico 18 — "Adicionar outro cenário" mantém a carga e volta às sugestões; Arquivo → Novo volta ao Início', async ({ page }) => {
+  page.on('dialog', (d) => void d.accept())
+  await page.goto('/')
+  await page.getByRole('button', { name: /Novo projeto/ }).click()
+  await page.getByLabel('Cliente').fill('Indústria Gama')
+  await page.getByLabel('Obra').fill('Ampliação')
+  await page.getByRole('button', { name: /Criar projeto e continuar/ }).click()
+  await page.getByLabel(/^Peso da carga/).fill('9000')
+  await page.getByLabel(/^Massa linear do cabo/).fill('1.1')
+  await page.getByLabel(/^Raio necessário/).fill('7')
+  await page.getByLabel(/^Raio necessário/).blur()
+  await page.getByRole('button', { name: /Ver guindastes viáveis/ }).click()
+  await page.getByRole('article', { name: 'MD-300L · lança 17,70 m · área frontal' }).getByRole('button', { name: /^Usar / }).click()
+  await page.getByRole('navigation', { name: 'Etapas do trabalho' }).getByRole('button', { name: 'Avançar' }).click()
+  await page.getByLabel('Nome do cenário').fill('Frontal')
+  await page.getByRole('button', { name: /Salvar no orçamento/ }).click()
+  await expect(page.getByTestId('cenario-salvo')).toBeVisible()
+
+  await page.getByRole('button', { name: /Adicionar outro cenário/ }).click()
+  await expect(page).toHaveURL(/#\/guindaste$/)
+  await page.getByRole('article', { name: 'MD-300L · lança 17,70 m · áreas lateral e traseira' }).getByRole('button', { name: /^Usar / }).click()
+  await expect(page.locator('.resultado .capacidade')).toHaveText('11.900 kg') // 17,70 m lateral/traseira a 7 m (tabela real)
+  await page.getByRole('navigation', { name: 'Etapas do trabalho' }).getByRole('button', { name: 'Avançar' }).click()
+  await page.getByLabel('Nome do cenário').fill('Lateral')
+  await page.getByRole('button', { name: /Salvar no orçamento/ }).click()
+  const lista = page.getByRole('region', { name: 'Cenários do orçamento' })
+  await expect(lista.getByRole('listitem')).toHaveCount(2)
+
+  // Arquivo → Novo: volta ao Início, sem projeto.
+  await page.getByRole('button', { name: 'Arquivo' }).click()
+  await page.getByRole('menuitem', { name: 'Novo' }).click()
+  await expect(page).toHaveURL(/#\/inicio$/)
+  await expect(page.getByRole('heading', { name: 'Bem-vindo ao simulador de içamento' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Projetos recentes' })).toContainText('Indústria Gama — Ampliação')
 })

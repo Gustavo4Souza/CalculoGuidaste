@@ -33,17 +33,17 @@ Build de produção: `npm run build` e `npm run preview`. Testes em [[🧪 Plano
 
 ## Um dia de uso
 
-**08h — Pedido do cliente.** A Indústria Alfa precisa trocar um transformador de 9 t em Caxias do Sul. O orçamentista abre o simulador, clica em **Buscar por peso** e informa 9.000 kg. A lista mostra primeiro as configurações do TM-130 (o menor guindaste que atende) e depois as do MD-300L.
+**08h — Pedido do cliente.** A Indústria Alfa precisa trocar um transformador de 9 t em Caxias do Sul. No **Início**, o engenheiro clica em **Novo projeto**, preenche cliente, obra e orçamento e, na etapa **Carga**, informa 9.000 kg, a massa linear do cabo e o raio necessário de 7 m. A etapa **Guindaste** mostra primeiro o TM-130 (o menor; "não validada" porque a ficha não traz o nº de pernas) e depois as configurações aprovadas do MD-300L, cada uma com o cálculo completo.
 
-**09h — Primeiro cenário.** O engenheiro escolhe o MD-300L, deixa a lança em 17,70 m e arrasta o gancho até 7 m de raio. Informa a carga (9.000 kg, 2,0 × 1,5 × 1,8 m), a lingada (120 kg) e a massa linear do cabo do certificado. O status fica 🟢 OK. Ele liga o **mapa da área de operação**: a 7 m o chão fica verde em todo o giro, mas a 8 m o setor frontal (±55°) fica vermelho (7.500 kg na tabela) e o lateral/traseiro continua verde (10.500 kg).
+**09h — Primeiro cenário.** Ele usa a configuração MD-300L 17,70 m frontal, que abre a simulação já no raio de 7 m. Informa a carga (9.000 kg, 2,0 × 1,5 × 1,8 m), a lingada (120 kg) e a massa linear do cabo do certificado. O status fica 🟢 OK. Ele liga o **mapa da área de operação**: a 7 m o chão fica verde em todo o giro, mas a 8 m o setor frontal (±55°) fica vermelho (7.500 kg na tabela) e o lateral/traseiro continua verde (10.500 kg).
 
-**10h — Alternativa.** Ele salva como "Frontal 7 m" num projeto novo (cliente, obra, local, responsável) e no orçamento "Proposta A". Gira a superestrutura para 90° (área lateral/traseira) e salva "Lateral 8 m". Abre **Comparar** e vê os dois lado a lado.
+**10h — Alternativa.** Na **Verificação** ele salva como "Frontal 7 m", clica em **Adicionar outro cenário**, escolhe a área lateral/traseira e salva "Lateral 7 m". Marca os dois e clica em **Comparar**.
 
 **11h — Incidente técnico.** Depois de rodar os testes e2e, a tela do navegador fica **branca**. A causa conhecida: o Playwright derrubou o servidor de desenvolvimento que a aba estava usando. Ele reinicia o `npm run dev` e recarrega com **Ctrl+Shift+R**. Se um dado estivesse realmente quebrado, a tela diria qual campo, em vez de ficar branca.
 
 **14h — TM-130 sem dado.** Testando o TM-130, o resultado aparece como ⚪ **Sem dado do fabricante**: o nº de pernas do cabo não foi informado. Ele confere no moitão do equipamento, preenche o campo e o resultado aparece.
 
-**16h — Relatório.** Ele clica em **Exportar PDF → orçamento completo**. O PDF sai com capa, comparativo, um capítulo por cenário com as vistas lateral e superior e o bloco de assinatura. Ele assina, informa a ART e envia ao cliente. No fim do dia, **Exportar JSON** guarda uma cópia do projeto fora do navegador.
+**16h — Relatório.** Na etapa **Relatório** ele escolhe o orçamento completo e clica em **Gerar PDF**. O PDF sai com capa, comparativo, um capítulo por cenário com as vistas lateral e superior e o bloco de assinatura. Ele assina, informa a ART e envia ao cliente. No fim do dia, **Exportar JSON** guarda uma cópia do projeto fora do navegador.
 
 ## Problemas comuns
 

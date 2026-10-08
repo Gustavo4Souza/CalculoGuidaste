@@ -39,6 +39,8 @@ export interface ModeloCenario {
   nome: string
   guindaste: { nome: string; fabricante: string; documentoFonte: string }
   status: { codigo: StatusDoCenario; rotulo: string }
+  /** Épico 18 — tarja de destaque quando a operação NÃO está validada (sem dado); null nos outros status. */
+  tarja: string | null
   resumo: [string, string][]
   parametros: LinhaParametro[]
   somatorio: { itens: [string, string][]; total: string }
@@ -67,6 +69,11 @@ export const AVISO_VALIDACAO =
   'Este plano de içamento foi gerado por simulação a partir das tabelas de carga do fabricante e deve ser ' +
   'conferido e validado pelo engenheiro responsável antes da operação. A capacidade só é informada onde a ' +
   'tabela do fabricante cobre a configuração; valores interpolados são sempre arredondados para baixo.'
+
+/** Épico 18 — tarja do cenário "sem dado": pode ir para o relatório, mas nunca passar por operação validada. */
+export const TARJA_NAO_VALIDADA =
+  'OPERAÇÃO NÃO VALIDADA — este cenário NÃO pode ser usado para executar o içamento até que os dados que faltam ' +
+  '(ver "Por que não há dado do fabricante") sejam completados e o cálculo refeito.'
 
 export const ROTULO_STATUS: Record<StatusDoCenario, string> = {
   ok: 'OPERAÇÃO APROVADA — dentro do limite',
@@ -195,6 +202,7 @@ export function montarModeloCenario(parametros: ParametrosDoCenario, nome: strin
     nome,
     guindaste: { nome: ctx.guindaste.nome, fabricante: ctx.guindaste.fabricante, documentoFonte: esp.documentoFonte },
     status: { codigo: a.status, rotulo: ROTULO_STATUS[a.status] },
+    tarja: a.status === 'sem_dado' ? TARJA_NAO_VALIDADA : null,
     resumo: [
       ['Capacidade da tabela', cap.capacidadeKg === null ? 'sem dado do fabricante' : kg(cap.capacidadeKg)],
       ['Somatório de cargas', kg(a.somatorio.totalKg)],

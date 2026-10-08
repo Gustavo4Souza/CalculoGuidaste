@@ -42,6 +42,12 @@ Registro das decisões do projeto, da mais antiga para a mais recente. Decisão 
 | 07/10/2026 | Comando indisponível fica **desabilitado com o motivo** | O engenheiro sabe por que não pode | Esconder o comando |
 | 07/10/2026 | Ícones com `lucide-react` | Gratuito, SVG, leve | Ícones desenhados à mão |
 | 07/10/2026 | Fluxo de telas com **etapas navegáveis**, **começando pela carga**, orçamento **só técnico** (Épico 18) | Escolha do Gustavo | Assistente linear; começar pelo guindaste; valores comerciais |
+| 08/10/2026 | Área de simulação **montada e escondida** fora da etapa ④ | O PDF captura as vistas da cena; a câmera e o nó em edição se mantêm | Desmontar a cena e remontar ao gerar o PDF |
+| 08/10/2026 | **Raio necessário** fica no fluxo, não no cenário salvo | É dado do pedido, não da configuração; não muda o formato salvo (`schemaVersion` 1) | Novo campo no cenário + migração |
+| 08/10/2026 | Sugestões avaliam cada configuração **com o próprio `avaliarCenario`** no raio pedido | Uma regra de capacidade só; o card mostra exatamente o que a simulação vai mostrar | Ordenar pela tabela crua |
+| 08/10/2026 | Relatório libera com o cenário salvo; cenário "sem dado" sai com a **tarja OPERAÇÃO NÃO VALIDADA** | O engenheiro pode documentar a análise sem que ela passe por validada | Bloquear a emissão |
+| 08/10/2026 | Etapa na URL (`#/carga`); `#/simulacao` abre a simulação livre | Voltar do navegador funciona; atalho para testes | Estado só em memória |
+| 08/10/2026 | Arquivo → Novo volta ao **Início** | O trabalho começa sempre pelo projeto | Recomeçar só o cenário |
 | 07/10/2026 | `ARQUITETURA`, `REQUISITOS_TECNICOS`, `BACKLOG` e `ROADMAP.md` **incorporados** às notas e apagados; detalhe por épico em `Épicos/` | Sem duplicidade nem arquivo sem uso | Arquivar numa pasta |
 
 ## Regras de cálculo e dados

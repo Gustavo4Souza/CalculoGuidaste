@@ -53,6 +53,7 @@ Defeitos **reais** encontrados durante o projeto, como foram achados e a regra q
 | 13/09/2026 | `executablePath` de Chromium fixo em Linux quebrava todo o e2e no Windows | e2e no Windows | Resolver o navegador pelo Playwright; `channel: 'chromium'` |
 | 05/10/2026 | **Tela branca** ao rodar o projeto | Relato do Gustavo | Limites de erro, validação dos dados **antes** de importar o `App`, mensagem com o nome do campo; e2e que reproduz o caso |
 | 06/10/2026 | Erro 504 "Outdated Optimize Dep" e WebSocket do Vite caindo | Console do navegador | Todas as dependências de runtime em `optimizeDeps.include` |
+| 08/10/2026 | PDF não baixava na etapa Relatório (504 ao importar o jsPDF) | Script de captura do fluxo | Servidor de desenvolvimento antigo, anterior à dependência nova. Reiniciar o `npm run dev` depois de mudar dependências |
 | 05/10/2026 | Falhas espalhadas com "Target crashed" no e2e | Repetição com ambiente limpo | Instabilidade da máquina (memória/disco), não do código. Rodar a suíte 2x |
 
 ## Lições gerais

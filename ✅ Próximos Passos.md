@@ -13,13 +13,13 @@ aliases:
 
 ## Fluxo de telas (Épico 18)
 
-- [ ] Store do fluxo + telas Início, Projeto, Carga, Guindaste, Verificação e Relatório → [[Épico 18 — Fluxo de telas]]
-- [ ] `sugerirConfiguracoes` no motor (usa `avaliarCenario`), com testes em valores reais
-- [ ] e2e do fluxo completo até o PDF
+- [x] Store do fluxo + telas Início, Projeto, Carga, Guindaste, Verificação e Relatório → [[Épico 18 — Fluxo de telas]]
+- [x] `sugerirConfiguracoes` no motor (usa `avaliarCenario`), com testes em valores reais
+- [x] e2e do fluxo completo até o PDF
 
 ## Entregas acadêmicas (Épico 5)
 
-- [ ] Atualizar o roteiro do vídeo pitch (`docs/Roteiro_Video_Pitch.md`), escrito antes dos Épicos 7–16 → [[🖥️ Interface]]
+- [ ] Atualizar o roteiro do vídeo pitch (`docs/Roteiro_Video_Pitch.md`), escrito antes dos Épicos 7–18 (o fluxo de telas é um bom roteiro de demonstração) → [[🖥️ Interface]]
 - [ ] Gravar o vídeo pitch
 - [ ] Atualizar o rascunho do artigo (`docs/Artigo_Secoes_Pendentes.md`): ainda fala de 28 testes e da interface antiga → [[📈 Indicadores]], [[🐛 Bugs e Lições Aprendidas]]
 - [ ] Transcrever o artigo para o template (`docs/TEMPLATE - UniSENAI PR - Artigos.docx`)
@@ -52,6 +52,7 @@ aliases:
 - [x] Documentação migrada para o Obsidian — 07/10/2026
 - [x] `.md` antigos incorporados às notas (`Épicos/`) e apagados — 07/10/2026
 - [x] Épico 17 — visual SolidWorks — 07/10/2026
+- [x] Épico 18 — fluxo de telas — 08/10/2026
 
 ## Relacionado
 

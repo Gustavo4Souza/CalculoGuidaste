@@ -105,6 +105,18 @@ describe('montarRelatorioCenario (Épico 16, RF26) — valores reais', () => {
     expect(c.parametros.find((p) => p.rotulo === 'Peso da carga')?.aproximado).toBe(false)
   })
 
+  it('Épico 18 — cenário sem dado leva a tarja OPERAÇÃO NÃO VALIDADA; aprovado não', () => {
+    const [semDado] = montarRelatorioCenario({
+      parametros: parametros((p) => void (p.sapatas.traseira_esquerda = 2)),
+      nome: 'x',
+      agora: AGORA,
+    }).cenarios
+    expect(semDado.tarja).toContain('OPERAÇÃO NÃO VALIDADA')
+    const [ok] = montarRelatorioCenario({ parametros: parametros(), nome: 'x', agora: AGORA }).cenarios
+    expect(ok.status.codigo).toBe('ok')
+    expect(ok.tarja).toBeNull()
+  })
+
   it('avisa quando o cenário foi salvo com outra versão das tabelas', () => {
     const p = parametros()
     const [c] = montarRelatorioCenario({

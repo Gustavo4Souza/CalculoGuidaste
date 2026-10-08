@@ -1,6 +1,6 @@
 import { useInterfaceStore } from '../../store/useInterfaceStore'
 import { useProjetosStore } from '../../store/useProjetosStore'
-import { useSimulacaoStore } from '../../store/useSimulacaoStore'
+import { useFluxoStore } from '../../store/useFluxoStore'
 import { baixarArquivoDeProjeto } from '../projetos/arquivos'
 import { useAlteracoesNaoSalvas } from '../projetos/CenarioAberto'
 
@@ -18,13 +18,10 @@ export interface Comando {
  * mesmos comandos, com o mesmo rótulo e a mesma regra de disponibilidade.
  */
 export function useComandos(abrirSeletorDeArquivo: () => void) {
-  const cenario = useSimulacaoStore((s) => s.cenario)
-  const selecionarGuindaste = useSimulacaoStore((s) => s.selecionarGuindaste)
   const abrirDialogo = useInterfaceStore((s) => s.abrirDialogo)
-  const confirmarEdicao = useInterfaceStore((s) => s.confirmarEdicao)
   const aberto = useProjetosStore((s) => s.aberto)
   const salvar = useProjetosStore((s) => s.salvar)
-  const desvincular = useProjetosStore((s) => s.desvincular)
+  const reiniciar = useFluxoStore((s) => s.reiniciar)
   const exportarProjeto = useProjetosStore((s) => s.exportarProjeto)
   const projetoSelecionadoId = useProjetosStore((s) => s.projetoId)
   const alterado = useAlteracoesNaoSalvas()
@@ -32,12 +29,10 @@ export function useComandos(abrirSeletorDeArquivo: () => void) {
 
   const novo: Comando = {
     rotulo: 'Novo',
-    dica: 'Recomeça o cenário do guindaste atual com os valores iniciais (sem vínculo com cenário salvo)',
+    dica: 'Volta ao Início para começar um projeto novo (Épico 18)',
     executar: () => {
       if (alterado && !window.confirm('Há alterações não salvas no cenário aberto. Descartar?')) return
-      confirmarEdicao()
-      desvincular()
-      selecionarGuindaste(cenario.guindasteId)
+      reiniciar()
     },
   }
   const abrir: Comando = {

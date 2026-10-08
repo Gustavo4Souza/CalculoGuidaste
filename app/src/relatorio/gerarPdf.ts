@@ -127,6 +127,26 @@ function caixaStatus(ctx: Contexto, cenario: ModeloCenario) {
   ctx.y += 9
 }
 
+/** Épico 18 — tarja do cenário não validado: borda tracejada cinza-escura, texto em negrito, logo abaixo do status. */
+function tarja(ctx: Contexto, texto: string) {
+  const { doc } = ctx
+  const linhas = doc.splitTextToSize(paraPdf(texto), LARGURA_UTIL - 6) as string[]
+  const altura = linhas.length * 4.2 + 4
+  garantirEspaco(ctx, altura + 4)
+  doc.setFillColor(238, 240, 242)
+  doc.setDrawColor(70, 80, 90)
+  doc.setLineWidth(0.6)
+  doc.setLineDashPattern([2, 1], 0)
+  doc.rect(MARGEM, ctx.y - 4, LARGURA_UTIL, altura, 'FD')
+  doc.setLineDashPattern([], 0)
+  doc.setLineWidth(0.2)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(9)
+  doc.setTextColor(40, 48, 56)
+  doc.text(linhas, MARGEM + 3, ctx.y + 0.8)
+  ctx.y += altura + 2
+}
+
 function imagens(ctx: Contexto, img: ImagensDoCenario | null) {
   if (!img || (!img.lateral && !img.superior)) {
     paragrafo(ctx, 'Capturas da cena indisponíveis nesta emissão.', { cor: CINZA_TEXTO })
@@ -161,6 +181,7 @@ function capituloDoCenario(ctx: Contexto, c: ModeloCenario, img: ImagensDoCenari
   titulo(ctx, `Cenário: ${c.nome}`, 13)
   paragrafo(ctx, `${c.guindaste.nome} (${c.guindaste.fabricante}) — dados de: ${c.guindaste.documentoFonte}`, { cor: CINZA_TEXTO, tamanho: 8 })
   caixaStatus(ctx, c)
+  if (c.tarja) tarja(ctx, c.tarja)
   tabela(ctx, { corpo: c.resumo, larguras: [55], colunaDestaque: true })
   if (c.criterioGiroProvisorio) seloProvisorio(ctx)
   imagens(ctx, img)

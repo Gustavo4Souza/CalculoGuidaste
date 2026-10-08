@@ -1,4 +1,5 @@
 import { CircleAlert, CircleCheck, CircleHelp, CircleX, type LucideIcon } from 'lucide-react'
+import { useFluxoStore } from '../../store/useFluxoStore'
 import { formatarPercentual, useInterfaceStore } from '../../store/useInterfaceStore'
 import type { AvaliacaoDoCenario, StatusDoCenario } from '../../types/cenario'
 import { NOME_STATUS } from './nomes'
@@ -13,8 +14,17 @@ const VISUAL: Record<StatusDoCenario, { classe: string; Icone: LucideIcon }> = {
 
 function IrPara({ no }: { no: IdNo }) {
   const editarNo = useInterfaceStore((s) => s.editarNo)
+  const irPara = useFluxoStore((s) => s.irPara)
   return (
-    <button type="button" className="veredito__ir" onClick={() => editarNo(no)}>
+    <button
+      type="button"
+      className="veredito__ir"
+      onClick={() => {
+        // Épico 18 — da Verificação, leva de volta à simulação, já no campo certo.
+        irPara('simulacao')
+        editarNo(no)
+      }}
+    >
       Corrigir em {TITULO_NO[no]}
     </button>
   )

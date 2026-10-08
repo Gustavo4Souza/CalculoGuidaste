@@ -15,7 +15,7 @@ aliases:
 
 ## Situação (07/10/2026)
 
-- **161 testes unitários** (Vitest, 16 arquivos) e **23 testes e2e** (Playwright).
+- **173 testes unitários** (Vitest, 18 arquivos) e **26 testes e2e** (Playwright).
 - A suíte e2e é rodada **2 vezes seguidas** ao fim de cada épico, porque a cena WebGL por software já mostrou intermitência.
 - `tsc -b` e `npm run build` limpos; `oxlint` só com avisos antigos de fast refresh.
 
@@ -61,6 +61,8 @@ Ainda não há CI no GitHub; o pipeline roda à mão ao fim de cada épico. Auto
 | `engine/buscaReversa.test.ts` | Configurações viáveis, menor guindaste primeiro, TM-130 pela tabela polar |
 | `engine/mapaAreaOperacao.test.ts` | Cada nó do mapa = `avaliarCenario`; 17,70 m e 9.000 kg: frontal passa a 7 m e reprova a 8 m; TM-130 só ±60° |
 | `store/useSimulacaoStore.test.ts` | Ações com limite mecânico, passagem de cabo que acompanha o comprimento, JIB liga/desliga |
+| `engine/sugerirConfiguracoes.test.ts` | Sugestões da frota: menor guindaste primeiro, cada uma igual a `avaliarCenario`, valores reais a 7 m, fora de alcance, TM-130 sem nº de pernas |
+| `store/etapas.test.ts` | Liberação de cada etapa e o motivo dos bloqueios |
 | `components/gerenciador/nos.test.ts` | Estado de cada nó da árvore e a que nó cada motivo de "sem dado" pertence, com cenários reais |
 | `components/geometriaCanvas.test.ts`, `cena/geometriaCena.test.ts` | Ímã das marcas de comprimento; posições de eixos e sapatas a partir do centro de giro |
 | `data/validarEspecificacao.test.ts` | Especificações reais completas; campo faltando apontado pelo nome |
@@ -68,6 +70,8 @@ Ainda não há CI no GitHub; o pipeline roda à mão ao fim de cada épico. Auto
 | `relatorio/modeloRelatorio.test.ts`, `camerasDeCaptura.test.ts` | Conteúdo do PDF (exato, interpolado, sem dado, ≈, avisos de versão) e câmeras de captura |
 
 ## Testes e2e (Playwright, `app/e2e/simulador.spec.ts`)
+
+Desde o Épico 18 o app abre no Início; os testes da simulação abrem direto **`/#/simulacao`** (simulação livre). Nas etapas Verificação e Relatório a simulação fica montada e escondida: seletores CSS devem olhar `.area-tela` (os por papel/rótulo já ignoram o escondido).
 
 Desde o Épico 17 os campos ficam no PropertyManager de cada nó: os helpers `editar(page, 'Lança')`, `preencher(page, nó, rótulo, valor)` e `ler(page, nó, rótulo)` abrem o nó antes. O campo é localizado pelo **início** do rótulo, porque o selo "≈" fica dentro dele.
 
@@ -81,6 +85,7 @@ Os arrastos são **reais** (`page.mouse`), projetando pontos 3D exatos com a câ
 - Salvar → alterar → salvar como novo → **recarregar a página** → reabrir idêntico → comparar
 - Exportar e importar JSON (como cópia); arquivo inválido recusado; excluir em cascata
 - Épico 17: "Corrigir em…" abre o nó certo, ✖ desfaz, ✔ confirma, verificações parciais sem dado
+- Épico 18: fluxo completo Início → PDF (etapas bloqueadas com motivo, Voltar do navegador); "Corrigir em…" a partir da Verificação + tarja na prévia; "Adicionar outro cenário" + Arquivo → Novo
 - **Regressão da tela branca:** especificação quebrada mostra o campo pelo nome
 - PDF de um cenário e de um orçamento, com a tela restaurada
 

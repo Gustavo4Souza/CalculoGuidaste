@@ -15,6 +15,7 @@ Uma linha por marco, da mais recente para a mais antiga.
 
 | Data | O que aconteceu |
 |---|---|
+| 2026-10-08 | **Épico 18** — fluxo de telas: Início → Projeto → Carga → Guindaste (sugestões pelo motor) → Simulação → Verificação → Relatório, com tarja "não validada" no PDF. 173 unitários + 26 e2e |
 | 2026-10-07 | **Épico 17** — visual SolidWorks: barra de título com menu Arquivo e acesso rápido, CommandManager, FeatureManager/PropertyManager com ✔/✖, barra de vista, veredito em frase. 161 unitários + 23 e2e |
 | 2026-10-07 | Plano do fluxo de telas (Épico 18) aprovado: etapas navegáveis, começa pela carga, orçamento técnico |
 | 2026-10-07 | `ARQUITETURA.md`, `REQUISITOS_TECNICOS.md`, `BACKLOG.md` e `ROADMAP.md` incorporados: uma nota por épico em `Épicos/`; arquivos antigos apagados |

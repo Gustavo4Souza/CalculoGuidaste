@@ -36,7 +36,7 @@ Organizado em **Épicos → Tasks**. Esta nota é a visão de acompanhamento; o 
 | [[Épico 16 — Relatório PDF\|16]] | Relatório PDF | ✅ | 06/10/2026 | PDF por cenário e por orçamento, com assinatura |
 | — | Respostas da Ribas | ✅ | 06/10/2026 | ±55° confirmado, 85° da ficha, nº de pernas vazio no TM-130 |
 | [[Épico 17 — Visual SolidWorks\|17]] | Visual SolidWorks e área de trabalho | ✅ | 07/10/2026 | CommandManager, FeatureManager/PropertyManager, veredito em frase |
-| [[Épico 18 — Fluxo de telas\|18]] | Fluxo de telas | ⬜ | — | Início → Projeto → Carga → Guindaste → Simulação → Verificação → Relatório |
+| [[Épico 18 — Fluxo de telas\|18]] | Fluxo de telas | ✅ | 08/10/2026 | Início → Projeto → Carga → Guindaste → Simulação → Verificação → Relatório |
 
 ```mermaid
 gantt
@@ -52,7 +52,7 @@ gantt
     Épicos 10–16                 :done, 2026-10-05, 2d
     Respostas da Ribas           :done, 2026-10-06, 1d
     Épico 17 visual SolidWorks   :done, 2026-10-07, 1d
-    Épico 18 fluxo de telas      :active, 2026-10-08, 3d
+    Épico 18 fluxo de telas      :done, 2026-10-08, 1d
     section Entrega
     Pitch, artigo, deploy        :active, 2026-10-07, 14d
 ```
@@ -67,7 +67,7 @@ O `package.json` ainda está em `0.1.0`. Proposta de leitura das entregas como v
 | **v0.5** — MVP | Épicos 1–4: dados reais, motor, interface 2D, busca reversa | Capacidade exata contra a tabela ✅ |
 | **v0.8** — 3D | Épicos 7–9: cena WebGL, modelo realista | e2e de arrasto passando ✅ |
 | **v1.0** — Ferramenta de engenharia | Épicos 10–16 + respostas da Ribas | 152 unitários + 22 e2e ✅ |
-| **v1.1** — Interface profissional | Épicos 17 (visual SolidWorks ✅) e 18 (fluxo de telas) | Fluxo completo Início → PDF coberto por e2e |
+| **v1.1** — Interface profissional | Épicos 17 (visual SolidWorks) e 18 (fluxo de telas) | Fluxo completo Início → PDF coberto por e2e ✅ |
 | **v1.2** — Publicação | Deploy no Vercel, CI no GitHub, pendências técnicas pequenas | Link público estável |
 | **v1.3** — Dados da Ribas | Massa linear do cabo, nº de pernas do TM-130, JIB do TM-130, 0° do TM-130 | Sem "sem dado" por falta de informação da empresa |
 | **v2.0** — Frota aberta | Épico 6: cadastro de guindastes e tabelas (RF13) | Um terceiro guindaste entra sem mexer no código |

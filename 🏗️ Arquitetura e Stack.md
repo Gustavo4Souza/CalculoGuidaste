@@ -44,8 +44,8 @@ A stack original (Épicos 0–6) usava **react-konva** (2D). Ela foi trocada por
 1. **Motor de cálculo** (`engine/`): `avaliarCenario` (ponto de entrada único), geometria da lança, interpolação, classificação do giro, busca reversa, mapa da área de operação.
 2. **Dados** (`data/`): tabelas de carga, especificações técnicas, `catalogo.ts` (contexto por guindaste + `VERSAO_TABELAS`), validação das especificações.
 3. **Configuração** (`config/criteriosDeGiro.ts`): os limites angulares de cada guindaste, num lugar só.
-4. **Estado** (`store/`): `useSimulacaoStore` (cenário + avaliação derivada), `useInterfaceStore` (kg/t, vista, diálogos), `useProjetosStore` (projeto/orçamento/cenário aberto).
-5. **Interface** (`components/`): `shell/` (barra de título, CommandManager, comandos), `gerenciador/` (FeatureManager, PropertyManager, estado dos nós), viewport 3D (`cena/`, com a barra de vista), `resultado/` (veredito), barra de status, diálogos (`projetos/`).
+4. **Estado** (`store/`): `useSimulacaoStore` (cenário + avaliação derivada), `useInterfaceStore` (kg/t, vista, diálogos, nó em edição), `useProjetosStore` (projeto/orçamento/cenário aberto) e `useFluxoStore` (etapa, orçamento ativo, raio necessário; regra de liberação em `etapas.ts`).
+5. **Interface** (`components/`): `shell/` (barra de título, CommandManager, comandos), `gerenciador/` (FeatureManager, PropertyManager, estado dos nós), viewport 3D (`cena/`, com a barra de vista), `resultado/` (veredito), `fluxo/` (barra de etapas e as telas Início, Projeto, Carga, Guindaste, Verificação, Relatório), barra de status, diálogos (`projetos/`).
 6. **Persistência** (`persistencia/`): interface `RepositorioProjetos`, implementação IndexedDB, arquivo de projeto (exportar/importar).
 7. **Relatório** (`relatorio/`): modelo do relatório (puro), capturas da cena, geração do PDF.
 
